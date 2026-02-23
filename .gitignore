@@ -5,3 +5,6 @@ site/.env
 site/.env.*
 site/.DS_Store
 site/.vscode/
+site/.astro/
+site/.env
+site/.env.*
