@@ -1,0 +1,12 @@
+{
+    "VsCodeTaskButtons.showCounter":  false,
+    "VsCodeTaskButtons.tasks":  [
+                                    {
+                                        "label":  "🚀 Publish Live",
+                                        "alignment":  "left",
+                                        "task":  "Publish Live (Netlify)",
+                                        "tooltip":  "Stage → commit → push to main (Netlify auto-deploy)"
+                                    }
+                                ],
+                                "snyk.advanced.autoSelectOrganization": true
+}

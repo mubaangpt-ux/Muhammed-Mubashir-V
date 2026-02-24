@@ -1,0 +1,173 @@
+﻿---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { experience } from "../data/experience";
+import { skillGroups, toolsStack } from "../data/skills";
+import { education } from "../data/education";
+---
+
+<BaseLayout
+  title={`About | ${profile.name}`}
+  description={`${profile.roleTitle} based in ${profile.location}`}
+  path="/about"
+>
+
+<!-- Hero -->
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">About</p>
+    </div>
+    <div class="reveal" data-delay="0.10">
+      <h1 class="font-display font-bold text-white text-balance mb-4"
+        style="font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -0.035em;">
+        {profile.roleTitle}
+      </h1>
+    </div>
+    <div class="reveal max-w-2xl" data-delay="0.16">
+      <p class="text-base text-slate-400 leading-relaxed">{profile.summary} Based in {profile.location}.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Narrative -->
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-16">
+    <div class="grid gap-5 md:grid-cols-3">
+      {profile.aboutNarrative.map((para, i) => (
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay={String(0.06 + i * 0.08)}>
+          <p class="text-sm text-slate-300 leading-loose">{para}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-12" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Experience</p>
+      <h2 class="font-display font-semibold text-white" style="font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em;">Career timeline</h2>
+    </div>
+    <div class="space-y-5">
+      {experience.map((item, i) => (
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay={String(0.05 + i * 0.06)}>
+          <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+            <div>
+              <h3 class="font-display font-semibold text-white text-base leading-snug">{item.role}</h3>
+              <p class="text-sm text-accent-soft mt-1">{item.company} · {item.location}</p>
+            </div>
+            <span class="text-xs font-mono px-3 py-1 rounded-full shrink-0"
+              style="border: 1px solid rgba(255,255,255,0.10); color: #5c6b80; background: rgba(255,255,255,0.03);">
+              {item.period}
+            </span>
+          </div>
+          <ul class="space-y-2 mt-4">
+            {item.impact.map((point) => (
+              <li class="text-sm text-slate-400 flex items-start gap-2.5">
+                <span class="text-accent-soft/40 mt-0.5 shrink-0 font-mono">—</span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-12" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Skills</p>
+      <h2 class="font-display font-semibold text-white" style="font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em;">Core capabilities</h2>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {skillGroups.map((group, i) => (
+        <div class="reveal glass-panel rounded-2xl p-6" data-delay={String(0.04 + i * 0.04)}>
+          <h3 class="text-sm font-semibold text-white mb-4">{group.title}</h3>
+          <div class="flex flex-wrap gap-2">
+            {group.items.map((item) => (
+              <span class="text-xs px-2.5 py-1 rounded-full text-slate-500 font-mono"
+                style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Languages + Tools -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="grid gap-5 md:grid-cols-2">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.05">
+        <h3 class="text-sm font-semibold text-white mb-5">Languages</h3>
+        <div class="space-y-3">
+          {profile.languages.map((lang) => (
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-slate-300">{lang.language}</span>
+              <span class="text-xs font-mono text-slate-500">{lang.proficiency}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.10">
+        <h3 class="text-sm font-semibold text-white mb-5">Tools stack</h3>
+        <div class="flex flex-wrap gap-2">
+          {toolsStack.map((tool) => (
+            <span class="text-xs px-3 py-1.5 rounded-full text-accent-soft/70 font-mono"
+              style="border: 1px solid rgba(37,99,235,0.25); background: rgba(37,99,235,0.08);">
+              {tool}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Education -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-12" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Education</p>
+      <h2 class="font-display font-semibold text-white" style="font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em;">Academic background</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {education.map((item, i) => (
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay={String(0.06 + i * 0.08)}>
+          <h3 class="font-display font-semibold text-white text-base">{item.program}</h3>
+          <p class="text-sm text-slate-400 mt-2">{item.institution}</p>
+          <p class="text-xs font-mono text-accent-soft/60 mt-2">{item.period}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="py-16 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal flex flex-wrap gap-4" data-delay="0.05">
+      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        ↗ Message on WhatsApp
+      </a>
+      <a href="/contact" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white">
+        Contact Page →
+      </a>
+      <a href="/resume" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 text-accent-soft/70 hover:text-accent-soft">
+        Download CV ↓
+      </a>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

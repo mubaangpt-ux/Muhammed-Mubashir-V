@@ -1,0 +1,229 @@
+﻿---
+import "../styles/global.css";
+import { profile } from "../data/profile";
+
+type JsonLd = Record<string, unknown>;
+
+interface Props {
+  title?: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: JsonLd | JsonLd[];
+}
+
+const {
+  title = `${profile.name} | ${profile.roleTitle}`,
+  description = profile.summary,
+  path = Astro.url.pathname,
+  image = "/favicon.svg",
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const canonical = new URL(path, profile.siteUrl).toString();
+const ogImage = image.startsWith("http") ? image : new URL(image, profile.siteUrl).toString();
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
+  { href: "/resume", label: "Resume" },
+  { href: "/contact", label: "Contact" },
+];
+
+const isActive = (href: string) =>
+  href === "/"
+    ? Astro.url.pathname === "/"
+    : Astro.url.pathname === href || Astro.url.pathname.startsWith(`${href}/`);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow"} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body class="antialiased">
+
+    <!-- Noise overlay -->
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- Cursor -->
+    <div id="cursor-dot" aria-hidden="true"></div>
+    <div id="cursor-ring" aria-hidden="true"></div>
+
+    <!-- NAV -->
+    <header class="fixed inset-x-0 top-0 z-50 px-4 pt-4">
+      <div class="mx-auto max-w-6xl">
+        <nav class="glass-panel rounded-2xl px-5 py-3 flex items-center justify-between">
+          <!-- Logo -->
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background: linear-gradient(135deg, rgba(37,99,235,0.8), rgba(147,197,253,0.4)); border: 1px solid rgba(147,197,253,0.3);">
+              <span class="text-xs font-bold text-white font-mono">MV</span>
+            </div>
+            <span class="text-sm font-semibold tracking-wide text-slate-100 group-hover:text-white transition hidden sm:block">
+              {profile.name}
+            </span>
+          </a>
+
+          <!-- Links -->
+          <div class="flex items-center gap-1 text-sm">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                class={`rounded-full px-3.5 py-1.5 font-medium transition-all duration-200 ${
+                  isActive(item.href)
+                    ? "bg-white/10 text-white"
+                    : "text-slate-400 hover:bg-white/6 hover:text-white"
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+            <a
+              href={profile.links.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              class="ml-2 hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200"
+              style="background: rgba(37,99,235,0.25); border: 1px solid rgba(37,99,235,0.45); color: #93c5fd;"
+              onmouseover="this.style.background='rgba(37,99,235,0.4)'"
+              onmouseout="this.style.background='rgba(37,99,235,0.25)'"
+            >
+              <span>↗</span> WhatsApp
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 pt-20 md:pt-24 container-shell">
+      <slot />
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-16 px-4 pb-10">
+      <div class="mx-auto max-w-6xl glass-panel rounded-3xl px-8 py-8">
+        <div class="grid gap-8 md:grid-cols-3 md:items-start">
+
+          <!-- Identity -->
+          <div class="space-y-3">
+            <p class="font-display text-base font-semibold text-white">{profile.name}</p>
+            <p class="text-sm text-accent-soft">{profile.roleTitle}</p>
+            <p class="text-xs text-slate-500">{profile.location}</p>
+          </div>
+
+          <!-- Links -->
+          <div class="space-y-2">
+            <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Connect</p>
+            <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+              class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
+              <span class="text-xs text-accent-soft">↗</span> WhatsApp · {profile.whatsappDisplay}
+            </a>
+            <a href={profile.links.email}
+              class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
+              <span class="text-xs text-accent-soft">✉</span> {profile.email}
+            </a>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer"
+              class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
+              <span class="text-xs text-accent-soft">◎</span> {profile.links.instagramHandle}
+            </a>
+          </div>
+
+          <!-- Nav -->
+          <div class="space-y-2">
+            <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Navigate</p>
+            {navItems.map((item) => (
+              <a href={item.href}
+                class="block text-sm text-slate-400 hover:text-white transition-colors">
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <p class="text-xs text-slate-600">© {new Date().getFullYear()} {profile.name} — All rights reserved.</p>
+          <p class="text-xs text-slate-700 font-mono">Dubai, UAE · Available for new mandates</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Cursor JS -->
+    <script is:inline>
+      (() => {
+        const dot = document.getElementById("cursor-dot");
+        const ring = document.getElementById("cursor-ring");
+        if (!dot || !ring) return;
+
+        let mx = -100, my = -100, rx = -100, ry = -100;
+        let rafId;
+
+        document.addEventListener("mousemove", (e) => {
+          mx = e.clientX; my = e.clientY;
+          dot.style.left = mx + "px";
+          dot.style.top = my + "px";
+        });
+
+        const animateRing = () => {
+          rx += (mx - rx) * 0.12;
+          ry += (my - ry) * 0.12;
+          ring.style.left = rx + "px";
+          ring.style.top = ry + "px";
+          rafId = requestAnimationFrame(animateRing);
+        };
+        animateRing();
+
+        document.querySelectorAll("a, button, [role=button], input, textarea, select").forEach((el) => {
+          el.addEventListener("mouseenter", () => document.body.classList.add("cursor-hover"));
+          el.addEventListener("mouseleave", () => document.body.classList.remove("cursor-hover"));
+        });
+
+        document.addEventListener("mousedown", () => document.body.classList.add("cursor-clicking"));
+        document.addEventListener("mouseup", () => document.body.classList.remove("cursor-clicking"));
+        document.addEventListener("mouseleave", () => { dot.style.opacity = "0"; ring.style.opacity = "0"; });
+        document.addEventListener("mouseenter", () => { dot.style.opacity = "1"; ring.style.opacity = "1"; });
+      })();
+    </script>
+
+    <!-- Reveal observer -->
+    <script is:inline>
+      (() => {
+        const els = document.querySelectorAll(".reveal");
+        if (!els.length) return;
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const el = entry.target;
+              const delay = el.getAttribute("data-delay") || "0";
+              setTimeout(() => el.classList.add("visible"), parseFloat(delay) * 1000);
+              obs.unobserve(el);
+            }
+          });
+        }, { threshold: 0.12 });
+        els.forEach((el) => obs.observe(el));
+      })();
+    </script>
+
+  </body>
+</html>

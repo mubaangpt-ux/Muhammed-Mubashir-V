@@ -1,0 +1,156 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { experience } from "../data/experience";
+import { skillGroups, toolsStack } from "../data/skills";
+import { education } from "../data/education";
+---
+
+<BaseLayout
+  title={`Resume | ${profile.name}`}
+  description={`${profile.roleTitle} — ${profile.location}`}
+  path="/resume"
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Resume</p>
+    </div>
+    <div class="reveal mb-1" data-delay="0.10">
+      <h1 class="font-display font-bold text-white" style="font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: -0.035em;">
+        {profile.name}
+      </h1>
+    </div>
+    <div class="reveal mb-3" data-delay="0.14">
+      <p class="text-base text-accent-soft">{profile.roleTitle}</p>
+    </div>
+    <div class="reveal mb-8" data-delay="0.17">
+      <p class="text-sm font-mono text-slate-500">{profile.location} · {profile.email} · {profile.whatsappDisplay}</p>
+    </div>
+    <div class="reveal flex flex-wrap gap-3" data-delay="0.22">
+      <a href="/resume.pdf" target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        ↓ Download PDF
+      </a>
+      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        ↗ WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Summary -->
+<section class="pb-16 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal glass-panel rounded-2xl p-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Professional Summary</p>
+      <p class="text-base text-slate-300 leading-loose">{profile.summary}</p>
+    </div>
+  </div>
+</section>
+
+<!-- Experience -->
+<section class="py-16 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-10" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Experience</p>
+      <h2 class="font-display font-semibold text-white text-xl" style="letter-spacing: -0.02em;">Career History</h2>
+    </div>
+    <div class="space-y-5">
+      {experience.map((item, i) => (
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay={String(0.05 + i * 0.06)}>
+          <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+            <div>
+              <h3 class="font-display font-semibold text-white">{item.role}</h3>
+              <p class="text-sm text-accent-soft mt-1">{item.company} · {item.location}</p>
+            </div>
+            <span class="text-xs font-mono px-3 py-1 rounded-full shrink-0"
+              style="border: 1px solid rgba(255,255,255,0.10); color: #5c6b80; background: rgba(255,255,255,0.03);">
+              {item.period}
+            </span>
+          </div>
+          <ul class="space-y-2">
+            {item.impact.map((point) => (
+              <li class="text-sm text-slate-400 flex items-start gap-2.5">
+                <span class="text-accent-soft/40 font-mono mt-0.5 shrink-0">—</span> {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Skills -->
+<section class="py-16 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-10" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Skills</p>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {skillGroups.map((group, i) => (
+        <div class="reveal glass-panel rounded-2xl p-6" data-delay={String(0.04 + i * 0.04)}>
+          <h3 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">{group.title}</h3>
+          <div class="flex flex-wrap gap-1.5">
+            {group.items.map((item) => (
+              <span class="text-xs px-2 py-0.5 rounded-full text-slate-500 font-mono"
+                style="border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02);">
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- Education + Languages -->
+<section class="py-16 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="grid gap-5 md:grid-cols-3">
+      {education.map((item, i) => (
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay={String(0.05 + i * 0.07)}>
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-3">Education</p>
+          <h3 class="font-semibold text-white text-sm">{item.program}</h3>
+          <p class="text-sm text-slate-400 mt-1">{item.institution}</p>
+          <p class="text-xs font-mono text-slate-600 mt-2">{item.period}</p>
+        </div>
+      ))}
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-3">Languages</p>
+        <div class="space-y-2">
+          {profile.languages.map((lang) => (
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-300">{lang.language}</span>
+              <span class="text-slate-600 font-mono text-xs">{lang.proficiency}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="py-14 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal flex flex-wrap gap-4" data-delay="0.05">
+      <a href="/resume.pdf" target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        ↓ Download PDF
+      </a>
+      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        ↗ WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

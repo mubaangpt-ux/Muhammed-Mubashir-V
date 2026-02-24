@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Publish Live (Netlify)",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "cd \"${workspaceFolder}\"; git add -A; if (git diff --cached --quiet) { Write-Host 'No changes to publish.' } else { git commit -m \"publish: $(Get-Date -Format yyyy-MM-dd_HH-mm-ss)\" }; git push origin main"
+      ],
+      "problemMatcher": [],
+      "group": "build"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+﻿---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { profile } from "../../data/profile";
+import { projects } from "../../data/projects";
+---
+
+<BaseLayout
+  title={`Work | ${profile.name}`}
+  description="Case studies and selected projects"
+  path="/work"
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Work</p>
+    </div>
+    <div class="reveal mb-16" data-delay="0.10">
+      <h1 class="font-display font-bold text-white" style="font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: -0.035em;">
+        Projects & case studies
+      </h1>
+      <p class="text-base text-slate-400 mt-4 max-w-xl leading-relaxed">
+        Selected work with measurable operational and growth outcomes across UAE markets.
+      </p>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-2">
+      {projects.map((project, i) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group flex flex-col hover:-translate-y-1 transition-all duration-300"
+          data-delay={String(0.05 + i * 0.07)}
+        >
+          <div class="flex items-center justify-between mb-5">
+            <span class="text-xs font-mono uppercase tracking-widest text-accent-soft/70">{project.category}</span>
+            <span class="text-xs font-mono text-slate-700">{String(i + 1).padStart(2, "0")}</span>
+          </div>
+
+          {project.featured && (
+            <span class="self-start text-xs font-mono px-2.5 py-1 rounded-full mb-4"
+              style="border: 1px solid rgba(37,99,235,0.35); background: rgba(37,99,235,0.12); color: #93c5fd;">
+              Featured
+            </span>
+          )}
+
+          <h2 class="font-display font-semibold text-white text-lg leading-snug mb-2">{project.title}</h2>
+          <p class="text-xs font-mono text-slate-600 mb-4">{project.client} · {project.period}</p>
+          <p class="text-sm text-slate-400 leading-relaxed flex-1">{project.overview}</p>
+
+          <div class="mt-6 flex flex-wrap gap-2">
+            {project.tools.slice(0, 4).map((tool) => (
+              <span class="text-xs px-2.5 py-1 rounded-full text-slate-600 font-mono"
+                style="border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03);">
+                {tool}
+              </span>
+            ))}
+          </div>
+
+          <div class="mt-5 flex items-center gap-1.5 text-xs text-accent-soft/50 group-hover:text-accent-soft transition-colors font-mono">
+            View case study <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

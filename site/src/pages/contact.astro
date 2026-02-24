@@ -1,0 +1,163 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+---
+
+<BaseLayout
+  title={`Contact | ${profile.name}`}
+  description={`Start a project with ${profile.name}`}
+  path="/contact"
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Contact</p>
+    </div>
+    <div class="reveal mb-3" data-delay="0.10">
+      <h1 class="font-display font-bold text-white text-balance"
+        style="font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -0.035em;">
+        Start with a focused brief
+      </h1>
+    </div>
+    <div class="reveal mb-10" data-delay="0.15">
+      <p class="text-base text-slate-400 max-w-xl leading-relaxed">
+        Share your goals, timeline, and current blockers. WhatsApp is fastest — I respond within hours.
+      </p>
+    </div>
+    <div class="reveal flex flex-wrap gap-3 mb-16" data-delay="0.20">
+      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        ↗ Message on WhatsApp
+      </a>
+      <a href={profile.links.email}
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        Send Email
+      </a>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-[1.3fr,0.7fr] items-start">
+
+      <!-- Form -->
+      <div class="reveal glass-panel rounded-2xl p-8" data-delay="0.10">
+        <h2 class="font-display font-semibold text-white text-lg mb-7">Send project details</h2>
+        <form
+          name="contact"
+          method="POST"
+          action="/contact/?success=true#thanks"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          class="space-y-5"
+        >
+          <input type="hidden" name="form-name" value="contact" />
+          <p class="hidden"><label>Don't fill this: <input name="bot-field" /></label></p>
+
+          {[
+            { id: "name", label: "Name", type: "text", placeholder: "Your name" },
+            { id: "email", label: "Email", type: "email", placeholder: "you@company.com" },
+          ].map(({ id, label, type, placeholder }) => (
+            <div>
+              <label for={id} class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-2">{label}</label>
+              <input
+                id={id} name={id} type={type} required
+                placeholder={placeholder}
+                class="w-full rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-700 outline-none transition-all focus:border-accent-soft/40"
+                style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);"
+                onfocus="this.style.borderColor='rgba(147,197,253,0.35)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.12)'"
+                onblur="this.style.borderColor='rgba(255,255,255,0.10)'; this.style.boxShadow='none'"
+              />
+            </div>
+          ))}
+
+          <div>
+            <label for="message" class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-2">Message</label>
+            <textarea
+              id="message" name="message" rows="5" required
+              placeholder="Project goals, timeline, and current blockers"
+              class="w-full rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-700 outline-none resize-none transition-all"
+              style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);"
+              onfocus="this.style.borderColor='rgba(147,197,253,0.35)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.12)'"
+              onblur="this.style.borderColor='rgba(255,255,255,0.10)'; this.style.boxShadow='none'"
+            ></textarea>
+          </div>
+
+          <button type="submit"
+            class="w-full rounded-full py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.01]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);">
+            Submit Request →
+          </button>
+        </form>
+      </div>
+
+      <!-- Direct Channels -->
+      <div class="space-y-5">
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.14">
+          <h2 class="font-display font-semibold text-white text-base mb-6">Direct channels</h2>
+          <div class="space-y-5">
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">WhatsApp</p>
+              <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+                class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
+                {profile.whatsappDisplay}
+              </a>
+            </div>
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Email</p>
+              <a href={profile.links.email} class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
+                {profile.email}
+              </a>
+            </div>
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
+              <a href={profile.links.instagram} target="_blank" rel="noreferrer"
+                class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
+                {profile.links.instagramHandle}
+              </a>
+            </div>
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Location</p>
+              <p class="text-sm text-slate-400">{profile.location}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.19">
+          <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-3">Response time</p>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+            <p class="text-sm text-slate-300">Usually within a few hours on WhatsApp</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Thanks -->
+<div id="thanks-wrapper" class="hidden px-4 pb-16">
+  <div class="mx-auto max-w-6xl">
+    <div id="thanks" class="glass-panel-strong rounded-2xl p-10 text-center">
+      <div class="text-3xl mb-4">✓</div>
+      <h2 class="font-display font-semibold text-white text-xl mb-2">Message received.</h2>
+      <p class="text-slate-400 mb-7">Continue on WhatsApp for faster follow-up and project scoping.</p>
+      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+        class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        ↗ Open WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  const p = new URLSearchParams(window.location.search);
+  if (p.get("success") === "true") {
+    const w = document.getElementById("thanks-wrapper");
+    const t = document.getElementById("thanks");
+    if (w) w.classList.remove("hidden");
+    if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+</script>
+
+</BaseLayout>

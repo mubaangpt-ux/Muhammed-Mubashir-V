@@ -1,17 +1,383 @@
+﻿---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroGlassOrb from "../components/three/HeroGlassOrb";
+import AnimatedCounter from "../components/motion/AnimatedCounter";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { testimonials } from "../data/testimonials";
+
+const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
+
+const tickerItems = [
+  "Meta Ads", "Google Ads", "SEO", "WordPress", "Elementor",
+  "Funnel Architecture", "Creative Strategy", "Pixel Tracking",
+  "UTM Governance", "Lead Generation", "Dubai UAE", "Content Systems",
+];
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.roleTitle,
+  description: profile.summary,
+  url: profile.siteUrl,
+  email: profile.email,
+  address: { "@type": "PostalAddress", addressLocality: "Dubai", addressCountry: "AE" },
+  sameAs: profile.instagram.map((i) => i.href),
+};
 ---
 
----
+<BaseLayout
+  title={`${profile.name} | ${profile.roleTitle}`}
+  description={profile.summary}
+  path="/"
+  jsonLd={personJsonLd}
+>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<!-- ══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section class="relative min-h-[92vh] flex items-center px-4 py-16 md:py-20">
+  <div class="mx-auto w-full max-w-6xl">
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+      <!-- Left: Text -->
+      <div class="space-y-8 z-10">
+
+        <!-- Eyebrow pill -->
+        <div class="reveal" data-delay="0.05">
+          <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-widest"
+            style="background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.35); color: #93c5fd;">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent-soft animate-pulse inline-block"></span>
+            {profile.location} · Available for mandates
+          </span>
+        </div>
+
+        <!-- Name -->
+        <div class="reveal" data-delay="0.12">
+          <h1 class="font-display font-bold leading-[1.02] text-balance"
+            style="font-size: clamp(2.6rem, 6vw, 4.5rem); letter-spacing: -0.035em;">
+            <span class="text-gradient">{profile.name}</span>
+          </h1>
+        </div>
+
+        <!-- Role -->
+        <div class="reveal" data-delay="0.20">
+          <p class="text-lg md:text-xl font-medium text-slate-300" style="letter-spacing: -0.01em;">
+            {profile.roleTitle}
+          </p>
+        </div>
+
+        <!-- Headline disciplines -->
+        <div class="reveal" data-delay="0.26">
+          <p class="text-sm font-mono tracking-wide text-accent-soft/80 uppercase">
+            {profile.headline}
+          </p>
+        </div>
+
+        <!-- Summary -->
+        <div class="reveal" data-delay="0.32">
+          <p class="text-base leading-relaxed text-slate-400 max-w-md text-balance">
+            {profile.summary}
+          </p>
+        </div>
+
+        <!-- CTAs -->
+        <div class="reveal flex flex-wrap gap-3" data-delay="0.40">
+          <a
+            href={profile.links.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:shadow-glow-lg"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);"
+          >
+            <span>↗</span> WhatsApp
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-200 glass-panel ring-hover transition-all duration-300 hover:text-white"
+          >
+            View Contact →
+          </a>
+          <a
+            href="/work"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300"
+            style="color: #93c5fd;"
+          >
+            See Work ↓
+          </a>
+        </div>
+
+        <!-- Social proof tag -->
+        <div class="reveal flex items-center gap-3" data-delay="0.46">
+          <div class="flex -space-x-2">
+            {["M","B","R"].map((l) => (
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-obsidian"
+                style="background: linear-gradient(135deg, #2563eb, #93c5fd);">
+                {l}
+              </div>
+            ))}
+          </div>
+          <p class="text-xs text-slate-500">600+ verified leads delivered across UAE campaigns</p>
+        </div>
+      </div>
+
+      <!-- Right: 3D Orb -->
+      <div class="reveal lg:block" data-delay="0.10">
+        <div class="relative">
+          <!-- Ambient glow behind orb -->
+          <div class="absolute inset-0 pointer-events-none"
+            style="background: radial-gradient(circle at 50% 50%, rgba(37,99,235,0.18) 0%, transparent 65%); filter: blur(40px);">
+          </div>
+          <HeroGlassOrb client:load />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Subtle grid lines decoration -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+    style="background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 0%, transparent 100%);">
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     TICKER STRIP
+═══════════════════════════════════════════════ -->
+<div class="py-4 overflow-hidden border-y" style="border-color: rgba(255,255,255,0.06);">
+  <div class="ticker-inner" style="animation: ticker 28s linear infinite;">
+    {[...tickerItems, ...tickerItems].map((item) => (
+      <span class="inline-flex items-center gap-3 px-6 text-xs font-mono tracking-widest text-slate-600 whitespace-nowrap uppercase">
+        <span class="text-accent-soft/50">◈</span> {item}
+      </span>
+    ))}
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     METRICS
+═══════════════════════════════════════════════ -->
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal glass-panel-ultra rounded-3xl px-8 py-10 md:px-12 md:py-12" data-delay="0.05">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x"
+        style="--tw-divide-opacity: 0.08; divide-color: rgba(255,255,255,0.08);">
+        {profile.impactMetrics.map((metric, i) => (
+          <div class={`space-y-2 ${i > 0 ? "md:pl-8" : ""}`}>
+            <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
+              <AnimatedCounter client:visible value={metric.value} />
+            </p>
+            <p class="text-sm font-medium text-accent-soft">{metric.label}</p>
+            <p class="text-xs text-slate-500 leading-relaxed">{metric.detail}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     CAPABILITIES
+═══════════════════════════════════════════════ -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <!-- Header -->
+    <div class="reveal mb-14" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Capabilities</p>
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <h2 class="font-display font-semibold text-white text-balance"
+          style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em; max-width: 28ch;">
+          Digital systems built<br/>for predictable growth
+        </h2>
+        <p class="text-sm text-slate-500 max-w-xs leading-relaxed">
+          Lean, operator-led execution across strategy, performance, and measurement.
+        </p>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {profile.capabilities.map((cap, i) => (
+        <div
+          class="reveal glass-panel ring-hover rounded-2xl p-6 group cursor-default"
+          data-delay={String(0.05 + i * 0.06)}
+          style="transition: all 0.3s cubic-bezier(0.22,1,0.36,1);"
+        >
+          <div class="flex items-start justify-between mb-4">
+            <span class="text-2xl text-accent-soft/60 font-mono group-hover:text-accent-soft transition-colors">
+              {cap.icon}
+            </span>
+            <span class="text-xs font-mono text-slate-700 group-hover:text-slate-500 transition-colors">
+              0{i + 1}
+            </span>
+          </div>
+          <h3 class="font-display font-semibold text-white text-base mb-2">{cap.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{cap.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     FEATURED WORK
+═══════════════════════════════════════════════ -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <!-- Header -->
+    <div class="reveal mb-14 flex flex-col md:flex-row md:items-end md:justify-between gap-5" data-delay="0.05">
+      <div>
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Case Studies</p>
+        <h2 class="font-display font-semibold text-white"
+          style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em;">
+          Featured work
+        </h2>
+      </div>
+      <a href="/work"
+        class="inline-flex items-center gap-2 text-sm font-medium text-accent-soft hover:text-white transition-colors group shrink-0">
+        View all projects
+        <span class="group-hover:translate-x-1 transition-transform">→</span>
+      </a>
+    </div>
+
+    <!-- Projects -->
+    <div class="grid gap-5 md:grid-cols-3">
+      {featuredProjects.map((project, i) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal group glass-panel ring-hover rounded-2xl p-7 flex flex-col h-full transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + i * 0.08)}
+          style="min-height: 280px;"
+        >
+          <!-- Category + index -->
+          <div class="flex items-center justify-between mb-6">
+            <span class="text-xs font-mono uppercase tracking-widest text-accent-soft/70">
+              {project.category}
+            </span>
+            <span class="text-xs font-mono text-slate-700">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+          </div>
+
+          <!-- Title -->
+          <h3 class="font-display font-semibold text-white text-lg leading-snug mb-3 group-hover:text-gradient transition-all">
+            {project.title}
+          </h3>
+
+          <!-- Period -->
+          <p class="text-xs text-slate-600 font-mono mb-4">{project.period}</p>
+
+          <!-- Overview -->
+          <p class="text-sm text-slate-400 leading-relaxed flex-1">{project.overview}</p>
+
+          <!-- Tools -->
+          <div class="mt-6 flex flex-wrap gap-2">
+            {project.tools.slice(0, 3).map((tool) => (
+              <span class="text-xs px-2.5 py-1 rounded-full text-slate-500 font-mono"
+                style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+                {tool}
+              </span>
+            ))}
+          </div>
+
+          <!-- CTA -->
+          <div class="mt-5 flex items-center gap-1.5 text-xs text-accent-soft/60 group-hover:text-accent-soft transition-colors font-mono">
+            <span>View case study</span>
+            <span class="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════════════ -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-14" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Testimonials</p>
+      <h2 class="font-display font-semibold text-white"
+        style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em;">
+        What partners say
+      </h2>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-2">
+      {testimonials.entries.map((item, i) => (
+        <div class="reveal glass-panel rounded-2xl p-8" data-delay={String(0.08 + i * 0.1)}>
+          <div class="text-4xl text-accent-soft/25 font-display leading-none mb-4 select-none">"</div>
+          <p class="text-base text-slate-300 leading-relaxed italic mb-6">
+            {item.quote}
+          </p>
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
+              style="background: linear-gradient(135deg, rgba(37,99,235,0.7), rgba(147,197,253,0.4)); border: 1px solid rgba(147,197,253,0.2);">
+              {item.name.charAt(0)}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-white">{item.name}</p>
+              <p class="text-xs text-slate-500">{item.role} · {item.company}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <p class="reveal mt-8 text-sm text-slate-600 italic border-l-2 border-accent/25 pl-4" data-delay="0.2">
+      {testimonials.requestLine}
+    </p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     FINAL CTA
+═══════════════════════════════════════════════ -->
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal glass-panel-ultra rounded-3xl px-8 py-14 md:px-16 md:py-16 relative overflow-hidden" data-delay="0.05">
+      <!-- Background glow -->
+      <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
+        style="background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%); filter: blur(40px);">
+      </div>
+
+      <div class="relative z-10 max-w-2xl">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-5">Start a Conversation</p>
+        <h2 class="font-display font-bold text-white mb-4 text-balance"
+          style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); letter-spacing: -0.035em;">
+          {profile.finalCta.title}
+        </h2>
+        <p class="text-base text-slate-400 leading-relaxed mb-8 max-w-md">
+          {profile.finalCta.description}
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a
+            href={profile.links.whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.45), inset 0 1px 0 rgba(255,255,255,0.15);"
+          >
+            ↗ Message on WhatsApp
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white"
+          >
+            Open Contact Page →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>
