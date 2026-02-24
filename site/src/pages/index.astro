@@ -1,6 +1,5 @@
 ﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import HeroGlassOrb from "../components/three/HeroGlassOrb";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import { profile } from "../data/profile";
 import { projects } from "../data/projects";
@@ -118,18 +117,77 @@ const personJsonLd = {
               </div>
             ))}
           </div>
-          <p class="text-xs text-slate-500">600+ verified leads delivered across UAE campaigns</p>
+          <p class="text-xs text-slate-500">2,300+ verified leads delivered across UAE campaigns</p>
         </div>
       </div>
 
-      <!-- Right: 3D Orb -->
-      <div class="reveal lg:block" data-delay="0.10">
-        <div class="relative">
-          <!-- Ambient glow behind orb -->
-          <div class="absolute inset-0 pointer-events-none"
-            style="background: radial-gradient(circle at 50% 50%, rgba(37,99,235,0.18) 0%, transparent 65%); filter: blur(40px);">
+      <!-- Right: Profile Photo -->
+      <div class="reveal flex items-center justify-center lg:justify-end" data-delay="0.10">
+        <div class="relative flex items-center justify-center" style="width: 380px; height: 380px; max-width: 90vw; max-height: 90vw;">
+
+          <!-- Outermost ambient glow -->
+          <div class="absolute inset-0 rounded-full pointer-events-none"
+            style="background: radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.05) 55%, transparent 75%); filter: blur(32px);">
           </div>
-          <HeroGlassOrb client:load />
+
+          <!-- Orbit ring 1 — slow spin -->
+          <div class="absolute inset-0 rounded-full pointer-events-none"
+            style="border: 1px solid rgba(147,197,253,0.14); animation: orbit1 18s linear infinite;">
+          </div>
+
+          <!-- Orbit ring 2 — reverse spin, slightly inset -->
+          <div class="absolute rounded-full pointer-events-none"
+            style="inset: 18px; border: 1px solid rgba(37,99,235,0.22); animation: orbit2 28s linear infinite reverse;">
+          </div>
+
+          <!-- Orbit ring 3 — closer, dashed effect -->
+          <div class="absolute rounded-full pointer-events-none"
+            style="inset: 36px; border: 1px dashed rgba(147,197,253,0.10); animation: orbit1 40s linear infinite;">
+          </div>
+
+          <!-- Floating dot on ring 1 -->
+          <div class="absolute pointer-events-none"
+            style="width: 6px; height: 6px; top: 50%; left: 0; transform: translateY(-50%) translateX(-3px); background: #93c5fd; border-radius: 50%; box-shadow: 0 0 10px rgba(147,197,253,0.8); animation: dotOrbit 18s linear infinite;">
+          </div>
+
+          <!-- Floating dot on ring 2 -->
+          <div class="absolute pointer-events-none"
+            style="width: 4px; height: 4px; top: 0; left: 50%; transform: translateX(-50%) translateY(-2px); background: #60a5fa; border-radius: 50%; box-shadow: 0 0 8px rgba(96,165,250,0.7); animation: dotOrbit2 28s linear infinite reverse;">
+          </div>
+
+          <!-- Glass backdrop disc -->
+          <div class="absolute rounded-full"
+            style="inset: 46px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(12px);">
+          </div>
+
+          <!-- Profile photo -->
+          <div class="relative rounded-full overflow-hidden z-10"
+            style="width: 220px; height: 220px; border: 2px solid rgba(147,197,253,0.30); box-shadow: 0 0 0 6px rgba(37,99,235,0.10), 0 0 60px rgba(37,99,235,0.30), 0 20px 60px rgba(0,0,0,0.5); flex-shrink: 0;">
+            <img
+              src="/profile.jpg"
+              alt="Muhammed Mubashir V — Digital Operations & Growth Manager, Dubai"
+              width="220"
+              height="220"
+              class="w-full h-full object-cover object-top"
+              style="filter: brightness(1.04) contrast(1.02);"
+              loading="eager"
+            />
+            <!-- Subtle inner glow overlay on photo -->
+            <div class="absolute inset-0 pointer-events-none rounded-full"
+              style="background: linear-gradient(160deg, rgba(147,197,253,0.08) 0%, transparent 50%); mix-blend-mode: overlay;">
+            </div>
+          </div>
+
+          <!-- Name tag chip below photo -->
+          <div class="absolute bottom-10 left-1/2 z-20 pointer-events-none"
+            style="transform: translateX(-50%);">
+            <div class="flex items-center gap-2 rounded-full px-4 py-1.5 whitespace-nowrap"
+              style="background: rgba(7,9,15,0.80); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(16px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+              <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="animation: pulse 2s ease-in-out infinite;"></div>
+              <span class="text-xs font-mono text-slate-300 tracking-wide">Dubai, UAE · Open to work</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -381,3 +439,25 @@ const personJsonLd = {
 </section>
 
 </BaseLayout>
+<style>
+  @keyframes orbit1 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes orbit2 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes dotOrbit {
+    from { transform: rotate(0deg) translateX(190px) rotate(0deg); 
+           top: 50%; left: 50%; }
+    to   { transform: rotate(360deg) translateX(190px) rotate(-360deg);
+           top: 50%; left: 50%; }
+  }
+  @keyframes dotOrbit2 {
+    from { transform: rotate(0deg) translateX(163px) rotate(0deg);
+           top: 50%; left: 50%; }
+    to   { transform: rotate(360deg) translateX(163px) rotate(-360deg);
+           top: 50%; left: 50%; }
+  }
+</style>

@@ -77,9 +77,20 @@ const isActive = (href: string) =>
         <nav class="glass-panel rounded-2xl px-5 py-3 flex items-center justify-between">
           <!-- Logo -->
           <a href="/" class="flex items-center gap-3 group">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
-              style="background: linear-gradient(135deg, rgba(37,99,235,0.8), rgba(147,197,253,0.4)); border: 1px solid rgba(147,197,253,0.3);">
-              <span class="text-xs font-bold text-white font-mono">MV</span>
+            <div class="relative w-9 h-9 shrink-0">
+              <!-- Animated ring -->
+              <div class="absolute inset-0 rounded-full animate-pulse-glow"
+                style="background: transparent; border: 1px solid rgba(147,197,253,0.35); border-radius: 9999px; transform: scale(1.18);">
+              </div>
+              <!-- Photo -->
+              <img
+                src="/profile.jpg"
+                alt="Muhammed Mubashir V"
+                width="36"
+                height="36"
+                class="w-9 h-9 rounded-full object-cover object-top"
+                style="border: 1.5px solid rgba(147,197,253,0.40); box-shadow: 0 0 12px rgba(37,99,235,0.35);"
+              />
             </div>
             <span class="text-sm font-semibold tracking-wide text-slate-100 group-hover:text-white transition hidden sm:block">
               {profile.name}

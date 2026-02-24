@@ -51,7 +51,7 @@ export const profile: Profile = {
     { language: "Malayalam", proficiency: "Native" },
   ],
   impactMetrics: [
-    { value: "600+", label: "Verified Leads", detail: "Generated in 6 months via Meta campaigns" },
+    { value: "2300+", label: "Verified Leads", detail: "Generated across Dubai real estate campaigns" },
     { value: "2,000+", label: "Monthly Traffic Lift", detail: "From SEO & content performance systems" },
     { value: "5+", label: "Brands Managed", detail: "Across UAE market channels" },
     { value: "4+", label: "Years Experience", detail: "Dubai & regional digital operations" },
