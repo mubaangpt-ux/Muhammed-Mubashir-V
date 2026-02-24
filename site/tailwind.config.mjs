@@ -36,7 +36,6 @@ export default {
         "fade-up": "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) forwards",
         "fade-in": "fadeIn 0.6s ease forwards",
         "pulse-glow": "pulseGlow 3s ease-in-out infinite",
-        "ticker": "ticker 25s linear infinite",
         "float": "float 6s ease-in-out infinite",
       },
       keyframes: {
@@ -51,10 +50,6 @@ export default {
         pulseGlow: {
           "0%,100%": { boxShadow: "0 0 20px rgba(37,99,235,0.15)" },
           "50%": { boxShadow: "0 0 60px rgba(37,99,235,0.35)" },
-        },
-        ticker: {
-          "0%": { transform: "translateX(0)" },
-          "100%": { transform: "translateX(-50%)" },
         },
         float: {
           "0%,100%": { transform: "translateY(0px)" },
