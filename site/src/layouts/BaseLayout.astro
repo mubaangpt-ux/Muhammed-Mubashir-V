@@ -61,6 +61,9 @@ const isActive = (href: string) =>
     <meta name="twitter:image" content={ogImage} />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   </head>
   <body class="antialiased">
 
@@ -72,54 +75,34 @@ const isActive = (href: string) =>
     <div id="cursor-ring" aria-hidden="true"></div>
 
     <!-- NAV -->
-    <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); background: rgba(7,9,15,0.55); border-bottom: 1px solid rgba(255,255,255,0.07);">
+    <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(7,9,15,0.28); border-bottom: 1px solid rgba(255,255,255,0.04);">
 
-      <!-- Top micro-bar: location left · logo center · status right -->
-      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-10 border-b" style="border-color: rgba(255,255,255,0.05);">
-        <span class="text-xs font-mono tracking-widest text-slate-600 uppercase hidden sm:block">
+      <!-- Top micro-bar: location left · name center · status right -->
+      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
+        <span class="text-xs font-mono tracking-widest uppercase hidden sm:block" style="color: rgba(147,197,253,0.45);">
           {profile.location} &nbsp;·&nbsp; Available for mandates
         </span>
-        <a href="/" class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
-          <div class="relative w-6 h-6 shrink-0">
-            <img
-              src="/profile.jpg"
-              alt={profile.name}
-              width="24"
-              height="24"
-              class="w-6 h-6 rounded-full object-cover object-top"
-              style="border: 1px solid rgba(147,197,253,0.35);"
-            />
-          </div>
-          <span class="text-xs font-mono tracking-[0.25em] uppercase text-slate-300">
+        <a href="/" class="absolute left-1/2 -translate-x-1/2">
+          <span class="text-xs font-mono tracking-[0.32em] uppercase" style="color: rgba(224,237,248,0.55);">
             {profile.name}
           </span>
         </a>
         <div class="flex items-center gap-1.5">
-          <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="box-shadow: 0 0 6px rgba(74,222,128,0.7);"></div>
-          <span class="text-xs font-mono tracking-widest text-slate-500 uppercase hidden sm:block">Open to work</span>
+          <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="box-shadow: 0 0 6px rgba(74,222,128,0.6); opacity: 0.8;"></div>
+          <span class="text-xs font-mono tracking-widest uppercase hidden sm:block" style="color: rgba(147,197,253,0.40);">Open to work</span>
         </div>
       </div>
 
       <!-- Main nav bar -->
       <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-12">
 
-        <!-- Left: photo + name (desktop) -->
-        <a href="/" class="flex items-center gap-2.5 group">
-          <div class="relative w-7 h-7 shrink-0">
-            <div class="absolute inset-0 rounded-full"
-              style="border: 1px solid rgba(147,197,253,0.30); transform: scale(1.25); animation: pulse 3s ease-in-out infinite;">
-            </div>
-            <img
-              src="/profile.jpg"
-              alt={profile.name}
-              width="28"
-              height="28"
-              class="w-7 h-7 rounded-full object-cover object-top relative z-10"
-              style="border: 1.5px solid rgba(147,197,253,0.40); box-shadow: 0 0 10px rgba(37,99,235,0.4);"
-            />
-          </div>
-          <span class="text-xs font-semibold tracking-wider text-slate-400 group-hover:text-white transition hidden lg:block">
-            MV
+        <!-- Left: subtle home link only -->
+        <a href="/" class="flex items-center group">
+          <span class="text-xs font-mono tracking-[0.3em] uppercase transition-colors duration-200 hidden lg:block"
+            style="color: rgba(147,197,253,0.30);"
+            onmouseover="this.style.color='rgba(147,197,253,0.65)'"
+            onmouseout="this.style.color='rgba(147,197,253,0.30)'">
+            ◈
           </span>
         </a>
 

@@ -179,13 +179,24 @@ const personJsonLd = {
 
   <!-- ── NAME — LARGE CENTERED ──────────────── -->
   <div class="reveal z-10" data-delay="0.15">
-    <h1 class="hero-name font-display font-bold text-center uppercase"
-      style="font-size: clamp(2.8rem, 8vw, 6rem); letter-spacing: 0.06em; line-height: 1; color: #f0f4ff; text-shadow: 0 0 80px rgba(37,99,235,0.4), 0 0 120px rgba(37,99,235,0.2);">
+    <!-- Name in Orbitron — same style as ALEX MAREX reference -->
+    <h1 class="hero-name text-center uppercase"
+      style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
       {profile.name}
     </h1>
-    <!-- Glow line under name — like Alex Marex -->
-    <div class="mx-auto mt-3"
-      style="height: 1px; width: 60%; max-width: 420px; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.6) 30%, rgba(255,255,255,0.9) 50%, rgba(147,197,253,0.6) 70%, transparent 100%); box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 24px rgba(37,99,235,0.3);">
+
+    <!-- Glow reflection beneath — ALEX MAREX shadow effect -->
+    <div class="relative mx-auto" style="height: 32px; margin-top: -2px; overflow: hidden; pointer-events: none;">
+      <!-- Reflected text — fades downward -->
+      <h1 class="text-center uppercase"
+        style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8; transform: scaleY(-1); opacity: 0.18; mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%); -webkit-mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);">
+        {profile.name}
+      </h1>
+    </div>
+
+    <!-- Thin glow line -->
+    <div class="mx-auto mt-1"
+      style="height: 1px; width: 55%; max-width: 380px; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 25%, rgba(255,255,255,0.80) 50%, rgba(147,197,253,0.45) 75%, transparent 100%); box-shadow: 0 0 10px rgba(147,197,253,0.4), 0 0 20px rgba(37,99,235,0.25);">
     </div>
   </div>
 
@@ -755,12 +766,21 @@ const personJsonLd = {
 
   /* Name glow breathing */
   .hero-name {
-    animation: nameBreath 5s ease-in-out infinite;
+    animation: nameBreath 6s ease-in-out infinite;
   }
 
   @keyframes nameBreath {
-    0%, 100% { text-shadow: 0 0 80px rgba(37,99,235,0.35), 0 0 120px rgba(37,99,235,0.15); }
-    50%      { text-shadow: 0 0 100px rgba(37,99,235,0.55), 0 0 160px rgba(37,99,235,0.25), 0 0 200px rgba(147,197,253,0.10); }
+    0%, 100% {
+      text-shadow:
+        0 0 30px rgba(147,197,253,0.20),
+        0 0 60px rgba(37,99,235,0.12);
+    }
+    50% {
+      text-shadow:
+        0 0 40px rgba(147,197,253,0.35),
+        0 0 80px rgba(37,99,235,0.20),
+        0 0 120px rgba(37,99,235,0.08);
+    }
   }
 
   /* Pulse animation for status dots */
