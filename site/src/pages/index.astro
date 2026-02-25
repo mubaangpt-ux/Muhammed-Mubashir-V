@@ -226,18 +226,27 @@ const personJsonLd = {
       />
 
     <!-- Bottom fade — figure melts into background (soft, masked) -->
-    <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
-      height: 65%;
+    <div class="absolute pointer-events-none" style="
+      left: 50%;
+      bottom: -160px;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 280px;
+      height: calc(100% + 160px);
       background: linear-gradient(
         0deg,
-        rgba(7,9,15,0.92) 0%,
-        rgba(7,9,15,0.75) 25%,
-        rgba(7,9,15,0.45) 50%,
-        rgba(7,9,15,0.20) 70%,
+        rgba(7,9,15,0.90) 0%,
+        rgba(7,9,15,0.70) 28%,
+        rgba(7,9,15,0.40) 55%,
+        rgba(7,9,15,0.18) 72%,
         transparent 100%
       );
-      -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 75%, rgba(0,0,0,1) 55%, transparent 100%);
-      mask-image: radial-gradient(ellipse 85% 80% at 50% 75%, rgba(0,0,0,1) 55%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 85% at 50% 28%, rgba(0,0,0,1) 60%, transparent 100%);
+      mask-image: radial-gradient(ellipse 70% 85% at 50% 28%, rgba(0,0,0,1) 60%, transparent 100%);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%;
       ">
     </div>
 
