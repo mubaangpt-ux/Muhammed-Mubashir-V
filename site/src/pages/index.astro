@@ -111,88 +111,164 @@ const personJsonLd = {
   </div>
 
   <!-- ── PHOTO — ALEX MAREX STYLE ─────────── -->
-  <div class="reveal relative flex items-center justify-center z-10 mb-0" data-delay="0.05"
-    style="width: 340px; height: 420px; margin-top: 0;">
+  <div class="reveal relative z-10 flex items-center justify-center" data-delay="0.05"
+    style="width: 100%; max-width: 480px; height: 480px; margin-bottom: -80px;">
 
-    <!-- ── Ambient glow behind figure ──── -->
+    <!-- ═══ BACKGROUND GLOW LAYERS ═══ -->
+
+    <!-- Deep ambient glow -->
     <div class="absolute pointer-events-none"
-      style="inset: -40px; background: radial-gradient(ellipse 70% 60% at 50% 55%, rgba(37,99,235,0.30) 0%, rgba(37,99,235,0.10) 45%, transparent 70%); filter: blur(24px);">
+      style="width: 360px; height: 360px; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse, rgba(37,99,235,0.28) 0%, rgba(37,99,235,0.08) 50%, transparent 75%);
+      filter: blur(40px);">
     </div>
 
-    <!-- ── Secondary top glow (spotlight feel) -->
+    <!-- Top spotlight (like Alex Marex purple beam → your blue) -->
     <div class="absolute pointer-events-none"
-      style="top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: radial-gradient(ellipse, rgba(96,165,250,0.22) 0%, transparent 70%); filter: blur(30px);">
+      style="width: 160px; height: 260px; top: -30px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(96,165,250,0.22) 0%, transparent 70%);
+      filter: blur(35px);">
     </div>
 
-    <!-- ── ORBITAL RING 1 — outermost ───── -->
-    <div class="absolute pointer-events-none"
-      style="width: 320px; height: 320px; top: 50%; left: 50%; transform: translate(-50%, -42%); border: 1px solid rgba(147,197,253,0.16); border-radius: 50%; animation: orbit1 18s linear infinite;">
+
+    <!-- ═══ ORBITAL RINGS — centered on photo center ═══ -->
+
+    <!-- Ring 1 — outermost, 340px -->
+    <div class="absolute pointer-events-none" style="
+      width: 340px; height: 340px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(147,197,253,0.18);
+      border-radius: 50%;
+      animation: orbitSpin1 18s linear infinite;">
     </div>
 
-    <!-- ── ORBITAL RING 2 — mid ──────────── -->
-    <div class="absolute pointer-events-none"
-      style="width: 272px; height: 272px; top: 50%; left: 50%; transform: translate(-50%, -42%); border: 1px solid rgba(37,99,235,0.24); border-radius: 50%; animation: orbit2 28s linear infinite reverse;">
+    <!-- Ring 2 — mid, 280px, reverse -->
+    <div class="absolute pointer-events-none" style="
+      width: 280px; height: 280px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(37,99,235,0.28);
+      border-radius: 50%;
+      animation: orbitSpin2 28s linear infinite reverse;">
     </div>
 
-    <!-- ── ORBITAL RING 3 — inner dashed ── -->
-    <div class="absolute pointer-events-none"
-      style="width: 228px; height: 228px; top: 50%; left: 50%; transform: translate(-50%, -42%); border: 1px dashed rgba(147,197,253,0.11); border-radius: 50%; animation: orbit1 40s linear infinite;">
+    <!-- Ring 3 — inner dashed, 220px -->
+    <div class="absolute pointer-events-none" style="
+      width: 220px; height: 220px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px dashed rgba(147,197,253,0.13);
+      border-radius: 50%;
+      animation: orbitSpin1 42s linear infinite;">
     </div>
 
-    <!-- ── DOT 1 — ring 1, ice blue ──────── -->
-    <div class="absolute pointer-events-none"
-      style="width: 6px; height: 6px; top: 50%; left: 50%; margin-top: -3px; margin-left: -3px; border-radius: 50%; background: #93c5fd; box-shadow: 0 0 10px rgba(147,197,253,0.9), 0 0 20px rgba(37,99,235,0.5); animation: dotRing1 18s linear infinite;">
+
+    <!-- ═══ 3 ORBITAL DOTS ═══ -->
+
+    <!-- Dot 1 — ring 1, ice blue, 170px radius -->
+    <div class="absolute pointer-events-none" style="
+      width: 6px; height: 6px;
+      top: 50%; left: 50%;
+      margin: -3px 0 0 -3px;
+      border-radius: 50%;
+      background: #93c5fd;
+      box-shadow: 0 0 10px rgba(147,197,253,0.95), 0 0 22px rgba(37,99,235,0.6);
+      animation: dot1Orbit 18s linear infinite;">
     </div>
 
-    <!-- ── DOT 2 — ring 2, bright white ─── -->
-    <div class="absolute pointer-events-none"
-      style="width: 5px; height: 5px; top: 50%; left: 50%; margin-top: -2.5px; margin-left: -2.5px; border-radius: 50%; background: #ffffff; box-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 16px rgba(147,197,253,0.6); animation: dotRing2 28s linear infinite reverse;">
+    <!-- Dot 2 — ring 2, white, 140px radius, reverse -->
+    <div class="absolute pointer-events-none" style="
+      width: 5px; height: 5px;
+      top: 50%; left: 50%;
+      margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 8px rgba(255,255,255,0.95), 0 0 18px rgba(147,197,253,0.7);
+      animation: dot2Orbit 28s linear infinite reverse;">
     </div>
 
-    <!-- ── DOT 3 — ring 3, accent blue ─── -->
-    <div class="absolute pointer-events-none"
-      style="width: 4px; height: 4px; top: 50%; left: 50%; margin-top: -2px; margin-left: -2px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.9); animation: dotRing3 40s linear infinite;">
+    <!-- Dot 3 — ring 3, accent, 110px radius -->
+    <div class="absolute pointer-events-none" style="
+      width: 4px; height: 4px;
+      top: 50%; left: 50%;
+      margin: -2px 0 0 -2px;
+      border-radius: 50%;
+      background: #60a5fa;
+      box-shadow: 0 0 8px rgba(96,165,250,0.95);
+      animation: dot3Orbit 42s linear infinite;">
     </div>
 
-    <!-- ── PHOTO — transparent PNG, Alex Marex style ── -->
-    <div class="relative z-10 flex items-end justify-center"
-      style="width: 260px; height: 380px; margin-top: auto; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);">
 
-      <!-- The actual photo — NO circle crop, full body/bust visible -->
+    <!-- ═══ PROFILE PHOTO — no background, full transparent PNG ═══ -->
+    <div class="absolute z-10 pointer-events-none" style="
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;">
+
       <img
         src="/profile.png"
-        alt="Muhammed Mubashir V — Digital Operations & Growth Manager Dubai"
-        width="260"
-        height="380"
-        class="w-full h-full object-contain object-bottom"
-        style="filter: drop-shadow(0 0 30px rgba(37,99,235,0.35)) drop-shadow(0 0 60px rgba(37,99,235,0.15)) brightness(1.06) contrast(1.03);"
+        alt="Muhammed Mubashir V"
+        width="280"
+        height="400"
+        class="w-full object-contain object-bottom"
+        style="
+          display: block;
+          /* Alex Marex blur/glow effect */
+          filter:
+            drop-shadow(0 0 25px rgba(37,99,235,0.45))
+            drop-shadow(0 0 60px rgba(37,99,235,0.20))
+            drop-shadow(0 -10px 30px rgba(96,165,250,0.15))
+            brightness(1.05)
+            contrast(1.04);
+        "
         loading="eager"
       />
 
-      <!-- Bottom fade — figure blends into bg like Alex Marex -->
-      <div class="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style="height: 55%; background: linear-gradient(0deg, #07090f 0%, rgba(7,9,15,0.85) 25%, rgba(7,9,15,0.50) 55%, transparent 100%);">
+      <!-- Bottom fade — figure melts into background -->
+      <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
+        height: 45%;
+        background: linear-gradient(
+          0deg,
+          #07090f 0%,
+          rgba(7,9,15,0.92) 18%,
+          rgba(7,9,15,0.70) 38%,
+          rgba(7,9,15,0.30) 60%,
+          transparent 100%
+        );">
       </div>
 
       <!-- Left edge fade -->
-      <div class="absolute inset-y-0 left-0 pointer-events-none"
-        style="width: 25%; background: linear-gradient(90deg, rgba(7,9,15,0.5) 0%, transparent 100%);">
+      <div class="absolute inset-y-0 left-0 pointer-events-none" style="
+        width: 22%;
+        background: linear-gradient(90deg, rgba(7,9,15,0.55) 0%, transparent 100%);">
       </div>
 
       <!-- Right edge fade -->
-      <div class="absolute inset-y-0 right-0 pointer-events-none"
-        style="width: 25%; background: linear-gradient(270deg, rgba(7,9,15,0.5) 0%, transparent 100%);">
+      <div class="absolute inset-y-0 right-0 pointer-events-none" style="
+        width: 22%;
+        background: linear-gradient(270deg, rgba(7,9,15,0.55) 0%, transparent 100%);">
       </div>
 
       <!-- Top edge fade -->
-      <div class="absolute top-0 left-0 right-0 pointer-events-none"
-        style="height: 20%; background: linear-gradient(180deg, rgba(7,9,15,0.6) 0%, transparent 100%);">
+      <div class="absolute top-0 left-0 right-0 pointer-events-none" style="
+        height: 18%;
+        background: linear-gradient(180deg, rgba(7,9,15,0.50) 0%, transparent 100%);">
       </div>
 
-      <!-- Blue rim light on left edge — studio feel -->
-      <div class="absolute inset-y-0 left-0 pointer-events-none"
-        style="width: 3px; background: linear-gradient(180deg, transparent 0%, rgba(147,197,253,0.25) 30%, rgba(147,197,253,0.40) 60%, transparent 100%); filter: blur(2px);">
+      <!-- Blue rim light left -->
+      <div class="absolute inset-y-0 left-0 pointer-events-none" style="
+        width: 2px;
+        background: linear-gradient(180deg,
+          transparent 0%,
+          rgba(147,197,253,0.20) 25%,
+          rgba(147,197,253,0.45) 55%,
+          rgba(147,197,253,0.15) 80%,
+          transparent 100%);
+        filter: blur(1.5px);">
       </div>
+
     </div>
 
   </div>
@@ -200,7 +276,7 @@ const personJsonLd = {
   <!-- Location pill moves below name — see name section -->
 
   <!-- ── NAME — LARGE CENTERED ──────────────── -->
-  <div class="reveal z-10" data-delay="0.15" style="margin-top: -60px;">
+  <div class="reveal z-10" data-delay="0.15" style="margin-top: -90px; position: relative;">
     <!-- Name in Orbitron — same style as ALEX MAREX reference -->
     <h1 class="hero-name text-center uppercase"
       style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
@@ -750,21 +826,34 @@ const personJsonLd = {
      HERO PHOTO ORBIT RINGS (keep if already present)
   ════════════════════════════════════════════════ */
 
-  @keyframes orbit1 {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+  /* ═══ ORBITAL RING SPINS ════════════════════ */
+  @keyframes orbitSpin1 {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
   }
-  @keyframes orbit2 {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+  @keyframes orbitSpin2 {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
   }
-  @keyframes dotOrbit {
-    from { transform: rotate(0deg) translateX(190px) rotate(0deg); top: 50%; left: 50%; }
-    to   { transform: rotate(360deg) translateX(190px) rotate(-360deg); top: 50%; left: 50%; }
+
+  /* ═══ DOT ORBITS ════════════════════════════ */
+
+  /* Dot 1 — 170px radius */
+  @keyframes dot1Orbit {
+    from { transform: rotate(0deg) translateX(170px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(170px) rotate(-360deg); }
   }
-  @keyframes dotOrbit2 {
-    from { transform: rotate(0deg) translateX(163px) rotate(0deg); top: 50%; left: 50%; }
-    to   { transform: rotate(360deg) translateX(163px) rotate(-360deg); top: 50%; left: 50%; }
+
+  /* Dot 2 — 140px radius */
+  @keyframes dot2Orbit {
+    from { transform: rotate(0deg) translateX(140px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(140px) rotate(-360deg); }
+  }
+
+  /* Dot 3 — 110px radius */
+  @keyframes dot3Orbit {
+    from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
   }
 
   /* ════════════════════════════════════════════════
@@ -775,25 +864,6 @@ const personJsonLd = {
   @keyframes scrollPulse {
     0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
     50%       { opacity: 1;   transform: scaleY(1); }
-  }
-
-  /* Centered orbit dots — different from side-layout version */
-  /* Dot 1 — ring 1 radius 160px (half of 320px) */
-  @keyframes dotRing1 {
-    0%   { transform: rotate(0deg) translateX(160px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(160px) rotate(-360deg); }
-  }
-
-  /* Dot 2 — ring 2 radius 136px (half of 272px) */
-  @keyframes dotRing2 {
-    0%   { transform: rotate(0deg) translateX(136px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(136px) rotate(-360deg); }
-  }
-
-  /* Dot 3 — ring 3 radius 114px (half of 228px) */
-  @keyframes dotRing3 {
-    0%   { transform: rotate(0deg) translateX(114px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(114px) rotate(-360deg); }
   }
 
   /* Name glow breathing */
