@@ -79,170 +79,195 @@ const personJsonLd = {
 >
 
 <!-- ══════════════════════════════════════════════
-     HERO
+     HERO — CENTERED SPOTLIGHT LAYOUT
 ═══════════════════════════════════════════════ -->
-<section class="relative min-h-[92vh] flex items-center px-4 py-16 md:py-20">
-  <div class="mx-auto w-full max-w-6xl">
-    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+<section class="hero-section relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-20 overflow-hidden text-center">
 
-      <!-- Left: Text -->
-      <div class="space-y-8 z-10">
+  <!-- ── BACKGROUND LAYERS ───────────────────── -->
 
-        <!-- Eyebrow pill -->
-        <div class="reveal" data-delay="0.05">
-          <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-widest"
-            style="background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.35); color: #93c5fd;">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-soft animate-pulse inline-block"></span>
-            {profile.location} · Available for mandates
-          </span>
-        </div>
+  <!-- Vertical spotlight beam from top -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+    style="background: radial-gradient(ellipse 55% 65% at 50% -5%, rgba(37,99,235,0.55) 0%, rgba(37,99,235,0.18) 35%, transparent 70%);">
+  </div>
 
-        <!-- Name -->
-        <div class="reveal" data-delay="0.12">
-          <h1 class="font-display font-bold leading-[1.02] text-balance"
-            style="font-size: clamp(2.6rem, 6vw, 4.5rem); letter-spacing: -0.035em;">
-            <span class="text-gradient">{profile.name}</span>
-          </h1>
-        </div>
+  <!-- Secondary deep blue halo -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+    style="background: radial-gradient(ellipse 40% 40% at 50% 10%, rgba(96,165,250,0.22) 0%, transparent 60%);">
+  </div>
 
-        <!-- Role -->
-        <div class="reveal" data-delay="0.20">
-          <p class="text-lg md:text-xl font-medium text-slate-300" style="letter-spacing: -0.01em;">
-            {profile.roleTitle}
-          </p>
-        </div>
+  <!-- Bottom fade to obsidian -->
+  <div class="absolute bottom-0 left-0 right-0 pointer-events-none" aria-hidden="true"
+    style="height: 35%; background: linear-gradient(0deg, #07090f 0%, transparent 100%);">
+  </div>
 
-        <!-- Headline disciplines -->
-        <div class="reveal" data-delay="0.26">
-          <p class="text-sm font-mono tracking-wide text-accent-soft/80 uppercase">
-            {profile.headline}
-          </p>
-        </div>
+  <!-- Subtle grid -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+    style="background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px); background-size: 72px 72px; mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 0%, transparent 100%);">
+  </div>
 
-        <!-- Summary -->
-        <div class="reveal" data-delay="0.32">
-          <p class="text-base leading-relaxed text-slate-400 max-w-md text-balance">
-            {profile.summary}
-          </p>
-        </div>
+  <!-- Thin vertical light ray -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none" aria-hidden="true"
+    style="width: 1px; height: 45%; background: linear-gradient(180deg, rgba(147,197,253,0.7) 0%, rgba(37,99,235,0.3) 40%, transparent 100%); filter: blur(0.5px);">
+  </div>
 
-        <!-- CTAs -->
-        <div class="reveal flex flex-wrap gap-3" data-delay="0.40">
-          <a
-            href={profile.links.whatsapp}
-            target="_blank"
-            rel="noreferrer"
-            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03] hover:shadow-glow-lg"
-            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4), inset 0 1px 0 rgba(255,255,255,0.15);"
-          >
-            <span>↗</span> WhatsApp
-          </a>
-          <a
-            href="/contact"
-            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-200 glass-panel ring-hover transition-all duration-300 hover:text-white"
-          >
-            View Contact →
-          </a>
-          <a
-            href="/work"
-            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300"
-            style="color: #93c5fd;"
-          >
-            See Work ↓
-          </a>
-        </div>
+  <!-- ── PHOTO (centered, top of content) ──── -->
+  <div class="reveal relative flex items-center justify-center mb-8 z-10" data-delay="0.05"
+    style="width: 280px; height: 280px;">
 
-        <!-- Social proof tag -->
-        <div class="reveal flex items-center gap-3" data-delay="0.46">
-          <div class="flex -space-x-2">
-            {["M","B","R"].map((l) => (
-              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white border border-obsidian"
-                style="background: linear-gradient(135deg, #2563eb, #93c5fd);">
-                {l}
-              </div>
-            ))}
-          </div>
-          <p class="text-xs text-slate-500">2,300+ verified leads delivered across UAE campaigns</p>
-        </div>
+    <!-- Outermost ambient glow -->
+    <div class="absolute inset-0 rounded-full pointer-events-none"
+      style="background: radial-gradient(circle, rgba(37,99,235,0.30) 0%, rgba(37,99,235,0.08) 55%, transparent 75%); filter: blur(28px);">
+    </div>
+
+    <!-- Orbit ring 1 -->
+    <div class="absolute inset-0 rounded-full pointer-events-none"
+      style="border: 1px solid rgba(147,197,253,0.18); animation: orbit1 18s linear infinite;">
+    </div>
+
+    <!-- Orbit ring 2 — reverse -->
+    <div class="absolute rounded-full pointer-events-none"
+      style="inset: 16px; border: 1px solid rgba(37,99,235,0.28); animation: orbit2 28s linear infinite reverse;">
+    </div>
+
+    <!-- Orbit ring 3 — dashed -->
+    <div class="absolute rounded-full pointer-events-none"
+      style="inset: 32px; border: 1px dashed rgba(147,197,253,0.12); animation: orbit1 40s linear infinite;">
+    </div>
+
+    <!-- Floating dot — ring 1 -->
+    <div class="absolute pointer-events-none"
+      style="width: 5px; height: 5px; top: 50%; left: 50%; background: #93c5fd; border-radius: 50%; box-shadow: 0 0 10px rgba(147,197,253,0.9); animation: dotOrbitCenter 18s linear infinite;">
+    </div>
+
+    <!-- Floating dot — ring 2 -->
+    <div class="absolute pointer-events-none"
+      style="width: 4px; height: 4px; top: 50%; left: 50%; background: #60a5fa; border-radius: 50%; box-shadow: 0 0 8px rgba(96,165,250,0.8); animation: dotOrbitCenter2 28s linear infinite reverse;">
+    </div>
+
+    <!-- Glass backdrop disc -->
+    <div class="absolute rounded-full"
+      style="inset: 40px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(12px);">
+    </div>
+
+    <!-- Profile photo -->
+    <div class="relative rounded-full overflow-hidden z-10"
+      style="width: 170px; height: 170px; border: 2px solid rgba(147,197,253,0.35); box-shadow: 0 0 0 5px rgba(37,99,235,0.12), 0 0 50px rgba(37,99,235,0.35), 0 16px 50px rgba(0,0,0,0.5);">
+      <img
+        src="/profile.jpg"
+        alt="Muhammed Mubashir V — Digital Operations & Growth Manager Dubai"
+        width="170"
+        height="170"
+        class="w-full h-full object-cover object-top"
+        style="filter: brightness(1.04) contrast(1.02);"
+        loading="eager"
+      />
+      <!-- Ice-blue highlight overlay -->
+      <div class="absolute inset-0 pointer-events-none rounded-full"
+        style="background: linear-gradient(160deg, rgba(147,197,253,0.10) 0%, transparent 55%); mix-blend-mode: overlay;">
       </div>
-
-      <!-- Right: Profile Photo -->
-      <div class="reveal flex items-center justify-center lg:justify-end" data-delay="0.10">
-        <div class="relative flex items-center justify-center" style="width: 380px; height: 380px; max-width: 90vw; max-height: 90vw;">
-
-          <!-- Outermost ambient glow -->
-          <div class="absolute inset-0 rounded-full pointer-events-none"
-            style="background: radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.05) 55%, transparent 75%); filter: blur(32px);">
-          </div>
-
-          <!-- Orbit ring 1 — slow spin -->
-          <div class="absolute inset-0 rounded-full pointer-events-none"
-            style="border: 1px solid rgba(147,197,253,0.14); animation: orbit1 18s linear infinite;">
-          </div>
-
-          <!-- Orbit ring 2 — reverse spin, slightly inset -->
-          <div class="absolute rounded-full pointer-events-none"
-            style="inset: 18px; border: 1px solid rgba(37,99,235,0.22); animation: orbit2 28s linear infinite reverse;">
-          </div>
-
-          <!-- Orbit ring 3 — closer, dashed effect -->
-          <div class="absolute rounded-full pointer-events-none"
-            style="inset: 36px; border: 1px dashed rgba(147,197,253,0.10); animation: orbit1 40s linear infinite;">
-          </div>
-
-          <!-- Floating dot on ring 1 -->
-          <div class="absolute pointer-events-none"
-            style="width: 6px; height: 6px; top: 50%; left: 0; transform: translateY(-50%) translateX(-3px); background: #93c5fd; border-radius: 50%; box-shadow: 0 0 10px rgba(147,197,253,0.8); animation: dotOrbit 18s linear infinite;">
-          </div>
-
-          <!-- Floating dot on ring 2 -->
-          <div class="absolute pointer-events-none"
-            style="width: 4px; height: 4px; top: 0; left: 50%; transform: translateX(-50%) translateY(-2px); background: #60a5fa; border-radius: 50%; box-shadow: 0 0 8px rgba(96,165,250,0.7); animation: dotOrbit2 28s linear infinite reverse;">
-          </div>
-
-          <!-- Glass backdrop disc -->
-          <div class="absolute rounded-full"
-            style="inset: 46px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(12px);">
-          </div>
-
-          <!-- Profile photo -->
-          <div class="relative rounded-full overflow-hidden z-10"
-            style="width: 220px; height: 220px; border: 2px solid rgba(147,197,253,0.30); box-shadow: 0 0 0 6px rgba(37,99,235,0.10), 0 0 60px rgba(37,99,235,0.30), 0 20px 60px rgba(0,0,0,0.5); flex-shrink: 0;">
-            <img
-              src="/profile.jpg"
-              alt="Muhammed Mubashir V — Digital Operations & Growth Manager, Dubai"
-              width="220"
-              height="220"
-              class="w-full h-full object-cover object-top"
-              style="filter: brightness(1.04) contrast(1.02);"
-              loading="eager"
-            />
-            <!-- Subtle inner glow overlay on photo -->
-            <div class="absolute inset-0 pointer-events-none rounded-full"
-              style="background: linear-gradient(160deg, rgba(147,197,253,0.08) 0%, transparent 50%); mix-blend-mode: overlay;">
-            </div>
-          </div>
-
-          <!-- Name tag chip below photo -->
-          <div class="absolute bottom-10 left-1/2 z-20 pointer-events-none"
-            style="transform: translateX(-50%);">
-            <div class="flex items-center gap-2 rounded-full px-4 py-1.5 whitespace-nowrap"
-              style="background: rgba(7,9,15,0.80); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(16px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
-              <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="animation: pulse 2s ease-in-out infinite;"></div>
-              <span class="text-xs font-mono text-slate-300 tracking-wide">Dubai, UAE · Open to work</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- Subtle grid lines decoration -->
-  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
-    style="background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 80px 80px; mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 0%, transparent 100%);">
+  <!-- ── LOCATION EYEBROW ────────────────────── -->
+  <div class="reveal flex items-center justify-center gap-2 mb-5 z-10" data-delay="0.10">
+    <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-mono tracking-widest uppercase"
+      style="background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.30); color: #93c5fd;">
+      <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block" style="box-shadow: 0 0 6px rgba(147,197,253,0.8); animation: pulse 2s ease-in-out infinite;"></span>
+      {profile.location} &nbsp;·&nbsp; Open to new mandates
+    </span>
   </div>
+
+  <!-- ── NAME — LARGE CENTERED ──────────────── -->
+  <div class="reveal z-10" data-delay="0.15">
+    <h1 class="hero-name font-display font-bold text-center uppercase"
+      style="font-size: clamp(2.8rem, 8vw, 6rem); letter-spacing: 0.06em; line-height: 1; color: #f0f4ff; text-shadow: 0 0 80px rgba(37,99,235,0.4), 0 0 120px rgba(37,99,235,0.2);">
+      {profile.name}
+    </h1>
+    <!-- Glow line under name — like Alex Marex -->
+    <div class="mx-auto mt-3"
+      style="height: 1px; width: 60%; max-width: 420px; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.6) 30%, rgba(255,255,255,0.9) 50%, rgba(147,197,253,0.6) 70%, transparent 100%); box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 24px rgba(37,99,235,0.3);">
+    </div>
+  </div>
+
+  <!-- ── ROLE ────────────────────────────────── -->
+  <div class="reveal mt-5 z-10" data-delay="0.20">
+    <p class="text-lg md:text-xl font-medium text-slate-300 tracking-wide text-center"
+      style="letter-spacing: 0.02em;">
+      {profile.roleTitle}
+    </p>
+  </div>
+
+  <!-- ── HEADLINE DISCIPLINES ───────────────── -->
+  <div class="reveal mt-3 z-10" data-delay="0.24">
+    <p class="text-xs font-mono tracking-[0.28em] uppercase text-center"
+      style="color: rgba(147,197,253,0.65);">
+      {profile.headline}
+    </p>
+  </div>
+
+  <!-- ── SUMMARY ─────────────────────────────── -->
+  <div class="reveal mt-5 z-10" data-delay="0.28">
+    <p class="text-sm text-slate-400 leading-relaxed text-center max-w-lg mx-auto">
+      {profile.summary}
+    </p>
+  </div>
+
+  <!-- ── CTA PILL NAV ────────────────────────── -->
+  <div class="reveal mt-10 z-10" data-delay="0.34">
+    <div class="inline-flex items-center gap-1 rounded-full p-1.5"
+      style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
+      <a
+        href={profile.links.whatsapp}
+        target="_blank"
+        rel="noreferrer"
+        class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);"
+      >
+        ↗ WhatsApp
+      </a>
+      <a
+        href="/work"
+        class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200"
+      >
+        Work
+      </a>
+      <a
+        href="/about"
+        class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200"
+      >
+        About
+      </a>
+      <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
+      <a
+        href="/contact"
+        class="rounded-full px-5 py-2 text-xs font-medium transition-all duration-200"
+        style="background: rgba(255,255,255,0.08); color: #e2e8f0;"
+      >
+        Contact →
+      </a>
+    </div>
+  </div>
+
+  <!-- ── SOCIAL PROOF ────────────────────────── -->
+  <div class="reveal flex items-center justify-center gap-3 mt-8 z-10" data-delay="0.40">
+    <div class="flex -space-x-2">
+      {["M","B","R"].map((l) => (
+        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-obsidian"
+          style="background: linear-gradient(135deg, #2563eb, #93c5fd); font-size: 0.55rem;">
+          {l}
+        </div>
+      ))}
+    </div>
+    <p class="text-xs font-mono text-slate-600">2,300+ verified leads delivered across UAE campaigns</p>
+  </div>
+
+  <!-- ── SCROLL INDICATOR ────────────────────── -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 pointer-events-none">
+    <span class="text-xs font-mono tracking-widest uppercase text-slate-700">Scroll</span>
+    <div class="w-px h-10" style="background: linear-gradient(180deg, rgba(147,197,253,0.4) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite;">
+    </div>
+  </div>
+
 </section>
 
 
@@ -525,6 +550,7 @@ const personJsonLd = {
 
 </BaseLayout>
 <style>
+
   /* ════════════════════════════════════════════════
      TICKER — 3 ROWS, EACH A CONTINUOUS LOOP
   ════════════════════════════════════════════════ */
@@ -705,4 +731,50 @@ const personJsonLd = {
     from { transform: rotate(0deg) translateX(163px) rotate(0deg); top: 50%; left: 50%; }
     to   { transform: rotate(360deg) translateX(163px) rotate(-360deg); top: 50%; left: 50%; }
   }
+
+  /* ════════════════════════════════════════════════
+     HERO CENTERED — NEW STYLES
+  ════════════════════════════════════════════════ */
+
+  /* Scroll indicator pulse */
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+    50%       { opacity: 1;   transform: scaleY(1); }
+  }
+
+  /* Centered orbit dots — different from side-layout version */
+  @keyframes dotOrbitCenter {
+    0%   { transform: rotate(0deg) translateX(140px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(140px) rotate(-360deg); }
+  }
+
+  @keyframes dotOrbitCenter2 {
+    0%   { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+  }
+
+  /* Name glow breathing */
+  .hero-name {
+    animation: nameBreath 5s ease-in-out infinite;
+  }
+
+  @keyframes nameBreath {
+    0%, 100% { text-shadow: 0 0 80px rgba(37,99,235,0.35), 0 0 120px rgba(37,99,235,0.15); }
+    50%      { text-shadow: 0 0 100px rgba(37,99,235,0.55), 0 0 160px rgba(37,99,235,0.25), 0 0 200px rgba(147,197,253,0.10); }
+  }
+
+  /* Pulse animation for status dots */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(147,197,253,0.8); }
+    50%      { opacity: 0.6; box-shadow: 0 0 12px rgba(147,197,253,0.4); }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .hero-name {
+      letter-spacing: 0.03em !important;
+    }
+  }
+
 </style>
+

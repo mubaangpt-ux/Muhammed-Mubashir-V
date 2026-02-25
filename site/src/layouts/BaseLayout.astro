@@ -72,63 +72,90 @@ const isActive = (href: string) =>
     <div id="cursor-ring" aria-hidden="true"></div>
 
     <!-- NAV -->
-    <header class="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-      <div class="mx-auto max-w-6xl">
-        <nav class="glass-panel rounded-2xl px-5 py-3 flex items-center justify-between">
-          <!-- Logo -->
-          <a href="/" class="flex items-center gap-3 group">
-            <div class="relative w-9 h-9 shrink-0">
-              <!-- Animated ring -->
-              <div class="absolute inset-0 rounded-full animate-pulse-glow"
-                style="background: transparent; border: 1px solid rgba(147,197,253,0.35); border-radius: 9999px; transform: scale(1.18);">
-              </div>
-              <!-- Photo -->
-              <img
-                src="/profile.jpg"
-                alt="Muhammed Mubashir V"
-                width="36"
-                height="36"
-                class="w-9 h-9 rounded-full object-cover object-top"
-                style="border: 1.5px solid rgba(147,197,253,0.40); box-shadow: 0 0 12px rgba(37,99,235,0.35);"
-              />
-            </div>
-            <span class="text-sm font-semibold tracking-wide text-slate-100 group-hover:text-white transition hidden sm:block">
-              {profile.name}
-            </span>
-          </a>
+    <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); background: rgba(7,9,15,0.55); border-bottom: 1px solid rgba(255,255,255,0.07);">
 
-          <!-- Links -->
-          <div class="flex items-center gap-1 text-sm">
-            {navItems.map((item) => (
-              <a
-                href={item.href}
-                class={`rounded-full px-3.5 py-1.5 font-medium transition-all duration-200 ${
-                  isActive(item.href)
-                    ? "bg-white/10 text-white"
-                    : "text-slate-400 hover:bg-white/6 hover:text-white"
-                }`}
-              >
-                {item.label}
-              </a>
-            ))}
-            <a
-              href={profile.links.whatsapp}
-              target="_blank"
-              rel="noreferrer"
-              class="ml-2 hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200"
-              style="background: rgba(37,99,235,0.25); border: 1px solid rgba(37,99,235,0.45); color: #93c5fd;"
-              onmouseover="this.style.background='rgba(37,99,235,0.4)'"
-              onmouseout="this.style.background='rgba(37,99,235,0.25)'"
-            >
-              <span>↗</span> WhatsApp
-            </a>
+      <!-- Top micro-bar: location left · logo center · status right -->
+      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-10 border-b" style="border-color: rgba(255,255,255,0.05);">
+        <span class="text-xs font-mono tracking-widest text-slate-600 uppercase hidden sm:block">
+          {profile.location} &nbsp;·&nbsp; Available for mandates
+        </span>
+        <a href="/" class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+          <div class="relative w-6 h-6 shrink-0">
+            <img
+              src="/profile.jpg"
+              alt={profile.name}
+              width="24"
+              height="24"
+              class="w-6 h-6 rounded-full object-cover object-top"
+              style="border: 1px solid rgba(147,197,253,0.35);"
+            />
           </div>
-        </nav>
+          <span class="text-xs font-mono tracking-[0.25em] uppercase text-slate-300">
+            {profile.name}
+          </span>
+        </a>
+        <div class="flex items-center gap-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="box-shadow: 0 0 6px rgba(74,222,128,0.7);"></div>
+          <span class="text-xs font-mono tracking-widest text-slate-500 uppercase hidden sm:block">Open to work</span>
+        </div>
       </div>
+
+      <!-- Main nav bar -->
+      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-12">
+
+        <!-- Left: photo + name (desktop) -->
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="relative w-7 h-7 shrink-0">
+            <div class="absolute inset-0 rounded-full"
+              style="border: 1px solid rgba(147,197,253,0.30); transform: scale(1.25); animation: pulse 3s ease-in-out infinite;">
+            </div>
+            <img
+              src="/profile.jpg"
+              alt={profile.name}
+              width="28"
+              height="28"
+              class="w-7 h-7 rounded-full object-cover object-top relative z-10"
+              style="border: 1.5px solid rgba(147,197,253,0.40); box-shadow: 0 0 10px rgba(37,99,235,0.4);"
+            />
+          </div>
+          <span class="text-xs font-semibold tracking-wider text-slate-400 group-hover:text-white transition hidden lg:block">
+            MV
+          </span>
+        </a>
+
+        <!-- Center: nav links -->
+        <nav class="flex items-center gap-1 text-xs">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class={`rounded-full px-3.5 py-1.5 font-medium tracking-wide transition-all duration-200 ${
+                isActive(item.href)
+                  ? "text-white"
+                  : "text-slate-500 hover:text-slate-200"
+              }`}
+              style={isActive(item.href) ? "background: rgba(255,255,255,0.08);" : ""}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <!-- Right: WhatsApp CTA -->
+        <a
+          href={profile.links.whatsapp}
+          target="_blank"
+          rel="noreferrer"
+          class="hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-wider transition-all duration-200 hover:scale-[1.03]"
+          style="background: rgba(37,99,235,0.20); border: 1px solid rgba(37,99,235,0.40); color: #93c5fd;"
+        >
+          <span style="color: #93c5fd;">↗</span> WhatsApp
+        </a>
+      </div>
+
     </header>
 
     <!-- MAIN -->
-    <main class="flex-1 pt-20 md:pt-24 container-shell">
+    <main class="flex-1 pt-[88px] container-shell">
       <slot />
     </main>
 
