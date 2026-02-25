@@ -51,8 +51,8 @@ export const profile: Profile = {
     { language: "Malayalam", proficiency: "Native" },
   ],
   impactMetrics: [
-    { value: "2300+", label: "Verified Leads", detail: "Generated across Dubai real estate campaigns" },
-    { value: "2,000+", label: "Monthly Traffic Lift", detail: "From SEO & content performance systems" },
+    { value: "100+", label: "AI-Assisted Builds", detail: "Designs, web apps, landing systems, AI workflows, and video formats delivered faster with AI." },
+    { value: "-35%", label: "Cost per Lead", detail: "Through creative testing + audience segmentation." },
     { value: "5+", label: "Brands Managed", detail: "Across UAE market channels" },
     { value: "4+", label: "Years Experience", detail: "Dubai & regional digital operations" },
   ],

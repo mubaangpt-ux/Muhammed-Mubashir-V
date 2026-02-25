@@ -78,26 +78,26 @@ const isActive = (href: string) =>
     <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(7,9,15,0.28); border-bottom: 1px solid rgba(255,255,255,0.04);">
 
       <!-- Top micro-bar: location left · name center · status right -->
-      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
-        <span class="text-xs font-mono tracking-widest uppercase hidden sm:block" style="color: rgba(147,197,253,0.45);">
+      <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
+        <span class="text-xs font-mono tracking-widest uppercase hidden sm:block justify-self-start" style="color: rgba(147,197,253,0.45);">
           {profile.location} &nbsp;·&nbsp; Available for mandates
         </span>
-        <a href="/" class="absolute left-1/2 -translate-x-1/2">
+        <a href="/" class="justify-self-center">
           <span class="text-xs font-mono tracking-[0.32em] uppercase" style="color: rgba(224,237,248,0.55);">
             {profile.name}
           </span>
         </a>
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5 justify-self-end">
           <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="box-shadow: 0 0 6px rgba(74,222,128,0.6); opacity: 0.8;"></div>
           <span class="text-xs font-mono tracking-widest uppercase hidden sm:block" style="color: rgba(147,197,253,0.40);">Open to work</span>
         </div>
       </div>
 
       <!-- Main nav bar -->
-      <div class="mx-auto max-w-7xl px-6 flex items-center justify-between h-12">
+      <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-12">
 
         <!-- Left: subtle home link only -->
-        <a href="/" class="flex items-center group">
+        <a href="/" class="flex items-center group justify-self-start">
           <span class="text-xs font-mono tracking-[0.3em] uppercase transition-colors duration-200 hidden lg:block"
             style="color: rgba(147,197,253,0.30);"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
@@ -107,7 +107,7 @@ const isActive = (href: string) =>
         </a>
 
         <!-- Center: nav links -->
-        <nav class="flex items-center gap-1 text-xs">
+        <nav class="flex items-center gap-1 text-xs justify-self-center">
           {navItems.map((item) => (
             <a
               href={item.href}
@@ -128,7 +128,7 @@ const isActive = (href: string) =>
           href={profile.links.whatsapp}
           target="_blank"
           rel="noreferrer"
-          class="hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-wider transition-all duration-200 hover:scale-[1.03]"
+          class="hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-wider transition-all duration-200 hover:scale-[1.03] justify-self-end"
           style="background: rgba(37,99,235,0.20); border: 1px solid rgba(37,99,235,0.40); color: #93c5fd;"
         >
           <span style="color: #93c5fd;">↗</span> WhatsApp

@@ -250,7 +250,8 @@ const personJsonLd = {
   <!-- ── NAME / ROLE / HEADLINE — FULL-WIDTH DARK FADE ──────────────── -->
   <div class="relative w-full -mx-6" style="margin-top: -90px;">
     <!-- Dark fade band (full width) -->
-    <div class="absolute inset-x-0 top-0 bottom-0 pointer-events-none" style="
+    <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 pointer-events-none" style="
+      width: 100vw;
       background: linear-gradient(
         0deg,
         rgba(7,9,15,0.92) 0%,
@@ -337,7 +338,7 @@ const personJsonLd = {
       <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
       <a
         href="/contact"
-        class="rounded-full px-5 py-2 text-xs font-medium transition-all duration-200"
+        class="contact-pill rounded-full px-5 py-2 text-xs font-medium transition-all duration-200"
         style="background: rgba(255,255,255,0.08); color: #e2e8f0;"
       >
         Contact →
@@ -807,6 +808,23 @@ const personJsonLd = {
     .ticker-row  { animation: none !important; }
     .ticker-item { animation: none !important; }
     .ticker-dot  { animation: none !important; }
+  }
+
+  /* Contact pill glow (segmented control) */
+  .contact-pill:hover,
+  .contact-pill:focus-visible {
+    color: #f0fff4;
+    background: rgba(34,197,94,0.18);
+    box-shadow:
+      0 0 0 1px rgba(34,197,94,0.45),
+      0 0 18px rgba(34,197,94,0.55),
+      0 0 36px rgba(34,197,94,0.35);
+  }
+  .contact-pill:active {
+    box-shadow:
+      0 0 0 1px rgba(34,197,94,0.55),
+      0 0 12px rgba(34,197,94,0.45);
+    transform: scale(0.99);
   }
 
 
