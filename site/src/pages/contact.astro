@@ -46,12 +46,8 @@ import { profile } from "../data/profile";
           name="contact"
           method="POST"
           action="/contact/?success=true#thanks"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
           class="space-y-5"
         >
-          <input type="hidden" name="form-name" value="contact" />
-          <p class="hidden"><label>Don't fill this: <input name="bot-field" /></label></p>
 
           {[
             { id: "name", label: "Name", type: "text", placeholder: "Your name" },

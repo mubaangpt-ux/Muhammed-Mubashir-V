@@ -41,10 +41,9 @@ WriteLine ("Repo root: " + (git rev-parse --show-toplevel 2>$null))
 WriteLine ("Branch: " + (git branch --show-current 2>$null))
 WriteLine "Remote:"
 WriteLine (git remote -v 2>$null | Out-String)
-WriteLine "Netlify: base=site | publish=dist | command=npm run build"
+WriteLine "Deploy: Hostinger via GitHub Actions (FTP upload of site/dist to /public_html)"
 
 WriteHeader "ROOT FILES"
-DumpFile "netlify.toml"
 DumpFile ".gitignore"
 DumpFile ".vscode\tasks.json"
 DumpFile ".vscode\settings.json"

@@ -29,7 +29,7 @@ export const profile: Profile = {
   headline: "Digital Marketing \u2022 Performance \u2022 Design \u2022 Web Systems",
   summary: "Operator-level digital growth: Meta/Google ads, conversion funnels, pixel tracking, WordPress systems, and content pipelines — built for measurable outcomes across UAE markets.",
   location: "Dubai, UAE",
-  siteUrl: "https://muhammed-mubashir-v.netlify.app",
+  siteUrl: "https://your-domain.com",
   email: "mubaan74@gmail.com",
   links: {
     whatsapp: "https://wa.me/971529144135",
