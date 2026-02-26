@@ -81,7 +81,7 @@ const personJsonLd = {
 <!-- ══════════════════════════════════════════════
      HERO — CENTERED SPOTLIGHT LAYOUT
 ═══════════════════════════════════════════════ -->
-<section class="hero-section relative min-h-[70vh] sm:min-h-[78vh] flex flex-col items-center justify-center px-6 pt-12 sm:pt-14 pb-20 sm:pb-28 overflow-hidden text-center">
+<section class="hero-section relative flex flex-col items-center justify-start px-6 overflow-hidden text-center" style="min-height: 100svh; padding-top: clamp(88px, 10vh, 110px); padding-bottom: clamp(16px, 3vh, 32px);">
 
   <!-- ── BACKGROUND LAYERS ───────────────────── -->
 
@@ -112,7 +112,7 @@ const personJsonLd = {
 
   <!-- ── PHOTO — ALEX MAREX STYLE ─────────── -->
 <div class="reveal relative z-10 flex items-center justify-center" data-delay="0.05"
-  style="width: 100%; max-width: 480px; height: 480px; margin-bottom: -80px;">
+  style="width: 100%; max-width: 420px; height: clamp(260px, 38vh, 380px); margin-bottom: -60px;">
 
     <!-- ═══ BACKGROUND GLOW LAYERS ═══ -->
 
@@ -205,7 +205,7 @@ const personJsonLd = {
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 280px;">
+    width: clamp(180px, 28vw, 280px);">
 
     <img
       src="/profile.png"
@@ -248,7 +248,7 @@ const personJsonLd = {
   <!-- Location pill moves below name — see name section -->
 
   <!-- ── NAME / ROLE / HEADLINE — FULL-WIDTH DARK FADE ──────────────── -->
-  <div class="relative w-full -mx-6" style="margin-top: -90px;">
+  <div class="relative w-full -mx-6">
     <!-- Dark fade band (full width) -->
     <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 pointer-events-none" style="
       width: 100vw;
@@ -262,11 +262,18 @@ const personJsonLd = {
     "></div>
 
     <div class="relative mx-auto max-w-5xl px-6 flex flex-col items-center">
+      <div class="reveal flex items-center justify-center gap-2 mb-3 z-10" data-delay="0.10">
+        <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-mono tracking-widest uppercase"
+          style="background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.30); color: #93c5fd;">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block" style="box-shadow: 0 0 6px rgba(147,197,253,0.8); animation: pulse 2s ease-in-out infinite;"></span>
+          {profile.location} &nbsp;·&nbsp; Open to new mandates
+        </span>
+      </div>
       <!-- Name -->
-      <div class="reveal z-10" data-delay="0.15">
+      <div class="reveal z-10" data-delay="0.15" style="margin-top: clamp(-70px, -8vh, -50px); position: relative;">
         <!-- Name in Orbitron — same style as ALEX MAREX reference -->
         <h1 class="hero-name text-center uppercase"
-          style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
+          style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.5rem, 5.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
           {profile.name}
         </h1>
 
@@ -274,27 +281,28 @@ const personJsonLd = {
         <div class="relative mx-auto" style="height: 32px; margin-top: -2px; overflow: hidden; pointer-events: none;">
           <!-- Reflected text — fades downward -->
           <h1 class="text-center uppercase"
-            style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.8rem, 4.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8; transform: scaleY(-1); opacity: 0.18; mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%); -webkit-mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);">
+            style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.5rem, 5.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8; transform: scaleY(-1); opacity: 0.18; mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%); -webkit-mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);">
             {profile.name}
           </h1>
         </div>
 
         <!-- Thin glow line -->
-        <div class="mx-auto mt-1"
-          style="height: 1px; width: 55%; max-width: 380px; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 25%, rgba(255,255,255,0.80) 50%, rgba(147,197,253,0.45) 75%, transparent 100%); box-shadow: 0 0 10px rgba(147,197,253,0.4), 0 0 20px rgba(37,99,235,0.25);">
+        <div class="mx-auto mt-2 mb-1"
+          style="height: 1px; width: clamp(180px, 50%, 380px); background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 25%, rgba(255,255,255,0.80) 50%, rgba(147,197,253,0.45) 75%, transparent 100%); box-shadow: 0 0 10px rgba(147,197,253,0.4), 0 0 20px rgba(37,99,235,0.25);">
         </div>
       </div>
 
       <!-- Role -->
-      <div class="reveal mt-5 z-10" data-delay="0.20">
-    <p class="text-lg md:text-xl font-medium text-slate-300 tracking-wide text-center"
-      style="font-family: 'Poppins', sans-serif; font-weight: 500; letter-spacing: 0.02em;">
-      {profile.roleTitle}
-    </p>
+      <div class="reveal mt-3 z-10" data-delay="0.20">
+        <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide text-center"
+          style="font-family: 'Poppins', sans-serif; font-weight: 500; letter-spacing: 0.02em;">
+          <span class="hidden md:inline">Digital Operations &amp; Growth Manager</span>
+          <span class="md:hidden">Helping You Build, Optimize, and Grow Your Business</span>
+        </p>
       </div>
 
       <!-- Headline disciplines -->
-      <div class="reveal mt-3 z-10" data-delay="0.24">
+      <div class="reveal mt-2 z-10" data-delay="0.24">
         <p class="text-xs font-mono tracking-[0.28em] uppercase text-center"
           style="color: rgba(147,197,253,0.65);">
           {profile.headline}
@@ -304,14 +312,14 @@ const personJsonLd = {
   </div>
 
   <!-- ── SUMMARY ─────────────────────────────── -->
-  <div class="reveal mt-5 z-10" data-delay="0.28">
-    <p class="text-sm text-slate-400 leading-relaxed text-center max-w-lg mx-auto">
+  <div class="reveal hero-summary mt-3 z-10" data-delay="0.28">
+    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed text-center max-w-lg mx-auto">
       {profile.summary}
     </p>
   </div>
 
   <!-- ── CTA PILL NAV ────────────────────────── -->
-  <div class="reveal mt-10 z-10" data-delay="0.34">
+  <div class="reveal hero-cta-pill mt-4 z-10" data-delay="0.34">
     <div class="inline-flex items-center gap-1 rounded-full p-1.5"
       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
       <a
@@ -347,7 +355,7 @@ const personJsonLd = {
   </div>
 
   <!-- ── SOCIAL PROOF ────────────────────────── -->
-  <div class="reveal flex items-center justify-center gap-3 mt-8 mb-16 z-10" data-delay="0.40">
+  <div class="reveal hero-social-proof flex items-center justify-center gap-3 mt-4 mb-4 z-10" data-delay="0.40">
     <div class="flex -space-x-2">
       {["M","B","R"].map((l) => (
         <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-obsidian"
@@ -360,7 +368,7 @@ const personJsonLd = {
   </div>
 
   <!-- ── SCROLL INDICATOR ────────────────────── -->
-  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10 pointer-events-none">
+  <div class="hero-scroll-indicator absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10 pointer-events-none">
     <div class="w-px h-8" style="background: linear-gradient(180deg, rgba(147,197,253,0.35) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite;">
     </div>
     <span class="text-xs font-mono tracking-[0.3em] uppercase" style="color: rgba(147,197,253,0.30);">Scroll</span>
@@ -1177,6 +1185,30 @@ const personJsonLd = {
     .hero-name {
       letter-spacing: 0.03em !important;
     }
+  }
+
+  /* ════════════════════════════════════════════════ 
+     HERO VIEWPORT FIT — MOBILE OVERRIDES
+  ════════════════════════════════════════════════ */
+
+  /* Hide summary and CTAs on mobile to keep headline visible */
+  @media (max-width: 639px) {
+    /* Summary stays — just tighter */
+    .hero-summary { margin-top: 8px; }
+
+    /* CTA pill smaller on mobile */
+    .hero-cta-pill {
+      transform: scale(0.9);
+      transform-origin: center;
+    }
+
+    /* Social proof hidden on mobile to save space */
+    .hero-social-proof { display: none; }
+  }
+
+  /* Ensure scroll indicator doesn't overlap content */
+  @media (max-height: 700px) {
+    .hero-scroll-indicator { display: none; }
   }
 
 
