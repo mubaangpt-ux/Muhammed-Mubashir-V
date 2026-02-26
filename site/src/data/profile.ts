@@ -25,7 +25,7 @@ export type Profile = {
 
 export const profile: Profile = {
   name: "Muhammed Mubashir V",
-  roleTitle: "Digital Operations & Growth Manager",
+  roleTitle: "Helping you build, optimize, and grow your business",
   headline: "Digital Marketing \u2022 Performance \u2022 Design \u2022 Web Systems",
   summary: "Operator-level digital growth: Meta/Google ads, conversion funnels, pixel tracking, WordPress systems, and content pipelines — built for measurable outcomes across UAE markets.",
   location: "Dubai, UAE",
