@@ -1,4 +1,4 @@
----
+﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import { profile } from "../data/profile";
@@ -79,7 +79,7 @@ const personJsonLd = {
 >
 
 <!-- ----------------------------------------------
-     HERO � RESTRUCTURED LAYOUT
+     HERO ï¿½ RESTRUCTURED LAYOUT
      Portrait: absolute layer behind name
      Pill: independent flex item above name
      Glow baseline: structural anchor for portrait
@@ -121,13 +121,14 @@ const personJsonLd = {
   </div>
 
 
-  <!-- -- CONTENT COLUMN � z-index: 2 (above portrait) -- -->
-  <div class="relative flex flex-col items-center" style="z-index: 2;">
-
-    <!-- ORBITAL RINGS � centered, positioned here so they sit around portrait -->
-    <!-- These are purely decorative; portrait is behind via z-index -->
-    <div class="relative flex items-center justify-center pointer-events-none"
-      style="width: clamp(240px, 40vw, 360px); height: clamp(240px, 40vw, 360px); margin-bottom: -40px;">
+  <div class="absolute left-1/2 pointer-events-none"
+  style="
+    z-index: 0;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    width: clamp(300px, 42vw, 420px);
+    height: clamp(300px, 42vw, 420px);
+  ">
 
       <!-- Ring 1 -->
       <div class="absolute" style="
@@ -171,14 +172,21 @@ const personJsonLd = {
       </div>
     </div>
 
-    <!-- -- EYEBROW PILL � independent, above name, never overlaps -- -->
+<!-- -- CONTENT COLUMN ï¿½ z-index: 2 (above portrait) -- -->
+  <div class="relative flex flex-col items-center" style="z-index: 2;">
+
+    <!-- ORBITAL RINGS ï¿½ centered, positioned here so they sit around portrait -->
+    <!-- These are purely decorative; portrait is behind via z-index -->
+    
+
+    <!-- -- EYEBROW PILL ï¿½ independent, above name, never overlaps -- -->
     <div class="reveal flex items-center justify-center mb-4" data-delay="0.10" style="z-index:2;">
       <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-mono tracking-widest uppercase"
         style="background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.30); color: #93c5fd;">
         <span class="w-1.5 h-1.5 rounded-full inline-block"
           style="background:#93c5fd; box-shadow: 0 0 6px rgba(147,197,253,0.8); animation: pulse 2s ease-in-out infinite;">
         </span>
-        {profile.location} &nbsp;�&nbsp; Open to new mandates
+        {profile.location} &nbsp;ï¿½&nbsp; Open to new mandates
       </span>
     </div>
 
@@ -204,7 +212,7 @@ const personJsonLd = {
       </div>
     </div>
 
-    <!-- -- GLOW BASELINE � structural anchor for portrait bottom -- -->
+    <!-- -- GLOW BASELINE ï¿½ structural anchor for portrait bottom -- -->
     <!-- Portrait's absolute bottom will align to THIS element -->
     <div class="hero-glow-baseline reveal mx-auto" data-delay="0.16"
       style="position: relative; z-index: 2; height: 1px; width: clamp(200px, 55%, 420px); margin-top: 6px; margin-bottom: 0;
@@ -216,7 +224,7 @@ const personJsonLd = {
           transparent 100%);
         box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 28px rgba(37,99,235,0.35), 0 2px 40px rgba(37,99,235,0.15);">
     </div>
-  <!-- PORTRAIT — anchored inside this wrapper, bottom: 0 aligns feet to baseline -->
+  <!-- PORTRAIT â€” anchored inside this wrapper, bottom: 0 aligns feet to baseline -->
   <div class="hero-portrait-layer absolute left-1/2 pointer-events-none"
     style="
       z-index: 1;
@@ -241,7 +249,7 @@ const personJsonLd = {
       loading="eager"
     />
 
-    <!-- Portrait edge masks — dissolve into background -->
+    <!-- Portrait edge masks â€” dissolve into background -->
     <div class="absolute inset-0 pointer-events-none" style="
       -webkit-mask-image:
         radial-gradient(ellipse 88% 85% at 50% 40%, black 25%, transparent 72%),
@@ -254,7 +262,7 @@ const personJsonLd = {
       background: transparent;">
     </div>
 
-    <!-- Bottom ground fog — portrait melts into glow baseline -->
+    <!-- Bottom ground fog â€” portrait melts into glow baseline -->
     <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
       height: 40%;
       background: linear-gradient(0deg,
@@ -339,7 +347,7 @@ const personJsonLd = {
 
 
 <!-- ----------------------------------------------
-     TICKER STRIP � 3 ROW LOOP
+     TICKER STRIP ï¿½ 3 ROW LOOP
 ----------------------------------------------- -->
 <div class="ticker-section relative border-y" style="border-color: rgba(255,255,255,0.06); overflow: hidden; padding: 2px 0;">
 
@@ -353,7 +361,7 @@ const personJsonLd = {
     style="width: 140px; background: linear-gradient(270deg, #07090f 0%, #07090f 25%, transparent 100%);">
   </div>
 
-  <!-- ROW 1 � Marketing skills, medium speed -->
+  <!-- ROW 1 ï¿½ Marketing skills, medium speed -->
   <div class="ticker-row-wrap" style="padding: 10px 0 6px;">
     <div class="ticker-row row-1">
       {[...tickerRow1, ...tickerRow1, ...tickerRow1, ...tickerRow1].map((item, i) => (
@@ -365,7 +373,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 2 � AI tools, slower -->
+  <!-- ROW 2 ï¿½ AI tools, slower -->
   <div class="ticker-row-wrap" style="padding: 6px 0;">
     <div class="ticker-row row-2">
       {[...tickerRow2, ...tickerRow2, ...tickerRow2, ...tickerRow2].map((item, i) => (
@@ -377,7 +385,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 3 � Web & design tools, faster -->
+  <!-- ROW 3 ï¿½ Web & design tools, faster -->
   <div class="ticker-row-wrap" style="padding: 6px 0 10px;">
     <div class="ticker-row row-3">
       {[...tickerRow3, ...tickerRow3, ...tickerRow3, ...tickerRow3].map((item, i) => (
@@ -460,7 +468,7 @@ const personJsonLd = {
 
 
 <!-- ----------------------------------------------
-     FEATURED WORK � ALEX MAREX LAYOUT
+     FEATURED WORK ï¿½ ALEX MAREX LAYOUT
 ----------------------------------------------- -->
 <section class="work-section py-24 px-6 section-border" id="work">
   <div class="mx-auto max-w-6xl">
@@ -518,14 +526,14 @@ const personJsonLd = {
       <!-- RIGHT: Two stacked glass cards -->
       <div class="flex flex-col gap-5">
 
-        <!-- Card 1 � 180 Degree -->
+        <!-- Card 1 ï¿½ 180 Degree -->
         <a href="/work/180-degree-meal-planner"
           class="work-card-right work-card-1 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
 
           <!-- Image area -->
           <div class="relative overflow-hidden" style="height: 180px; background: rgba(37,99,235,0.08);">
-            <!-- Placeholder � replace src with real screenshot -->
+            <!-- Placeholder ï¿½ replace src with real screenshot -->
             <div class="w-full h-full flex items-center justify-center"
               style="background: linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(7,9,15,0.8) 100%);">
               <div class="text-center">
@@ -553,7 +561,7 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              180 Degree � Healthy Meal Plans + Web App Plugin
+              180 Degree ï¿½ Healthy Meal Plans + Web App Plugin
             </h3>
             <p class="text-xs font-mono text-slate-600 mb-3">2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
@@ -573,7 +581,7 @@ const personJsonLd = {
           </div>
         </a>
 
-        <!-- Card 2 � bluemark -->
+        <!-- Card 2 ï¿½ bluemark -->
         <a href="/work/bluemark-real-estate-leadgen"
           class="work-card-right work-card-2 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
@@ -606,9 +614,9 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              bluemark Real Estate � Luxury Lead Gen System
+              bluemark Real Estate ï¿½ Luxury Lead Gen System
             </h3>
-            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 � Jul 2025</p>
+            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 ï¿½ Jul 2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
               Developed a real-estate lead engine using creative testing, segmented audience strategy, and WhatsApp-first follow-up flows.
             </p>
@@ -633,7 +641,7 @@ const personJsonLd = {
     <!-- --- ROW 2: 3-column stagger (like reference "Features" block) --- -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
 
-      <!-- Left card � offset DOWN -->
+      <!-- Left card ï¿½ offset DOWN -->
       <a href="/work/raslan-bc-growth"
         class="work-card-bottom work-card-3 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-top: 60px;">
@@ -661,7 +669,7 @@ const personJsonLd = {
 
         <div class="p-5">
           <h3 class="font-display font-semibold text-white text-sm mb-2 group-hover:text-accent-soft transition-colors">
-            Raslan BC � Construction Growth
+            Raslan BC ï¿½ Construction Growth
           </h3>
           <p class="text-xs text-slate-500 leading-relaxed mb-4">
             Strengthened demand generation through messaging clarity, portfolio storytelling, and lead-path simplification.
@@ -675,11 +683,11 @@ const personJsonLd = {
         </div>
       </a>
 
-      <!-- CENTER image card � tall, no offset -->
+      <!-- CENTER image card ï¿½ tall, no offset -->
       <div class="work-card-bottom work-card-center rounded-2xl overflow-hidden relative"
         style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px); min-height: 380px;">
 
-        <!-- Placeholder center image � replace with your brand/campaign photo -->
+        <!-- Placeholder center image ï¿½ replace with your brand/campaign photo -->
         <div class="w-full h-full absolute inset-0 flex items-center justify-center"
           style="background: linear-gradient(160deg, rgba(37,99,235,0.18) 0%, rgba(7,9,15,0.95) 100%);">
           <div class="text-center p-8">
@@ -705,7 +713,7 @@ const personJsonLd = {
           <h3 class="font-display font-semibold text-white text-base mb-1">
             Multi-Company Digital Ops
           </h3>
-          <p class="text-xs text-slate-400">Jul 2025 � Jan 2026</p>
+          <p class="text-xs text-slate-400">Jul 2025 ï¿½ Jan 2026</p>
           <a href="/work/multi-company-digital-ops"
             class="inline-flex items-center gap-1.5 mt-4 text-xs font-mono text-accent-soft/70 hover:text-accent-soft transition-colors">
             View case study ?
@@ -718,7 +726,7 @@ const personJsonLd = {
         </div>
       </div>
 
-      <!-- Right card � offset UP -->
+      <!-- Right card ï¿½ offset UP -->
       <a href="/work/raslan-media-content-performance"
         class="work-card-bottom work-card-4 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-bottom: 60px;">
@@ -743,7 +751,7 @@ const personJsonLd = {
 
         <div class="p-5">
           <h3 class="font-display font-semibold text-white text-sm mb-2 group-hover:text-accent-soft transition-colors">
-            Raslan Media � Content System + Performance
+            Raslan Media ï¿½ Content System + Performance
           </h3>
           <p class="text-xs text-slate-500 leading-relaxed mb-4">
             Built repeatable content and campaign workflows to support regular publishing and measurable growth loops.
@@ -790,7 +798,7 @@ const personJsonLd = {
             </div>
             <div>
               <p class="text-sm font-semibold text-white">{item.name}</p>
-              <p class="text-xs text-slate-500">{item.role} � {item.company}</p>
+              <p class="text-xs text-slate-500">{item.role} ï¿½ {item.company}</p>
             </div>
           </div>
         </div>
@@ -894,7 +902,7 @@ const personJsonLd = {
 <style>
 
   /* ------------------------------------------------
-     TICKER � 3 ROWS, EACH A CONTINUOUS LOOP
+     TICKER ï¿½ 3 ROWS, EACH A CONTINUOUS LOOP
   ------------------------------------------------ */
 
   /* Outer wrapper clips overflow */
@@ -903,7 +911,7 @@ const personJsonLd = {
     width: 100%;
   }
 
-  /* Row: single flex line, no wrapping � CRITICAL */
+  /* Row: single flex line, no wrapping ï¿½ CRITICAL */
   .ticker-row {
     display: flex;
     flex-direction: row;
@@ -925,7 +933,7 @@ const personJsonLd = {
 
   /* Seamless loop keyframe
      -25% = one copy of the list (4 copies total, so 1/4 = 25%)
-     When it snaps from -25% back to 0 the content is identical � invisible jump */
+     When it snaps from -25% back to 0 the content is identical ï¿½ invisible jump */
   @keyframes marqueeLeft {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-25%); }
@@ -937,7 +945,7 @@ const personJsonLd = {
   ------------------------------------------------ */
 
   .ticker-item {
-    /* Stays on one line � CRITICAL */
+    /* Stays on one line ï¿½ CRITICAL */
     display: inline-flex;
     flex-shrink: 0;
     white-space: nowrap;
@@ -951,7 +959,7 @@ const personJsonLd = {
     text-transform: uppercase;
     color: rgba(92, 107, 128, 0.85);
 
-    /* Glow animation � delay set per item via CSS var */
+    /* Glow animation ï¿½ delay set per item via CSS var */
     animation: itemGlow 9s ease-in-out infinite;
     animation-delay: var(--glow-delay, 0s);
     animation-fill-mode: both;
@@ -1080,17 +1088,17 @@ const personJsonLd = {
 
   /* --- DOT ORBITS ---------------------------- */
 
-  /* Dot 1 � 170px radius */
+  /* Dot 1 ï¿½ 170px radius */
   
 
-  /* Dot 2 � 140px radius */
+  /* Dot 2 ï¿½ 140px radius */
   
 
-  /* Dot 3 � 110px radius */
+  /* Dot 3 ï¿½ 110px radius */
   
 
   /* ------------------------------------------------
-     HERO CENTERED � NEW STYLES
+     HERO CENTERED ï¿½ NEW STYLES
   ------------------------------------------------ */
 
   /* Scroll indicator pulse */
@@ -1132,12 +1140,12 @@ const personJsonLd = {
   }
 
   /* ------------------------------------------------ 
-     HERO VIEWPORT FIT � MOBILE OVERRIDES
+     HERO VIEWPORT FIT ï¿½ MOBILE OVERRIDES
   ------------------------------------------------ */
 
   /* Hide summary and CTAs on mobile to keep headline visible */
   @media (max-width: 639px) {
-    /* Summary stays � just tighter */
+    /* Summary stays ï¿½ just tighter */
     .hero-summary { margin-top: 8px; }
 
     /* CTA pill smaller on mobile */
@@ -1210,16 +1218,16 @@ const personJsonLd = {
   to   { transform: rotate(360deg); }
 }
 @keyframes dot1Orbit {
-  from { transform: rotate(0deg) translateX(clamp(100px,16vw,170px)) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(clamp(100px,16vw,170px)) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(180px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
 }
 @keyframes dot2Orbit {
-  from { transform: rotate(0deg) translateX(clamp(85px,13vw,140px)) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(clamp(85px,13vw,140px)) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
 }
 @keyframes dot3Orbit {
-  from { transform: rotate(0deg) translateX(clamp(70px,10vw,114px)) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(clamp(70px,10vw,114px)) rotate(-360deg); }
-}
-</style>
+  from { transform: rotate(0deg) translateX(79px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(79px) rotate(-360deg); }
+}</style>
+
 
