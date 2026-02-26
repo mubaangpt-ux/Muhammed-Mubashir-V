@@ -86,7 +86,7 @@ const personJsonLd = {
 ----------------------------------------------- -->
 <section
   class="hero-section relative overflow-hidden text-center"
-  style="min-height: 100svh; padding-top: clamp(110px, 12vh, 140px); padding-bottom: 40px;"
+  style="min-height: 100dvh; padding-top: clamp(150px, 16vh, 180px); padding-bottom: 40px;"
 >
 
   <!-- -- BACKGROUND LAYERS (z-index: 0) ---------- -->
@@ -125,8 +125,7 @@ const personJsonLd = {
   style="
     z-index: 0;
     transform: translate(-50%, -50%);
-    top: 50%;
-    width: clamp(300px, 42vw, 420px);
+    top: 40%;\n    width: clamp(300px, 42vw, 420px);
     height: clamp(300px, 42vw, 420px);
   ">
 
@@ -237,8 +236,7 @@ const personJsonLd = {
     style="
       z-index: 1;
       transform: translateX(-50%);
-      bottom: 0;
-      width: clamp(200px, 32vw, 320px);
+      bottom: calc(30% + 60px);\n      width: clamp(240px, 36vw, 380px);
     ">
     <img
       src="/profile.png"
@@ -1237,6 +1235,7 @@ const personJsonLd = {
   from { transform: rotate(0deg) translateX(79px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(79px) rotate(-360deg); }
 }</style>
+
 
 
 
