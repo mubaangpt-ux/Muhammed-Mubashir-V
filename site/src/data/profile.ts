@@ -53,7 +53,7 @@ export const profile: Profile = {
   impactMetrics: [
     { value: "100+", label: "AI-Assisted Builds", detail: "Designs, web apps, landing systems, AI workflows, and video formats delivered faster with AI." },
     { value: "-35%", label: "Cost per Lead", detail: "Through creative testing + audience segmentation." },
-    { value: "5+", label: "Brands Managed", detail: "Across UAE market channels" },
+    { value: "5+", label: "Brands Built", detail: "Across UAE market channels" },
     { value: "4+", label: "Years Experience", detail: "Dubai & regional digital operations" },
   ],
   capabilities: [
