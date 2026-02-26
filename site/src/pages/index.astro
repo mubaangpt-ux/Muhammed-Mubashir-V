@@ -1,4 +1,4 @@
-﻿---
+---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import { profile } from "../data/profile";
@@ -78,310 +78,270 @@ const personJsonLd = {
   jsonLd={personJsonLd}
 >
 
-<!-- ══════════════════════════════════════════════
-     HERO — CENTERED SPOTLIGHT LAYOUT
-═══════════════════════════════════════════════ -->
-<section class="hero-section relative flex flex-col items-center justify-start px-6 overflow-hidden text-center" style="min-height: 100svh; padding-top: clamp(160px, 17vh, 190px); padding-bottom: clamp(16px, 3vh, 32px);">
+<!-- ----------------------------------------------
+     HERO � RESTRUCTURED LAYOUT
+     Portrait: absolute layer behind name
+     Pill: independent flex item above name
+     Glow baseline: structural anchor for portrait
+----------------------------------------------- -->
+<section
+  class="hero-section relative overflow-hidden text-center"
+  style="min-height: 100svh; padding-top: clamp(110px, 12vh, 140px); padding-bottom: 40px;"
+>
 
-  <!-- ── BACKGROUND LAYERS ───────────────────── -->
+  <!-- -- BACKGROUND LAYERS (z-index: 0) ---------- -->
 
-  <!-- Vertical spotlight beam from top -->
-  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
-    style="background: radial-gradient(ellipse 55% 65% at 50% -5%, rgba(37,99,235,0.55) 0%, rgba(37,99,235,0.18) 35%, transparent 70%);">
+  <!-- Vertical spotlight beam -->
+  <div class="absolute inset-0 pointer-events-none" style="z-index:0;
+    background: radial-gradient(ellipse 55% 65% at 50% -5%,
+      rgba(37,99,235,0.55) 0%, rgba(37,99,235,0.18) 35%, transparent 70%);">
+  </div>
+  <!-- Secondary halo -->
+  <div class="absolute inset-0 pointer-events-none" style="z-index:0;
+    background: radial-gradient(ellipse 40% 40% at 50% 10%,
+      rgba(96,165,250,0.22) 0%, transparent 60%);">
+  </div>
+  <!-- Grid -->
+  <div class="absolute inset-0 pointer-events-none" style="z-index:0;
+    background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 0%, transparent 100%);">
+  </div>
+  <!-- Thin vertical ray -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none" style="z-index:0;
+    width:1px; height:45%;
+    background: linear-gradient(180deg, rgba(147,197,253,0.7) 0%, rgba(37,99,235,0.3) 40%, transparent 100%);
+    filter: blur(0.5px);">
+  </div>
+  <!-- Bottom fade -->
+  <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="z-index:0;
+    height:35%;
+    background: linear-gradient(0deg, #07090f 0%, transparent 100%);">
   </div>
 
-  <!-- Secondary deep blue halo -->
-  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
-    style="background: radial-gradient(ellipse 40% 40% at 50% 10%, rgba(96,165,250,0.22) 0%, transparent 60%);">
+
+  <!-- -- CONTENT COLUMN � z-index: 2 (above portrait) -- -->
+  <div class="relative flex flex-col items-center" style="z-index: 2;">
+
+    <!-- ORBITAL RINGS � centered, positioned here so they sit around portrait -->
+    <!-- These are purely decorative; portrait is behind via z-index -->
+    <div class="relative flex items-center justify-center pointer-events-none"
+      style="width: clamp(240px, 40vw, 360px); height: clamp(240px, 40vw, 360px); margin-bottom: -40px;">
+
+      <!-- Ring 1 -->
+      <div class="absolute" style="
+        inset: 0; border-radius: 50%;
+        border: 1px solid rgba(147,197,253,0.18);
+        animation: orbitSpin1 18s linear infinite;">
+      </div>
+      <!-- Ring 2 -->
+      <div class="absolute" style="
+        inset: 14%; border-radius: 50%;
+        border: 1px solid rgba(37,99,235,0.28);
+        animation: orbitSpin2 28s linear infinite reverse;">
+      </div>
+      <!-- Ring 3 -->
+      <div class="absolute" style="
+        inset: 28%; border-radius: 50%;
+        border: 1px dashed rgba(147,197,253,0.13);
+        animation: orbitSpin1 42s linear infinite;">
+      </div>
+
+      <!-- Dot 1 -->
+      <div class="absolute" style="
+        width:6px; height:6px; top:50%; left:50%; margin:-3px 0 0 -3px;
+        border-radius:50%; background:#93c5fd;
+        box-shadow: 0 0 10px rgba(147,197,253,0.95), 0 0 22px rgba(37,99,235,0.6);
+        animation: dot1Orbit 18s linear infinite;">
+      </div>
+      <!-- Dot 2 -->
+      <div class="absolute" style="
+        width:5px; height:5px; top:50%; left:50%; margin:-2.5px 0 0 -2.5px;
+        border-radius:50%; background:#ffffff;
+        box-shadow: 0 0 8px rgba(255,255,255,0.95), 0 0 18px rgba(147,197,253,0.7);
+        animation: dot2Orbit 28s linear infinite reverse;">
+      </div>
+      <!-- Dot 3 -->
+      <div class="absolute" style="
+        width:4px; height:4px; top:50%; left:50%; margin:-2px 0 0 -2px;
+        border-radius:50%; background:#60a5fa;
+        box-shadow: 0 0 8px rgba(96,165,250,0.95);
+        animation: dot3Orbit 42s linear infinite;">
+      </div>
+    </div>
+
+    <!-- -- EYEBROW PILL � independent, above name, never overlaps -- -->
+    <div class="reveal flex items-center justify-center mb-4" data-delay="0.10" style="z-index:2;">
+      <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-mono tracking-widest uppercase"
+        style="background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.30); color: #93c5fd;">
+        <span class="w-1.5 h-1.5 rounded-full inline-block"
+          style="background:#93c5fd; box-shadow: 0 0 6px rgba(147,197,253,0.8); animation: pulse 2s ease-in-out infinite;">
+        </span>
+        {profile.location} &nbsp;�&nbsp; Open to new mandates
+      </span>
+    </div>
+
+    <!-- -- NAME HEADLINE -- -->
+    <div class="reveal" data-delay="0.15" style="position: relative; z-index: 2;">
+      <h1 class="hero-name text-center uppercase"
+        style="font-family: 'Orbitron', sans-serif; font-weight: 700;
+          font-size: clamp(1.6rem, 5.5vw, 4rem);
+          letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
+        {profile.name}
+      </h1>
+      <!-- Name reflection -->
+      <div class="relative mx-auto" style="height: 28px; margin-top: -2px; overflow: hidden; pointer-events: none;">
+        <h1 class="text-center uppercase"
+          style="font-family: 'Orbitron', sans-serif; font-weight: 700;
+            font-size: clamp(1.6rem, 5.5vw, 4rem);
+            letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;
+            transform: scaleY(-1); opacity: 0.18;
+            mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);
+            -webkit-mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);">
+          {profile.name}
+        </h1>
+      </div>
+    </div>
+
+    <!-- -- GLOW BASELINE � structural anchor for portrait bottom -- -->
+    <!-- Portrait's absolute bottom will align to THIS element -->
+    <div class="hero-glow-baseline reveal mx-auto" data-delay="0.16"
+      style="height: 1px; width: clamp(200px, 55%, 420px); margin-top: 6px; margin-bottom: 0;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(147,197,253,0.45) 20%,
+          rgba(255,255,255,0.90) 50%,
+          rgba(147,197,253,0.45) 80%,
+          transparent 100%);
+        box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 28px rgba(37,99,235,0.35), 0 2px 40px rgba(37,99,235,0.15);">
+    </div>
+
+    <!-- -- ROLE LINE -- -->
+    <div class="reveal mt-4" data-delay="0.20" style="z-index:2;">
+      <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide text-center">
+        {profile.roleTitle}
+      </p>
+    </div>
+
+    <!-- -- HEADLINE DISCIPLINES -- -->
+    <div class="reveal mt-2" data-delay="0.24" style="z-index:2;">
+      <p class="text-xs font-mono tracking-[0.28em] uppercase text-center"
+        style="color: rgba(147,197,253,0.65);">
+        {profile.headline}
+      </p>
+    </div>
+
+    <!-- -- SUMMARY -- -->
+    <div class="reveal mt-3" data-delay="0.28" style="z-index:2;">
+      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed text-center max-w-lg mx-auto">
+        {profile.summary}
+      </p>
+    </div>
+
+    <!-- -- CTAs -- -->
+    <div class="reveal mt-5" data-delay="0.34" style="z-index:2;">
+      <div class="inline-flex items-center gap-1 rounded-full p-1.5"
+        style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
+        <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+          class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+          style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);">
+          ? WhatsApp
+        </a>
+        <a href="/work" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">Work</a>
+        <a href="/about" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">About</a>
+        <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
+        <a href="/contact" class="rounded-full px-5 py-2 text-xs font-medium transition-all duration-200"
+          style="background: rgba(255,255,255,0.08); color: #e2e8f0;">
+          Contact ?
+        </a>
+      </div>
+    </div>
+
+    <!-- -- SOCIAL PROOF -- -->
+    <div class="reveal hero-social-proof flex items-center justify-center gap-3 mt-4 mb-2" data-delay="0.40" style="z-index:2;">
+      <div class="flex -space-x-2">
+        {["M","B","R"].map((l) => (
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-white border border-obsidian"
+            style="background: linear-gradient(135deg, #2563eb, #93c5fd); font-size: 0.55rem; font-weight: 700;">
+            {l}
+          </div>
+        ))}
+      </div>
+      <p class="text-xs font-mono text-slate-600">2,300+ verified leads delivered across UAE campaigns</p>
+    </div>
+
   </div>
-
-  <!-- Bottom fade to obsidian -->
-  <div class="absolute bottom-0 left-0 right-0 pointer-events-none" aria-hidden="true"
-    style="height: 35%; background: linear-gradient(0deg, #07090f 0%, transparent 100%);">
-  </div>
-
-  <!-- Subtle grid -->
-  <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
-    style="background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px); background-size: 72px 72px; mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 0%, transparent 100%);">
-  </div>
-
-  <!-- Thin vertical light ray -->
-  <div class="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none" aria-hidden="true"
-    style="width: 1px; height: 45%; background: linear-gradient(180deg, rgba(147,197,253,0.7) 0%, rgba(37,99,235,0.3) 40%, transparent 100%); filter: blur(0.5px);">
-  </div>
-
-  <!-- ── PHOTO — ALEX MAREX STYLE ─────────── -->
-<div class="reveal relative z-10 flex items-center justify-center" data-delay="0.05"
-  style="width: 100%; max-width: 420px; height: clamp(300px, 42vh, 400px); margin-bottom: -60px;">
-
-    <!-- ═══ BACKGROUND GLOW LAYERS ═══ -->
-
-    <!-- Deep ambient glow -->
-    <div class="absolute pointer-events-none"
-      style="width: 360px; height: 360px; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: radial-gradient(ellipse, rgba(37,99,235,0.28) 0%, rgba(37,99,235,0.08) 50%, transparent 75%);
-      filter: blur(40px);">
-    </div>
-
-    <!-- Top spotlight (like Alex Marex purple beam → your blue) -->
-    <div class="absolute pointer-events-none"
-      style="width: 160px; height: 260px; top: -30px; left: 50%; transform: translateX(-50%);
-      background: radial-gradient(ellipse, rgba(96,165,250,0.22) 0%, transparent 70%);
-      filter: blur(35px);">
-    </div>
+  <!-- END CONTENT COLUMN -->
 
 
-    <!-- ═══ ORBITAL RINGS — centered on photo center ═══ -->
-
-    <!-- Ring 1 — outermost, 340px -->
-    <div class="absolute pointer-events-none" style="
-      width: 340px; height: 340px;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      border: 1px solid rgba(147,197,253,0.18);
-      border-radius: 50%;
-      animation: orbitSpin1 18s linear infinite;">
-    </div>
-
-    <!-- Ring 2 — mid, 280px, reverse -->
-    <div class="absolute pointer-events-none" style="
-      width: 280px; height: 280px;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      border: 1px solid rgba(37,99,235,0.28);
-      border-radius: 50%;
-      animation: orbitSpin2 28s linear infinite reverse;">
-    </div>
-
-    <!-- Ring 3 — inner dashed, 220px -->
-    <div class="absolute pointer-events-none" style="
-      width: 220px; height: 220px;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      border: 1px dashed rgba(147,197,253,0.13);
-      border-radius: 50%;
-      animation: orbitSpin1 42s linear infinite;">
-    </div>
-
-
-    <!-- ═══ 3 ORBITAL DOTS ═══ -->
-
-    <!-- Dot 1 — ring 1, ice blue, 170px radius -->
-    <div class="absolute pointer-events-none" style="
-      width: 6px; height: 6px;
-      top: 50%; left: 50%;
-      margin: -3px 0 0 -3px;
-      border-radius: 50%;
-      background: #93c5fd;
-      box-shadow: 0 0 10px rgba(147,197,253,0.95), 0 0 22px rgba(37,99,235,0.6);
-      animation: dot1Orbit 18s linear infinite;">
-    </div>
-
-    <!-- Dot 2 — ring 2, white, 140px radius, reverse -->
-    <div class="absolute pointer-events-none" style="
-      width: 5px; height: 5px;
-      top: 50%; left: 50%;
-      margin: -2.5px 0 0 -2.5px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 8px rgba(255,255,255,0.95), 0 0 18px rgba(147,197,253,0.7);
-      animation: dot2Orbit 28s linear infinite reverse;">
-    </div>
-
-    <!-- Dot 3 — ring 3, accent, 110px radius -->
-    <div class="absolute pointer-events-none" style="
-      width: 4px; height: 4px;
-      top: 50%; left: 50%;
-      margin: -2px 0 0 -2px;
-      border-radius: 50%;
-      background: #60a5fa;
-      box-shadow: 0 0 8px rgba(96,165,250,0.95);
-      animation: dot3Orbit 42s linear infinite;">
-    </div>
-
-
-    <!-- ═══ PROFILE PHOTO — no background, full transparent PNG ═══ -->
-  <div class="absolute z-10 pointer-events-none" style="
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: clamp(180px, 28vw, 280px);">
-
+  <!-- -- PORTRAIT LAYER � z-index: 1 (behind content column) ------
+       position: absolute, bottom anchored to glow baseline position
+       Uses CSS custom property --baseline-offset to align feet to glow line
+  --------------------------------------------------------------- -->
+  <div class="hero-portrait-layer absolute left-1/2 pointer-events-none"
+    style="
+      z-index: 1;
+      transform: translateX(-50%);
+      bottom: calc(40px + clamp(80px, 11vh, 130px));
+      width: clamp(200px, 32vw, 320px);
+    ">
     <img
       src="/profile.png"
       alt="Muhammed Mubashir V"
-      width="280"
-      height="400"
-      class="w-full object-contain object-bottom"
+      width="320"
+      height="480"
+      class="w-full object-contain object-bottom block"
       style="
-        display: block;
-        mix-blend-mode: lighten;
+        mix-blend-mode: screen;
         filter:
           drop-shadow(0 0 25px rgba(37,99,235,0.50))
           drop-shadow(0 0 70px rgba(37,99,235,0.25))
           brightness(1.08)
           contrast(1.05);
       "
-        loading="eager"
-      />
+      loading="eager"
+    />
 
-    <!-- Bottom fade — figure melts into background (soft, masked) -->
+    <!-- Portrait edge masks � dissolve into background -->
+    <div class="absolute inset-0 pointer-events-none" style="
+      -webkit-mask-image:
+        radial-gradient(ellipse 88% 85% at 50% 40%, black 25%, transparent 72%),
+        linear-gradient(0deg, transparent 0%, black 30%, black 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        radial-gradient(ellipse 88% 85% at 50% 40%, black 25%, transparent 72%),
+        linear-gradient(0deg, transparent 0%, black 30%, black 100%);
+      mask-composite: intersect;
+      background: transparent;">
+    </div>
+
+    <!-- Bottom ground fog � portrait melts into glow baseline -->
     <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
-      height: 65%;
-      background: linear-gradient(
-        0deg,
-        rgba(7,9,15,0.92) 0%,
-        rgba(7,9,15,0.75) 25%,
-        rgba(7,9,15,0.45) 50%,
-        rgba(7,9,15,0.20) 70%,
-        transparent 100%
-      );
-      -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 75%, rgba(0,0,0,1) 55%, transparent 100%);
-      mask-image: radial-gradient(ellipse 85% 80% at 50% 75%, rgba(0,0,0,1) 55%, transparent 100%);
-      ">
-    </div>
-
+      height: 40%;
+      background: linear-gradient(0deg,
+        #07090f 0%, #07090f 8%,
+        rgba(7,9,15,0.9) 20%,
+        rgba(7,9,15,0.6) 40%,
+        transparent 100%);">
     </div>
 
   </div>
 
-  <!-- Location pill moves below name — see name section -->
 
-  <!-- ── NAME / ROLE / HEADLINE — FULL-WIDTH DARK FADE ──────────────── -->
-  <div class="relative w-full -mx-6">
-    <!-- Dark fade band (full width) -->
-    <div class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 pointer-events-none" style="
-      width: 100vw;
-      background: linear-gradient(
-        0deg,
-        rgba(7,9,15,0.92) 0%,
-        rgba(7,9,15,0.70) 45%,
-        rgba(7,9,15,0.35) 75%,
-        transparent 100%
-      );
-    "></div>
-
-    <div class="relative mx-auto max-w-5xl px-6 flex flex-col items-center">
-      <div class="reveal flex items-center justify-center gap-2 mb-3 z-10" data-delay="0.10">
-        <span class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-mono tracking-widest uppercase"
-          style="background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.30); color: #93c5fd;">
-          <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block" style="box-shadow: 0 0 6px rgba(147,197,253,0.8); animation: pulse 2s ease-in-out infinite;"></span>
-          {profile.location} &nbsp;·&nbsp; Open to new mandates
-        </span>
-      </div>
-      <!-- Name -->
-      <div class="reveal" data-delay="0.15" style="margin-top: clamp(-70px, -8vh, -50px); position: relative; z-index: 1;">
-        <!-- Name in Orbitron — same style as ALEX MAREX reference -->
-        <h1 class="hero-name text-center uppercase"
-          style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.5rem, 5.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8;">
-          {profile.name}
-        </h1>
-
-        <!-- Glow reflection beneath — ALEX MAREX shadow effect -->
-        <div class="relative mx-auto" style="height: 32px; margin-top: -2px; overflow: hidden; pointer-events: none;">
-          <!-- Reflected text — fades downward -->
-          <h1 class="text-center uppercase"
-            style="font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: clamp(1.5rem, 5.5vw, 3.8rem); letter-spacing: 0.18em; line-height: 1.1; color: #e8edf8; transform: scaleY(-1); opacity: 0.18; mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%); -webkit-mask-image: linear-gradient(0deg, transparent 0%, rgba(0,0,0,0.6) 100%);">
-            {profile.name}
-          </h1>
-        </div>
-
-        <!-- Thin glow line -->
-        <div class="mx-auto mt-2 mb-1"
-          style="height: 1px; width: clamp(180px, 50%, 380px); background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 25%, rgba(255,255,255,0.80) 50%, rgba(147,197,253,0.45) 75%, transparent 100%); box-shadow: 0 0 10px rgba(147,197,253,0.4), 0 0 20px rgba(37,99,235,0.25);">
-        </div>
-      </div>
-
-      <!-- Role -->
-      <div class="reveal mt-3 z-10" data-delay="0.20">
-        <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide text-center"
-          style="font-family: 'Poppins', sans-serif; font-weight: 500; letter-spacing: 0.02em;">
-          <span class="hidden md:inline">Digital Operations &amp; Growth Manager</span>
-          <span class="md:hidden">Helping You Build, Optimize, and Grow Your Business</span>
-        </p>
-      </div>
-
-      <!-- Headline disciplines -->
-      <div class="reveal mt-2 z-10" data-delay="0.24">
-        <p class="text-xs font-mono tracking-[0.28em] uppercase text-center"
-          style="color: rgba(147,197,253,0.65);">
-          {profile.headline}
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SUMMARY ─────────────────────────────── -->
-  <div class="reveal hero-summary mt-3 z-10" data-delay="0.28">
-    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed text-center max-w-lg mx-auto">
-      {profile.summary}
-    </p>
-  </div>
-
-  <!-- ── CTA PILL NAV ────────────────────────── -->
-  <div class="reveal hero-cta-pill mt-4 z-10" data-delay="0.34">
-    <div class="inline-flex items-center gap-1 rounded-full p-1.5"
-      style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
-      <a
-        href={profile.links.whatsapp}
-        target="_blank"
-        rel="noreferrer"
-        class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
-        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);"
-      >
-        ↗ WhatsApp
-      </a>
-      <a
-        href="/work"
-        class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200"
-      >
-        Work
-      </a>
-      <a
-        href="/about"
-        class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200"
-      >
-        About
-      </a>
-      <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
-      <a
-        href="/contact"
-        class="contact-pill rounded-full px-5 py-2 text-xs font-medium transition-all duration-200"
-        style="background: rgba(255,255,255,0.08); color: #e2e8f0;"
-      >
-        Contact →
-      </a>
-    </div>
-  </div>
-
-  <!-- ── SOCIAL PROOF ────────────────────────── -->
-  <div class="reveal hero-social-proof flex items-center justify-center gap-3 mt-4 mb-4 z-10" data-delay="0.40">
-    <div class="flex -space-x-2">
-      {["M","B","R"].map((l) => (
-        <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-obsidian"
-          style="background: linear-gradient(135deg, #2563eb, #93c5fd); font-size: 0.55rem;">
-          {l}
-        </div>
-      ))}
-    </div>
-    <p class="text-xs font-mono text-slate-600">2,300+ verified leads delivered across UAE campaigns</p>
-  </div>
-
-  <!-- ── SCROLL INDICATOR ────────────────────── -->
-  <div class="hero-scroll-indicator absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10 pointer-events-none">
-    <div class="w-px h-8" style="background: linear-gradient(180deg, rgba(147,197,253,0.35) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite;">
-    </div>
-    <span class="text-xs font-mono tracking-[0.3em] uppercase" style="color: rgba(147,197,253,0.30);">Scroll</span>
-    <div class="w-px h-8" style="background: linear-gradient(180deg, rgba(147,197,253,0.15) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite; animation-delay: 0.3s;">
-    </div>
+  <!-- -- SCROLL INDICATOR -------------------------- -->
+  <div class="hero-scroll-indicator absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none" style="z-index:3;">
+    <div class="w-px h-6" style="background: linear-gradient(180deg, rgba(147,197,253,0.35) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite;"></div>
+    <span class="text-xs font-mono tracking-[0.3em] uppercase" style="color: rgba(147,197,253,0.25);">Scroll</span>
+    <div class="w-px h-6" style="background: linear-gradient(180deg, rgba(147,197,253,0.15) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite; animation-delay: 0.3s;"></div>
   </div>
 
 </section>
 
 
-<!-- ══════════════════════════════════════════════
-     TICKER STRIP — 3 ROW LOOP
-═══════════════════════════════════════════════ -->
+<!-- ----------------------------------------------
+     TICKER STRIP � 3 ROW LOOP
+----------------------------------------------- -->
 <div class="ticker-section relative border-y" style="border-color: rgba(255,255,255,0.06); overflow: hidden; padding: 2px 0;">
 
   <!-- Left gradient fade mask -->
@@ -394,36 +354,36 @@ const personJsonLd = {
     style="width: 140px; background: linear-gradient(270deg, #07090f 0%, #07090f 25%, transparent 100%);">
   </div>
 
-  <!-- ROW 1 — Marketing skills, medium speed -->
+  <!-- ROW 1 � Marketing skills, medium speed -->
   <div class="ticker-row-wrap" style="padding: 10px 0 6px;">
     <div class="ticker-row row-1">
       {[...tickerRow1, ...tickerRow1, ...tickerRow1, ...tickerRow1].map((item, i) => (
         <span class="ticker-item" style={`--glow-delay: ${(i * 1.3) % 9}s;`}>
-          <span class="ticker-dot">◈</span>
+          <span class="ticker-dot">?</span>
           <span class="ticker-text">{item}</span>
         </span>
       ))}
     </div>
   </div>
 
-  <!-- ROW 2 — AI tools, slower -->
+  <!-- ROW 2 � AI tools, slower -->
   <div class="ticker-row-wrap" style="padding: 6px 0;">
     <div class="ticker-row row-2">
       {[...tickerRow2, ...tickerRow2, ...tickerRow2, ...tickerRow2].map((item, i) => (
         <span class="ticker-item" style={`--glow-delay: ${(i * 1.7) % 11}s;`}>
-          <span class="ticker-dot">◈</span>
+          <span class="ticker-dot">?</span>
           <span class="ticker-text">{item}</span>
         </span>
       ))}
     </div>
   </div>
 
-  <!-- ROW 3 — Web & design tools, faster -->
+  <!-- ROW 3 � Web & design tools, faster -->
   <div class="ticker-row-wrap" style="padding: 6px 0 10px;">
     <div class="ticker-row row-3">
       {[...tickerRow3, ...tickerRow3, ...tickerRow3, ...tickerRow3].map((item, i) => (
         <span class="ticker-item" style={`--glow-delay: ${(i * 0.9) % 7}s;`}>
-          <span class="ticker-dot">◈</span>
+          <span class="ticker-dot">?</span>
           <span class="ticker-text">{item}</span>
         </span>
       ))}
@@ -433,9 +393,9 @@ const personJsonLd = {
 </div>
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ----------------------------------------------
      METRICS
-═══════════════════════════════════════════════ -->
+----------------------------------------------- -->
 <section class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
     <div class="reveal glass-panel-ultra rounded-3xl px-8 py-10 md:px-12 md:py-12" data-delay="0.05">
@@ -456,9 +416,9 @@ const personJsonLd = {
 </section>
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ----------------------------------------------
      CAPABILITIES
-═══════════════════════════════════════════════ -->
+----------------------------------------------- -->
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
     <!-- Header -->
@@ -500,13 +460,13 @@ const personJsonLd = {
 </section>
 
 
-<!-- ══════════════════════════════════════════════
-     FEATURED WORK — ALEX MAREX LAYOUT
-═══════════════════════════════════════════════ -->
+<!-- ----------------------------------------------
+     FEATURED WORK � ALEX MAREX LAYOUT
+----------------------------------------------- -->
 <section class="work-section py-24 px-6 section-border" id="work">
   <div class="mx-auto max-w-6xl">
 
-    <!-- ═══ ROW 1: Left title + Right two stacked cards ═══ -->
+    <!-- --- ROW 1: Left title + Right two stacked cards --- -->
     <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start mb-16">
 
       <!-- LEFT: Heading block -->
@@ -536,7 +496,7 @@ const personJsonLd = {
             onmouseout="this.style.background='rgba(37,99,235,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block"></span>
             View all projects
-            <span class="group-hover:translate-x-1 transition-transform">→</span>
+            <span class="group-hover:translate-x-1 transition-transform">?</span>
           </a>
         </div>
 
@@ -559,18 +519,18 @@ const personJsonLd = {
       <!-- RIGHT: Two stacked glass cards -->
       <div class="flex flex-col gap-5">
 
-        <!-- Card 1 — 180 Degree -->
+        <!-- Card 1 � 180 Degree -->
         <a href="/work/180-degree-meal-planner"
           class="work-card-right work-card-1 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
 
           <!-- Image area -->
           <div class="relative overflow-hidden" style="height: 180px; background: rgba(37,99,235,0.08);">
-            <!-- Placeholder — replace src with real screenshot -->
+            <!-- Placeholder � replace src with real screenshot -->
             <div class="w-full h-full flex items-center justify-center"
               style="background: linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(7,9,15,0.8) 100%);">
               <div class="text-center">
-                <div class="text-3xl mb-2 opacity-30">⬡</div>
+                <div class="text-3xl mb-2 opacity-30">?</div>
                 <p class="text-xs font-mono text-slate-600 uppercase tracking-widest">Add screenshot</p>
                 <p class="text-xs text-slate-700 font-mono mt-1">Replace with: /work-1.jpg</p>
               </div>
@@ -594,7 +554,7 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              180 Degree — Healthy Meal Plans + Web App Plugin
+              180 Degree � Healthy Meal Plans + Web App Plugin
             </h3>
             <p class="text-xs font-mono text-slate-600 mb-3">2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
@@ -609,12 +569,12 @@ const personJsonLd = {
               ))}
             </div>
             <p class="text-xs font-mono text-slate-600 mt-4 group-hover:text-accent-soft transition-colors">
-              View case study →
+              View case study ?
             </p>
           </div>
         </a>
 
-        <!-- Card 2 — bluemark -->
+        <!-- Card 2 � bluemark -->
         <a href="/work/bluemark-real-estate-leadgen"
           class="work-card-right work-card-2 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
@@ -624,7 +584,7 @@ const personJsonLd = {
             <div class="w-full h-full flex items-center justify-center"
               style="background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(7,9,15,0.85) 100%);">
               <div class="text-center">
-                <div class="text-3xl mb-2 opacity-30">◎</div>
+                <div class="text-3xl mb-2 opacity-30">?</div>
                 <p class="text-xs font-mono text-slate-600 uppercase tracking-widest">Add screenshot</p>
                 <p class="text-xs text-slate-700 font-mono mt-1">Replace with: /work-2.jpg</p>
               </div>
@@ -647,9 +607,9 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              bluemark Real Estate — Luxury Lead Gen System
+              bluemark Real Estate � Luxury Lead Gen System
             </h3>
-            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 – Jul 2025</p>
+            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 � Jul 2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
               Developed a real-estate lead engine using creative testing, segmented audience strategy, and WhatsApp-first follow-up flows.
             </p>
@@ -662,7 +622,7 @@ const personJsonLd = {
               ))}
             </div>
             <p class="text-xs font-mono text-slate-600 mt-4 group-hover:text-accent-soft transition-colors">
-              View case study →
+              View case study ?
             </p>
           </div>
         </a>
@@ -671,10 +631,10 @@ const personJsonLd = {
     </div>
 
 
-    <!-- ═══ ROW 2: 3-column stagger (like reference "Features" block) ═══ -->
+    <!-- --- ROW 2: 3-column stagger (like reference "Features" block) --- -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
 
-      <!-- Left card — offset DOWN -->
+      <!-- Left card � offset DOWN -->
       <a href="/work/raslan-bc-growth"
         class="work-card-bottom work-card-3 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-top: 60px;">
@@ -684,7 +644,7 @@ const personJsonLd = {
           <div class="w-full h-full flex items-center justify-center"
             style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(37,99,235,0.08) 100%);">
             <div class="text-center">
-              <div class="text-2xl mb-1 opacity-25">◈</div>
+              <div class="text-2xl mb-1 opacity-25">?</div>
               <p class="text-xs font-mono text-slate-700 uppercase tracking-widest">work-3.jpg</p>
             </div>
           </div>
@@ -702,7 +662,7 @@ const personJsonLd = {
 
         <div class="p-5">
           <h3 class="font-display font-semibold text-white text-sm mb-2 group-hover:text-accent-soft transition-colors">
-            Raslan BC — Construction Growth
+            Raslan BC � Construction Growth
           </h3>
           <p class="text-xs text-slate-500 leading-relaxed mb-4">
             Strengthened demand generation through messaging clarity, portfolio storytelling, and lead-path simplification.
@@ -710,21 +670,21 @@ const personJsonLd = {
           <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-slate-700">2025</span>
             <span class="text-xs font-mono text-slate-600 group-hover:text-accent-soft transition-colors">
-              Learn more →
+              Learn more ?
             </span>
           </div>
         </div>
       </a>
 
-      <!-- CENTER image card — tall, no offset -->
+      <!-- CENTER image card � tall, no offset -->
       <div class="work-card-bottom work-card-center rounded-2xl overflow-hidden relative"
         style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px); min-height: 380px;">
 
-        <!-- Placeholder center image — replace with your brand/campaign photo -->
+        <!-- Placeholder center image � replace with your brand/campaign photo -->
         <div class="w-full h-full absolute inset-0 flex items-center justify-center"
           style="background: linear-gradient(160deg, rgba(37,99,235,0.18) 0%, rgba(7,9,15,0.95) 100%);">
           <div class="text-center p-8">
-            <div class="text-4xl mb-3 opacity-20">◐</div>
+            <div class="text-4xl mb-3 opacity-20">?</div>
             <p class="text-xs font-mono text-slate-600 uppercase tracking-widest mb-1">Feature image</p>
             <p class="text-xs text-slate-700 font-mono">Replace with:</p>
             <p class="text-xs text-slate-700 font-mono">/work-center.jpg</p>
@@ -746,10 +706,10 @@ const personJsonLd = {
           <h3 class="font-display font-semibold text-white text-base mb-1">
             Multi-Company Digital Ops
           </h3>
-          <p class="text-xs text-slate-400">Jul 2025 – Jan 2026</p>
+          <p class="text-xs text-slate-400">Jul 2025 � Jan 2026</p>
           <a href="/work/multi-company-digital-ops"
             class="inline-flex items-center gap-1.5 mt-4 text-xs font-mono text-accent-soft/70 hover:text-accent-soft transition-colors">
-            View case study →
+            View case study ?
           </a>
         </div>
 
@@ -759,7 +719,7 @@ const personJsonLd = {
         </div>
       </div>
 
-      <!-- Right card — offset UP -->
+      <!-- Right card � offset UP -->
       <a href="/work/raslan-media-content-performance"
         class="work-card-bottom work-card-4 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-bottom: 60px;">
@@ -769,7 +729,7 @@ const personJsonLd = {
           <div class="w-full h-full flex items-center justify-center"
             style="background: linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(37,99,235,0.08) 100%);">
             <div class="text-center">
-              <div class="text-2xl mb-1 opacity-25">◇</div>
+              <div class="text-2xl mb-1 opacity-25">?</div>
               <p class="text-xs font-mono text-slate-700 uppercase tracking-widest">work-4.jpg</p>
             </div>
           </div>
@@ -784,7 +744,7 @@ const personJsonLd = {
 
         <div class="p-5">
           <h3 class="font-display font-semibold text-white text-sm mb-2 group-hover:text-accent-soft transition-colors">
-            Raslan Media — Content System + Performance
+            Raslan Media � Content System + Performance
           </h3>
           <p class="text-xs text-slate-500 leading-relaxed mb-4">
             Built repeatable content and campaign workflows to support regular publishing and measurable growth loops.
@@ -792,7 +752,7 @@ const personJsonLd = {
           <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-slate-700">2025</span>
             <span class="text-xs font-mono text-slate-600 group-hover:text-accent-soft transition-colors">
-              Learn more →
+              Learn more ?
             </span>
           </div>
         </div>
@@ -804,9 +764,9 @@ const personJsonLd = {
 </section>
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ----------------------------------------------
      TESTIMONIALS
-═══════════════════════════════════════════════ -->
+----------------------------------------------- -->
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
     <div class="reveal mb-14" data-delay="0.05">
@@ -831,7 +791,7 @@ const personJsonLd = {
             </div>
             <div>
               <p class="text-sm font-semibold text-white">{item.name}</p>
-              <p class="text-xs text-slate-500">{item.role} · {item.company}</p>
+              <p class="text-xs text-slate-500">{item.role} � {item.company}</p>
             </div>
           </div>
         </div>
@@ -845,9 +805,9 @@ const personJsonLd = {
 </section>
 
 
-<!-- ══════════════════════════════════════════════
+<!-- ----------------------------------------------
      FINAL CTA
-═══════════════════════════════════════════════ -->
+----------------------------------------------- -->
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
     <div class="reveal glass-panel-ultra rounded-3xl px-8 py-14 md:px-16 md:py-16 relative overflow-hidden" data-delay="0.05">
@@ -873,13 +833,13 @@ const personJsonLd = {
             class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.45), inset 0 1px 0 rgba(255,255,255,0.15);"
           >
-            ↗ Message on WhatsApp
+            ? Message on WhatsApp
           </a>
           <a
             href="/contact"
             class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white"
           >
-            Open Contact Page →
+            Open Contact Page ?
           </a>
         </div>
       </div>
@@ -934,9 +894,9 @@ const personJsonLd = {
 </script></BaseLayout>
 <style>
 
-  /* ════════════════════════════════════════════════
-     TICKER — 3 ROWS, EACH A CONTINUOUS LOOP
-  ════════════════════════════════════════════════ */
+  /* ------------------------------------------------
+     TICKER � 3 ROWS, EACH A CONTINUOUS LOOP
+  ------------------------------------------------ */
 
   /* Outer wrapper clips overflow */
   .ticker-row-wrap {
@@ -944,7 +904,7 @@ const personJsonLd = {
     width: 100%;
   }
 
-  /* Row: single flex line, no wrapping — CRITICAL */
+  /* Row: single flex line, no wrapping � CRITICAL */
   .ticker-row {
     display: flex;
     flex-direction: row;
@@ -966,19 +926,19 @@ const personJsonLd = {
 
   /* Seamless loop keyframe
      -25% = one copy of the list (4 copies total, so 1/4 = 25%)
-     When it snaps from -25% back to 0 the content is identical — invisible jump */
+     When it snaps from -25% back to 0 the content is identical � invisible jump */
   @keyframes marqueeLeft {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-25%); }
   }
 
 
-  /* ════════════════════════════════════════════════
+  /* ------------------------------------------------
      TICKER ITEM
-  ════════════════════════════════════════════════ */
+  ------------------------------------------------ */
 
   .ticker-item {
-    /* Stays on one line — CRITICAL */
+    /* Stays on one line � CRITICAL */
     display: inline-flex;
     flex-shrink: 0;
     white-space: nowrap;
@@ -992,7 +952,7 @@ const personJsonLd = {
     text-transform: uppercase;
     color: rgba(92, 107, 128, 0.85);
 
-    /* Glow animation — delay set per item via CSS var */
+    /* Glow animation � delay set per item via CSS var */
     animation: itemGlow 9s ease-in-out infinite;
     animation-delay: var(--glow-delay, 0s);
     animation-fill-mode: both;
@@ -1008,9 +968,9 @@ const personJsonLd = {
   }
 
 
-  /* ════════════════════════════════════════════════
-     DOT ◈
-  ════════════════════════════════════════════════ */
+  /* ------------------------------------------------
+     DOT ?
+  ------------------------------------------------ */
 
   .ticker-dot {
     font-size: 0.55rem;
@@ -1032,11 +992,11 @@ const personJsonLd = {
   }
 
 
-  /* ════════════════════════════════════════════════
+  /* ------------------------------------------------
      GLOW KEYFRAMES
-  ════════════════════════════════════════════════ */
+  ------------------------------------------------ */
 
-  /* Item text: dim → bright blue flash → dim */
+  /* Item text: dim ? bright blue flash ? dim */
   @keyframes itemGlow {
     0%   { color: rgba(92, 107, 128, 0.85); text-shadow: none; }
     36%  { color: rgba(92, 107, 128, 0.85); text-shadow: none; }
@@ -1083,9 +1043,9 @@ const personJsonLd = {
   }
 
 
-  /* ════════════════════════════════════════════════
+  /* ------------------------------------------------
      REDUCED MOTION
-  ════════════════════════════════════════════════ */
+  ------------------------------------------------ */
 
   @media (prefers-reduced-motion: reduce) {
     .ticker-row  { animation: none !important; }
@@ -1111,43 +1071,28 @@ const personJsonLd = {
   }
 
 
-  /* ════════════════════════════════════════════════
+  /* ------------------------------------------------
      HERO PHOTO ORBIT RINGS (keep if already present)
-  ════════════════════════════════════════════════ */
+  ------------------------------------------------ */
 
-  /* ═══ ORBITAL RING SPINS ════════════════════ */
-  @keyframes orbitSpin1 {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-  @keyframes orbitSpin2 {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
-  }
+  /* --- ORBITAL RING SPINS -------------------- */
+  
+  
 
-  /* ═══ DOT ORBITS ════════════════════════════ */
+  /* --- DOT ORBITS ---------------------------- */
 
-  /* Dot 1 — 170px radius */
-  @keyframes dot1Orbit {
-    from { transform: rotate(0deg) translateX(170px) rotate(0deg); }
-    to   { transform: rotate(360deg) translateX(170px) rotate(-360deg); }
-  }
+  /* Dot 1 � 170px radius */
+  
 
-  /* Dot 2 — 140px radius */
-  @keyframes dot2Orbit {
-    from { transform: rotate(0deg) translateX(140px) rotate(0deg); }
-    to   { transform: rotate(360deg) translateX(140px) rotate(-360deg); }
-  }
+  /* Dot 2 � 140px radius */
+  
 
-  /* Dot 3 — 110px radius */
-  @keyframes dot3Orbit {
-    from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
-    to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
-  }
+  /* Dot 3 � 110px radius */
+  
 
-  /* ════════════════════════════════════════════════
-     HERO CENTERED — NEW STYLES
-  ════════════════════════════════════════════════ */
+  /* ------------------------------------------------
+     HERO CENTERED � NEW STYLES
+  ------------------------------------------------ */
 
   /* Scroll indicator pulse */
   @keyframes scrollPulse {
@@ -1187,13 +1132,13 @@ const personJsonLd = {
     }
   }
 
-  /* ════════════════════════════════════════════════ 
-     HERO VIEWPORT FIT — MOBILE OVERRIDES
-  ════════════════════════════════════════════════ */
+  /* ------------------------------------------------ 
+     HERO VIEWPORT FIT � MOBILE OVERRIDES
+  ------------------------------------------------ */
 
   /* Hide summary and CTAs on mobile to keep headline visible */
   @media (max-width: 639px) {
-    /* Summary stays — just tighter */
+    /* Summary stays � just tighter */
     .hero-summary { margin-top: 8px; }
 
     /* CTA pill smaller on mobile */
@@ -1213,7 +1158,7 @@ const personJsonLd = {
 
 
   /* ------------------------------------------------
-     FEATURED WORK � SCROLL ANIMATIONS
+     FEATURED WORK ? SCROLL ANIMATIONS
   ------------------------------------------------ */
 
   /* Initial hidden states before animation */
@@ -1256,5 +1201,26 @@ const personJsonLd = {
   @keyframes centerCardPulse {
     0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 20px 60px rgba(0,0,0,0.4); }
     50%      { box-shadow: 0 0 0 1px rgba(147,197,253,0.22), 0 20px 60px rgba(37,99,235,0.15); }
-  }</style>
+  }
+@keyframes orbitSpin1 {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbitSpin2 {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes dot1Orbit {
+  from { transform: rotate(0deg) translateX(clamp(100px,16vw,170px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(clamp(100px,16vw,170px)) rotate(-360deg); }
+}
+@keyframes dot2Orbit {
+  from { transform: rotate(0deg) translateX(clamp(85px,13vw,140px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(clamp(85px,13vw,140px)) rotate(-360deg); }
+}
+@keyframes dot3Orbit {
+  from { transform: rotate(0deg) translateX(clamp(70px,10vw,114px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(clamp(70px,10vw,114px)) rotate(-360deg); }
+}
+</style>
 
