@@ -1,4 +1,4 @@
----
+﻿---
 import "../styles/global.css";
 import { profile } from "../data/profile";
 
@@ -42,7 +42,19 @@ const isActive = (href: string) =>
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Performance: DNS prefetch + preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://wa.me" />
+
+    <!-- Preload critical fonts -->
+    <link rel="preload" as="font" type="font/woff2"
+      href="/fonts/orbitron.woff2" crossorigin />
+
+    <!-- Preload hero portrait — largest contentful paint element -->
+    <link rel="preload" as="image" href="/profile.png" />
     <meta charset="UTF-8" />
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -61,8 +73,7 @@ const isActive = (href: string) =>
     <meta name="twitter:image" content={ogImage} />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@500;600&display=swap" rel="stylesheet" />
     <style>
       @keyframes onlineHeartbeat {
@@ -72,9 +83,212 @@ const isActive = (href: string) =>
         70%  { box-shadow: 0 0 10px rgba(34,197,94,1.0), 0 0 24px rgba(34,197,94,0.8), 0 0 40px rgba(34,197,94,0.35); opacity: 1; }
         100% { box-shadow: 0 0 4px rgba(34,197,94,0.8), 0 0 10px rgba(34,197,94,0.4); opacity: 1; }
       }
+
+      /* Force GPU layer for animated elements — eliminates paint lag */
+      .hero-section,
+      .testi-track,
+      .ticker-row,
+      canvas {
+        will-change: transform;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+      }
+
+      /* Smooth scroll — hardware accelerated */
+      html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        text-rendering: optimizeSpeed;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* Prevent layout shift during font load */
+      body {
+        font-display: swap;
+      }
+
+      /* Eliminate paint on scroll for fixed/sticky elements */
+      header {
+        will-change: transform;
+        transform: translateZ(0);
+        contain: layout style paint;
+      }
+      /* ── SPLASH SCREEN ── */
+      @keyframes splashBeam {
+        0%   { opacity: 0; transform: translateX(-50%) scaleY(0); transform-origin: top; }
+        60%  { opacity: 1; transform: translateX(-50%) scaleY(1); }
+        100% { opacity: 0.3; transform: translateX(-50%) scaleY(1); }
+      }
+
+      @keyframes splashProgress {
+        0%   { width: 0%; }
+        60%  { width: 75%; }
+        85%  { width: 92%; }
+        100% { width: 100%; }
+      }
+
+      @keyframes splashShimmer {
+        0%   { background-position: 200% center; }
+        100% { background-position: -200% center; }
+      }
+
+      @keyframes letterFill {
+        0%   {
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(147,197,253,0.25);
+          text-shadow: none;
+        }
+        40%  {
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(147,197,253,0.6);
+          text-shadow: 0 0 20px rgba(37,99,235,0.5);
+        }
+        100% {
+          color: #e8edf8;
+          -webkit-text-stroke: 0px transparent;
+          text-shadow:
+            0 0 30px rgba(147,197,253,0.25),
+            0 0 60px rgba(37,99,235,0.15);
+        }
+      }
+
+      @keyframes splashFadeOut {
+        0%   { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1.015); }
+      }
+
+      #splash.splash-exit {
+        animation: splashFadeOut 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+        pointer-events: none;
+      }
+
+      /* Prevent body scroll while splash is showing */
+      body.splash-active {
+        overflow: hidden;
+      }
     </style>
   </head>
-  <body class="antialiased">
+    <body class="antialiased">
+
+    <!-- SPLASH SCREEN — shows on first load only -->
+    <div id="splash" style="
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #07090f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: all;
+    ">
+
+      <!-- Star particles canvas -->
+      <canvas id="splash-canvas" style="
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+      "></canvas>
+
+      <!-- Vertical beam -->
+      <div style="
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        height: 100%;
+        background: linear-gradient(180deg,
+          transparent 0%,
+          rgba(147,197,253,0.6) 30%,
+          rgba(37,99,235,0.8) 50%,
+          rgba(147,197,253,0.6) 70%,
+          transparent 100%);
+        animation: splashBeam 1.2s ease forwards;
+        opacity: 0;
+      "></div>
+
+      <!-- Name container -->
+      <div style="
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      ">
+
+        <!-- Letter-by-letter name reveal -->
+        <div id="splash-name" style="
+          font-family: 'Orbitron', sans-serif;
+          font-size: clamp(1.8rem, 6vw, 4rem);
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: transparent;
+          position: relative;
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 0;
+        ">
+          <!-- Each letter gets fill animation via JS -->
+        </div>
+
+        <!-- Glow baseline under name -->
+        <div id="splash-line" style="
+          height: 1px;
+          width: 0%;
+          margin-top: 6px;
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(147,197,253,0.5) 20%,
+            rgba(255,255,255,0.95) 50%,
+            rgba(147,197,253,0.5) 80%,
+            transparent 100%);
+          box-shadow: 0 0 12px rgba(147,197,253,0.6), 0 0 28px rgba(37,99,235,0.4);
+          transition: width 0.7s cubic-bezier(0.22,1,0.36,1);
+        "></div>
+
+        <!-- Tagline -->
+        <p id="splash-tag" style="
+          font-family: 'DM Mono', monospace;
+          font-size: 0.65rem;
+          letter-spacing: 0.35em;
+          text-transform: uppercase;
+          color: rgba(147,197,253,0);
+          margin-top: 14px;
+          transition: color 0.6s ease;
+        ">Digital Marketing &middot; Performance &middot; Design &middot; Web Systems</p>
+
+      </div>
+
+      <!-- Loading bar at bottom -->
+      <div style="
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255,255,255,0.04);
+      ">
+        <div id="splash-progress" style="
+          height: 100%;
+          width: 0%;
+          background: linear-gradient(90deg, #2563eb, #93c5fd, #2563eb);
+          background-size: 200% 100%;
+          animation: splashProgress 1.4s cubic-bezier(0.22,1,0.36,1) forwards,
+                     splashShimmer 1.0s linear infinite;
+          box-shadow: 0 0 8px rgba(37,99,235,0.8);
+        "></div>
+      </div>
+
+    </div>
+    <!-- END SPLASH -->
 
     <!-- Noise overlay -->
     <div class="noise-overlay" aria-hidden="true"></div>
@@ -99,10 +313,10 @@ const isActive = (href: string) =>
     <!-- NAV -->
     <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(7,9,15,0.28); border-bottom: 1px solid rgba(255,255,255,0.04);">
 
-      <!-- Top micro-bar: location left � name center � status right -->
+      <!-- Top micro-bar: location left � name center � status right -->
       <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
         <span class="text-xs font-mono tracking-widest uppercase hidden sm:block justify-self-start" style="color: rgba(147,197,253,0.45);">
-          {profile.location} &nbsp;�&nbsp; Available for mandates
+          {profile.location} &nbsp;�&nbsp; Available for mandates
         </span>
         <a href="/" class="justify-self-center" style="padding-left: 4px;">
           <div class="flex items-center gap-2 sm:hidden">
@@ -193,7 +407,7 @@ const isActive = (href: string) =>
             <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Connect</p>
             <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">?</span> WhatsApp � {profile.whatsappDisplay}
+              <span class="text-xs text-accent-soft">?</span> WhatsApp � {profile.whatsappDisplay}
             </a>
             <a href={profile.links.email}
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
@@ -218,8 +432,8 @@ const isActive = (href: string) =>
         </div>
 
         <div class="mt-8 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p class="text-xs text-slate-600">� {new Date().getFullYear()} {profile.name} � All rights reserved.</p>
-          <p class="text-xs text-slate-700 font-mono">Dubai, UAE � Available for new mandates</p>
+          <p class="text-xs text-slate-600">� {new Date().getFullYear()} {profile.name} � All rights reserved.</p>
+          <p class="text-xs text-slate-700 font-mono">Dubai, UAE � Available for new mandates</p>
         </div>
       </div>
     </footer>
@@ -227,6 +441,7 @@ const isActive = (href: string) =>
     <!-- Cursor JS -->
     <script is:inline>
       (() => {
+        function initCursor() {
         const dot = document.getElementById("cursor-dot");
         const ring = document.getElementById("cursor-ring");
         if (!dot || !ring) return;
@@ -258,6 +473,12 @@ const isActive = (href: string) =>
         document.addEventListener("mouseup", () => document.body.classList.remove("cursor-clicking"));
         document.addEventListener("mouseleave", () => { dot.style.opacity = "0"; ring.style.opacity = "0"; });
         document.addEventListener("mouseenter", () => { dot.style.opacity = "1"; ring.style.opacity = "1"; });
+        } // end initCursor
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(initCursor, { timeout: 1000 });
+        } else {
+          setTimeout(initCursor, 200);
+        }
       })();
     </script>
 
@@ -291,7 +512,7 @@ const isActive = (href: string) =>
       // -- Config ----------------------------------------------
       const CFG = {
         starCount: 280,          // total stars
-        maxRadius: 1.1,          // biggest star radius (px) � keep tiny
+        maxRadius: 1.1,          // biggest star radius (px) � keep tiny
         minRadius: 0.15,         // smallest
         twinkleSpeed: 0.008,     // how fast alpha oscillates
         twinkleVariance: 0.018,  // randomness of twinkle speed per star
@@ -334,7 +555,7 @@ const isActive = (href: string) =>
         stars = [];
         for (let i = 0; i < CFG.starCount; i++) {
           const col = STAR_COLOURS[Math.floor(Math.random() * STAR_COLOURS.length)];
-          // Bias stars toward top � sqrt pushes distribution upward
+          // Bias stars toward top � sqrt pushes distribution upward
           const yFrac = Math.pow(Math.random(), 1.6) * CFG.topBias;
           stars.push({
             x: Math.random() * W,
@@ -362,7 +583,7 @@ const isActive = (href: string) =>
 
       // -- Launch a shooting star -------------------------------
       function launchShootingStar() {
-        // Start from top area, angle 20-40� below horizontal
+        // Start from top area, angle 20-40� below horizontal
         const angle = (20 + Math.random() * 20) * Math.PI / 180;
         const startX = W * (0.1 + Math.random() * 0.6);
         const startY = H * (0.05 + Math.random() * 0.25);
@@ -387,11 +608,11 @@ const isActive = (href: string) =>
       function drawBackground() {
         // Deep obsidian at bottom ? dark navy at top
         const grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0,   'rgba(6,10,26,0.0)');   // very top � transparent (let body show)
+        grad.addColorStop(0,   'rgba(6,10,26,0.0)');   // very top � transparent (let body show)
         grad.addColorStop(0.3, 'rgba(7,11,28,0.0)');
         grad.addColorStop(1,   'rgba(7,9,15,0.0)');    // seamless with body
         ctx.clearRect(0, 0, W, H);
-        // Canvas is transparent � stars draw over the body gradient naturally
+        // Canvas is transparent � stars draw over the body gradient naturally
       }
 
       // -- Draw all stars ---------------------------------------
@@ -544,6 +765,163 @@ const isActive = (href: string) =>
     })();
     </script>
 
+      <!-- Splash screen controller -->
+    <script is:inline>
+    (() => {
+      const NAME = 'MUHAMMED MUBASHIR V';
+      const splash = document.getElementById('splash');
+      const nameEl = document.getElementById('splash-name');
+      const lineEl = document.getElementById('splash-line');
+      const tagEl  = document.getElementById('splash-tag');
+      if (!splash || !nameEl) return;
+
+      // Block scroll during splash
+      document.body.classList.add('splash-active');
+
+      // ── Build letter spans ──────────────────────────
+      NAME.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.cssText = `
+          display: inline-block;
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(147,197,253,0.20);
+          animation: letterFill 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+          animation-delay: ${0.35 + i * 0.045}s;
+          opacity: 0;
+        `;
+        // Fade letter in first
+        span.style.animation = 'none';
+        span.style.opacity = '0';
+        span.style.transition = `opacity 0.1s ease ${0.30 + i * 0.045}s`;
+        nameEl.appendChild(span);
+      });
+
+      // ── Splash canvas: small floating particles ─────
+      const canvas = document.getElementById('splash-canvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = Array.from({ length: 60 }, () => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: 0.3 + Math.random() * 0.9,
+          a: 0.1 + Math.random() * 0.5,
+          speed: 0.008 + Math.random() * 0.012,
+          phase: Math.random() * Math.PI * 2,
+        }));
+
+        let rafId;
+        const drawParticles = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => {
+            p.phase += p.speed;
+            const alpha = p.a * (0.4 + 0.6 * Math.sin(p.phase));
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = '#93c5fd';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1;
+          rafId = requestAnimationFrame(drawParticles);
+        };
+        drawParticles();
+
+        // Store rafId so we can cancel it
+        splash._particleRaf = rafId;
+        splash._cancelParticles = () => {
+          cancelAnimationFrame(rafId);
+        };
+      }
+
+      // ── Animate letters in sequence ─────────────────
+      const letters = nameEl.querySelectorAll('span');
+
+      // Step 1: fade each letter in
+      setTimeout(() => {
+        letters.forEach((span, i) => {
+          setTimeout(() => {
+            span.style.opacity = '1';
+            span.style.color = 'transparent';
+            span.style.webkitTextStroke = '1px rgba(147,197,253,0.35)';
+          }, i * 45);
+        });
+      }, 300);
+
+      // Step 2: fill letters with colour (water-fill effect staggered)
+      setTimeout(() => {
+        letters.forEach((span, i) => {
+          setTimeout(() => {
+            span.style.transition = `
+              color 0.45s cubic-bezier(0.22,1,0.36,1),
+              text-shadow 0.45s ease,
+              -webkit-text-stroke 0.3s ease
+            `;
+            span.style.color = '#e8edf8';
+            span.style.webkitTextStroke = '0px transparent';
+            span.style.textShadow = '0 0 30px rgba(147,197,253,0.3), 0 0 60px rgba(37,99,235,0.18)';
+          }, i * 40);
+        });
+
+        // Expand baseline
+        setTimeout(() => {
+          if (lineEl) lineEl.style.width = '100%';
+        }, NAME.length * 40 - 80);
+
+        // Show tagline
+        setTimeout(() => {
+          if (tagEl) tagEl.style.color = 'rgba(147,197,253,0.55)';
+        }, NAME.length * 40);
+
+      }, 600);
+
+      // ── Exit splash ──────────────────────────────────
+      function exitSplash() {
+        if (splash._exiting) return;
+        splash._exiting = true;
+
+        if (splash._cancelParticles) splash._cancelParticles();
+
+        splash.classList.add('splash-exit');
+        document.body.classList.remove('splash-active');
+
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 720);
+      }
+
+      // Exit when page is interactive OR after max 2.8s
+      const maxTimer = setTimeout(exitSplash, 2800);
+
+      if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        clearTimeout(maxTimer);
+        setTimeout(exitSplash, 1800);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          clearTimeout(maxTimer);
+          setTimeout(exitSplash, 1800);
+        });
+      }
+
+      // If page loads faster than 1.8s still wait minimum 1.8s
+      // so animation completes gracefully
+      window.addEventListener('load', () => {
+        clearTimeout(maxTimer);
+        // Calculate how long animation needs to finish
+        const minDisplay = 1800;
+        const elapsed = performance.now();
+        const remaining = Math.max(0, minDisplay - elapsed);
+        setTimeout(exitSplash, remaining);
+      });
+
+    })();
+    </script>
   </body>
 </html>
+
+
+
 

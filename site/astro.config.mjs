@@ -10,9 +10,25 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
-      chunkSizeWarningLimit: 1000
+      chunkSizeWarningLimit: 1000,
+      cssMinify: true,
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'motion': ['framer-motion'],
+            'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          }
+        }
+      }
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'framer-motion']
     }
   },
 
-  integrations: [react()]
+  integrations: [react()],
+
+  compressHTML: true,
 });

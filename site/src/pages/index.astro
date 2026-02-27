@@ -116,7 +116,7 @@ const personJsonLd = {
     </div>
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
-    <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(340px, 44vw, 480px); height: 100%; flex-shrink: 0;">
+    <div class="hero-portrait-layer pointer-events-none" style="position: relative; z-index: 1; width: clamp(340px, 44vw, 480px); height: 100%; flex-shrink: 0;">
       <img
         src="/profile.png"
         alt=""
@@ -136,6 +136,8 @@ const personJsonLd = {
           mix-blend-mode: screen;
           pointer-events: none;
         "
+        decoding="async"
+        loading="eager"
       />
       <img
         src="/profile.png"
@@ -143,6 +145,8 @@ const personJsonLd = {
         width="270"
         height="420"
         loading="eager"
+        fetchpriority="high"
+        decoding="async"
         class="block w-full h-full"
         style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; z-index: 1; position: relative; filter:
           drop-shadow(0 0 6px rgba(37,99,235,0.50))
@@ -316,7 +320,20 @@ const personJsonLd = {
         style="divide-color: rgba(255,255,255,0.08);">
 
         <!-- Card 0: drops from above -->
-        <div class="metric-card metric-drop space-y-2" data-metric="0">
+        <div class="metric-card metric-drop space-y-2" data-metric="0" style="position: relative; overflow: hidden;">
+          <!-- Animated orb canvas -->
+          <canvas id="orb-canvas" style="
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+          "></canvas>
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
             <AnimatedCounter client:idle value={profile.impactMetrics[0].value} />
           </p>
@@ -325,7 +342,19 @@ const personJsonLd = {
         </div>
 
         <!-- Card 1: slides from left -->
-        <div class="metric-card metric-slide-left space-y-2 md:pl-8" data-metric="1">
+        <div class="metric-card metric-slide-left space-y-2 md:pl-8" data-metric="1" style="position: relative; overflow: hidden;">
+          <canvas id="cost-canvas" style="
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+          "></canvas>
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
             <AnimatedCounter client:idle value={profile.impactMetrics[1].value} />
           </p>
@@ -334,7 +363,19 @@ const personJsonLd = {
         </div>
 
         <!-- Card 2: rises from below -->
-        <div class="metric-card metric-rise space-y-2 md:pl-8" data-metric="2">
+        <div class="metric-card metric-rise space-y-2 md:pl-8" data-metric="2" style="position: relative; overflow: hidden;">
+          <canvas id="brands-canvas" style="
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+          "></canvas>
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
             <AnimatedCounter client:idle value={profile.impactMetrics[2].value} />
           </p>
@@ -343,7 +384,19 @@ const personJsonLd = {
         </div>
 
         <!-- Card 3: slides from right -->
-        <div class="metric-card metric-slide-right space-y-2 md:pl-8" data-metric="3">
+        <div class="metric-card metric-slide-right space-y-2 md:pl-8" data-metric="3" style="position: relative; overflow: hidden;">
+          <canvas id="years-canvas" style="
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+          "></canvas>
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
             <AnimatedCounter client:idle value={profile.impactMetrics[3].value} />
           </p>
@@ -874,6 +927,822 @@ const personJsonLd = {
 
 <script is:inline>
 (() => {
+  const canvas = document.getElementById('years-canvas');
+  if (!canvas) return;
+
+  const DPR = window.devicePixelRatio || 1;
+  const SIZE = 90;
+  canvas.width  = SIZE * DPR;
+  canvas.height = SIZE * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const cx = SIZE / 2;
+  let t = 0;
+
+  const TOP_Y   = 10;
+  const BOT_Y   = SIZE - 10;
+  const MID_Y   = SIZE / 2;
+  const TOP_W   = 22;
+  const NECK_W  = 3;
+  const BOT_W   = 22;
+
+  const PARTICLE_COUNT = 38;
+  const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+    x: cx + (Math.random() - 0.5) * TOP_W * 1.4,
+    y: TOP_Y + Math.random() * (MID_Y - TOP_Y - 8),
+    vy: 0.3 + Math.random() * 0.5,
+    r: 0.8 + Math.random() * 1.2,
+    alpha: 0.4 + Math.random() * 0.5,
+    phase: Math.random() * Math.PI * 2,
+    settled: false,
+    settledY: 0,
+    settledX: 0,
+  }));
+
+  const settled = [];
+  const YEAR_MARKS = [0.2, 0.42, 0.63, 0.84];
+
+  function hourglassX(y) {
+    if (y <= MID_Y) {
+      const frac = (y - TOP_Y) / (MID_Y - TOP_Y);
+      return TOP_W * (1 - frac) + NECK_W * frac;
+    } else {
+      const frac = (y - MID_Y) / (BOT_Y - MID_Y);
+      return NECK_W * (1 - frac) + BOT_W * frac;
+    }
+  }
+
+  function drawHourglass() {
+    ctx.save();
+    ctx.shadowColor = 'rgba(147,197,253,0.5)';
+    ctx.shadowBlur = 8;
+    const glassGrad = ctx.createLinearGradient(0, TOP_Y, 0, BOT_Y);
+    glassGrad.addColorStop(0,    'rgba(147,197,253,0.55)');
+    glassGrad.addColorStop(0.45, 'rgba(96,165,250,0.70)');
+    glassGrad.addColorStop(0.5,  'rgba(147,197,253,0.90)');
+    glassGrad.addColorStop(0.55, 'rgba(96,165,250,0.70)');
+    glassGrad.addColorStop(1,    'rgba(147,197,253,0.55)');
+    ctx.strokeStyle = glassGrad;
+    ctx.lineWidth = 1.0;
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(cx - TOP_W, TOP_Y);
+    ctx.bezierCurveTo(cx - TOP_W*0.5, MID_Y-14, cx - NECK_W-2, MID_Y-5, cx - NECK_W, MID_Y);
+    ctx.bezierCurveTo(cx - NECK_W-2, MID_Y+5, cx - BOT_W*0.5, MID_Y+14, cx - BOT_W, BOT_Y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx + TOP_W, TOP_Y);
+    ctx.bezierCurveTo(cx + TOP_W*0.5, MID_Y-14, cx + NECK_W+2, MID_Y-5, cx + NECK_W, MID_Y);
+    ctx.bezierCurveTo(cx + NECK_W+2, MID_Y+5, cx + BOT_W*0.5, MID_Y+14, cx + BOT_W, BOT_Y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx - TOP_W - 1, TOP_Y);
+    ctx.lineTo(cx + TOP_W + 1, TOP_Y);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx - BOT_W - 1, BOT_Y);
+    ctx.lineTo(cx + BOT_W + 1, BOT_Y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawYearMarks() {
+    YEAR_MARKS.forEach((frac, i) => {
+      const y = MID_Y + frac * (BOT_Y - MID_Y - 4);
+      const hw = hourglassX(y);
+      const pulse = 0.6 + 0.4 * Math.sin(t * 1.2 + i * 0.8);
+      ctx.save();
+      ctx.globalAlpha = pulse * 0.7;
+      ctx.shadowColor = 'rgba(147,197,253,0.7)';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(cx - hw - 6, y);
+      ctx.lineTo(cx - hw, y);
+      ctx.strokeStyle = 'rgba(147,197,253,0.8)';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx + hw, y);
+      ctx.lineTo(cx + hw + 6, y);
+      ctx.stroke();
+      ctx.font = `500 5px "DM Mono", monospace`;
+      ctx.fillStyle = 'rgba(147,197,253,0.65)';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`'${21 + i}`, cx - hw - 8, y);
+      ctx.restore();
+    });
+  }
+
+  function drawNeckGlow() {
+    const ng = ctx.createRadialGradient(cx, MID_Y, 0, cx, MID_Y, 10);
+    ng.addColorStop(0,   'rgba(255,255,255,0.55)');
+    ng.addColorStop(0.3, 'rgba(147,197,253,0.40)');
+    ng.addColorStop(1,   'rgba(37,99,235,0)');
+    ctx.save();
+    ctx.globalAlpha = 0.7 + 0.3 * Math.sin(t * 3.0);
+    ctx.beginPath();
+    ctx.arc(cx, MID_Y, 10, 0, Math.PI * 2);
+    ctx.fillStyle = ng;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function updateParticles() {
+    particles.forEach(p => {
+      if (p.settled) return;
+      p.y += p.vy;
+      const hw = hourglassX(p.y);
+      const maxX = cx + hw - p.r;
+      const minX = cx - hw + p.r;
+      if (p.x > maxX) p.x = maxX;
+      if (p.x < minX) p.x = minX;
+      if (p.y > MID_Y - 20 && p.y < MID_Y + 5) {
+        p.x += (cx - p.x) * 0.06;
+        p.vy = Math.min(p.vy + 0.08, 1.8);
+      }
+      if (p.y > MID_Y + 5) p.vy = Math.min(p.vy, 0.8);
+      if (p.y >= BOT_Y - p.r - Math.random() * 12) {
+        p.settled = true;
+        p.settledX = p.x;
+        p.settledY = BOT_Y - p.r - Math.random() * 10;
+        settled.push({ x: p.settledX, y: p.settledY, r: p.r, alpha: p.alpha });
+        setTimeout(() => {
+          p.settled = false;
+          p.x = cx + (Math.random() - 0.5) * TOP_W * 1.2;
+          p.y = TOP_Y + 2 + Math.random() * 6;
+          p.vy = 0.3 + Math.random() * 0.4;
+        }, 800 + Math.random() * 1200);
+      }
+    });
+    if (settled.length > 55) settled.splice(0, 5);
+  }
+
+  function drawParticles() {
+    particles.forEach(p => {
+      if (p.settled) return;
+      const flicker = 0.7 + 0.3 * Math.sin(t * 4 + p.phase);
+      ctx.save();
+      ctx.globalAlpha = p.alpha * flicker;
+      ctx.shadowColor = 'rgba(147,197,253,0.7)';
+      ctx.shadowBlur = 5;
+      const pg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+      pg.addColorStop(0,   'rgba(255,255,255,0.95)');
+      pg.addColorStop(0.5, 'rgba(147,197,253,0.8)');
+      pg.addColorStop(1,   'rgba(37,99,235,0.2)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = pg;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    settled.forEach((s, i) => {
+      ctx.save();
+      ctx.globalAlpha = s.alpha * (0.5 + 0.2 * Math.sin(t * 1.5 + i));
+      ctx.fillStyle = 'rgba(96,165,250,0.6)';
+      ctx.shadowColor = 'rgba(96,165,250,0.5)';
+      ctx.shadowBlur = 4;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    const pool = ctx.createRadialGradient(cx, BOT_Y - 8, 2, cx, BOT_Y - 8, 20);
+    pool.addColorStop(0, 'rgba(96,165,250,0.22)');
+    pool.addColorStop(1, 'rgba(96,165,250,0)');
+    ctx.beginPath();
+    ctx.arc(cx, BOT_Y - 8, 20, 0, Math.PI * 2);
+    ctx.fillStyle = pool;
+    ctx.fill();
+  }
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    t += 0.014;
+    updateParticles();
+    drawParticles();
+    drawHourglass();
+    drawYearMarks();
+    drawNeckGlow();
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+})();
+</script>
+
+<script is:inline>
+(() => {
+  const canvas = document.getElementById('brands-canvas');
+  if (!canvas) return;
+
+  const DPR = window.devicePixelRatio || 1;
+  const SIZE = 90;
+  canvas.width  = SIZE * DPR;
+  canvas.height = SIZE * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  let t = 0;
+
+  // 5 brand nodes arranged in a pentagon + center hub
+  // Each node represents one brand built
+  const NODE_COUNT = 5;
+  const ORBIT_R = 26;
+
+  const nodes = Array.from({ length: NODE_COUNT }, (_, i) => {
+    const angle = (i / NODE_COUNT) * Math.PI * 2 - Math.PI / 2;
+    return {
+      x: cx + Math.cos(angle) * ORBIT_R,
+      y: cy + Math.sin(angle) * ORBIT_R,
+      angle,
+      pulsePhase: i * (Math.PI * 2 / NODE_COUNT),
+      buildDelay: i * 0.5, // each node builds in sequence
+      built: false,
+      buildProgress: 0,
+    };
+  });
+
+  // Connections between nodes (all pairs)
+  const connections = [];
+  for (let i = 0; i < NODE_COUNT; i++) {
+    for (let j = i + 1; j < NODE_COUNT; j++) {
+      connections.push([i, j]);
+    }
+  }
+
+  // Shield path helper — small shield shape
+  function drawShield(x, y, r, alpha, glowColor) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 10;
+
+    // Shield: rounded top, pointed bottom
+    ctx.beginPath();
+    ctx.moveTo(x, y - r);
+    ctx.bezierCurveTo(x + r, y - r, x + r, y, x + r, y + r * 0.2);
+    ctx.bezierCurveTo(x + r, y + r * 0.9, x, y + r * 1.4, x, y + r * 1.4);
+    ctx.bezierCurveTo(x, y + r * 1.4, x - r, y + r * 0.9, x - r, y + r * 0.2);
+    ctx.bezierCurveTo(x - r, y, x - r, y - r, x, y - r);
+    ctx.closePath();
+
+    ctx.fillStyle = 'rgba(7,9,15,0.85)';
+    ctx.fill();
+    ctx.strokeStyle = glowColor;
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    // Inner check/star mark
+    ctx.shadowBlur = 4;
+    ctx.strokeStyle = `rgba(255,255,255,0.6)`;
+    ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.35, y + r * 0.2);
+    ctx.lineTo(x - r * 0.05, y + r * 0.55);
+    ctx.lineTo(x + r * 0.4,  y - r * 0.15);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // Hub: central glowing hexagon
+  function drawHub(alpha) {
+    const r = 7;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy);
+    ctx.rotate(t * 0.4);
+
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const hx = Math.cos(a) * r;
+      const hy = Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(hx, hy);
+      else ctx.lineTo(hx, hy);
+    }
+    ctx.closePath();
+
+    const hGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    hGrad.addColorStop(0,   'rgba(147,197,253,0.95)');
+    hGrad.addColorStop(0.6, 'rgba(37,99,235,0.80)');
+    hGrad.addColorStop(1,   'rgba(37,99,235,0.20)');
+
+    ctx.shadowColor = 'rgba(147,197,253,0.9)';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = hGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(147,197,253,0.7)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Pulse ring expanding from hub
+  const pulseRings = [];
+  let lastPulse = 0;
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    t += 0.016;
+
+    // Spawn pulse ring from hub every 1.8 seconds
+    if (t - lastPulse > 1.8) {
+      pulseRings.push({ r: 7, alpha: 0.7 });
+      lastPulse = t;
+    }
+
+    // ── Pulse rings ──────────────────────────────────
+    for (let i = pulseRings.length - 1; i >= 0; i--) {
+      const ring = pulseRings[i];
+      ring.r += 0.45;
+      ring.alpha -= 0.008;
+      if (ring.alpha <= 0) { pulseRings.splice(i, 1); continue; }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(147,197,253,${ring.alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.shadowColor = 'rgba(147,197,253,0.5)';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Update node build progress
+    nodes.forEach((node, i) => {
+      const adjustedT = t - node.buildDelay;
+      if (adjustedT > 0) {
+        node.buildProgress = Math.min(1, adjustedT * 0.5);
+        node.built = node.buildProgress >= 1;
+      }
+    });
+
+    // ── Connection lines between built nodes ─────────
+    connections.forEach(([a, b]) => {
+      const na = nodes[a];
+      const nb = nodes[b];
+      const alpha = Math.min(na.buildProgress, nb.buildProgress);
+      if (alpha <= 0) return;
+
+      // Animated data packet travelling along connection
+      const packetPos = ((t * 0.4 + a * 0.2 + b * 0.1) % 1);
+
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.25;
+      ctx.strokeStyle = 'rgba(96,165,250,0.6)';
+      ctx.lineWidth = 0.6;
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.moveTo(na.x, na.y);
+      ctx.lineTo(nb.x, nb.y);
+      ctx.stroke();
+
+      // Data packet dot
+      if (alpha > 0.5) {
+        const px = na.x + (nb.x - na.x) * packetPos;
+        const py = na.y + (nb.y - na.y) * packetPos;
+        ctx.globalAlpha = alpha * 0.7;
+        ctx.fillStyle = 'rgba(147,197,253,0.9)';
+        ctx.shadowColor = 'rgba(147,197,253,0.8)';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(px, py, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+
+    // ── Brand nodes (shields) ────────────────────────
+    // Colour cycle per node — each brand has unique accent
+    const nodeColours = [
+      'rgba(147,197,253,0.9)',  // soft cyan-blue
+      'rgba(96,165,250,0.85)',  // mid blue
+      'rgba(37,99,235,0.90)',   // accent blue
+      'rgba(59,130,246,0.85)',  // bright blue
+      'rgba(147,197,253,0.80)', // cyan
+    ];
+
+    nodes.forEach((node, i) => {
+      if (node.buildProgress <= 0) return;
+
+      // Gentle float animation
+      const floatY = Math.sin(t * 0.7 + node.pulsePhase) * 1.8;
+      const pulseAlpha = 0.75 + 0.25 * Math.sin(t * 1.1 + node.pulsePhase);
+
+      drawShield(
+        node.x,
+        node.y + floatY,
+        5 * node.buildProgress,
+        node.buildProgress * pulseAlpha,
+        nodeColours[i]
+      );
+
+      // Build-in ring flash
+      if (node.buildProgress < 1) {
+        ctx.save();
+        ctx.globalAlpha = (1 - node.buildProgress) * 0.6;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 8 * (1 - node.buildProgress) + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = nodeColours[i];
+        ctx.lineWidth = 1;
+        ctx.shadowColor = nodeColours[i];
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    // ── Hub ──────────────────────────────────────────
+    drawHub(0.9 + 0.1 * Math.sin(t * 1.5));
+
+    // ── Outer ambient glow ───────────────────────────
+    const glow = ctx.createRadialGradient(cx, cy, 20, cx, cy, 46);
+    glow.addColorStop(0, 'rgba(37,99,235,0.10)');
+    glow.addColorStop(1, 'rgba(37,99,235,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, 46, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+})();
+</script>
+
+<script is:inline>
+(() => {
+  const canvas = document.getElementById('cost-canvas');
+  if (!canvas) return;
+
+  const DPR = window.devicePixelRatio || 1;
+  const SIZE = 90;
+  canvas.width  = SIZE * DPR;
+  canvas.height = SIZE * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  let t = 0;
+
+  // Animated bar chart data — bars fall from high to low
+  // representing cost dropping. Heights cycle downward.
+  const BARS = 5;
+  const barW = 7;
+  const barGap = 4;
+  const totalW = BARS * barW + (BARS - 1) * barGap;
+  const startX = cx - totalW / 2;
+  const floorY = SIZE * 0.78;
+  const maxH   = SIZE * 0.52;
+
+  // Each bar has a target that slowly decreases then resets
+  const bars = Array.from({ length: BARS }, (_, i) => ({
+    // Start heights: descending left to right — cost coming down
+    baseH: maxH * (1 - i * 0.16),
+    currentH: 0,
+    phase: i * 0.4,
+  }));
+
+  // Falling arrow path points (reusable)
+  function drawArrow(x, y, size, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 1.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = 'rgba(34,211,238,0.7)';
+    ctx.shadowBlur = 6;
+
+    // Down-right trending arrow
+    ctx.beginPath();
+    ctx.moveTo(x,          y - size * 0.3);
+    ctx.lineTo(x + size,   y + size * 0.3);
+    // Arrowhead
+    ctx.moveTo(x + size,   y + size * 0.3);
+    ctx.lineTo(x + size * 0.55, y + size * 0.3);
+    ctx.moveTo(x + size,   y + size * 0.3);
+    ctx.lineTo(x + size,   y - size * 0.1);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Percent badge
+  function drawBadge(alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    // Badge background pill
+    const bx = cx - 14, by = 6, bw = 28, bh = 13;
+    const r = 4;
+    ctx.beginPath();
+    ctx.moveTo(bx + r, by);
+    ctx.lineTo(bx + bw - r, by);
+    ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+    ctx.lineTo(bx + bw, by + bh - r);
+    ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - r, by + bh);
+    ctx.lineTo(bx + r, by + bh);
+    ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - r);
+    ctx.lineTo(bx, by + r);
+    ctx.quadraticCurveTo(bx, by, bx + r, by);
+    ctx.closePath();
+
+    ctx.fillStyle = 'rgba(34,211,238,0.15)';
+    ctx.strokeStyle = 'rgba(34,211,238,0.45)';
+    ctx.lineWidth = 0.8;
+    ctx.shadowColor = 'rgba(34,211,238,0.4)';
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.stroke();
+
+    // % text
+    ctx.font = `bold ${6.5 * DPR / DPR}px "DM Mono", monospace`;
+    ctx.fillStyle = '#22d3ee';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 0;
+    ctx.fillText('-35%', cx, by + bh / 2);
+    ctx.restore();
+  }
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    t += 0.016;
+
+    // ── Floor grid line ──────────────────────────────
+    ctx.save();
+    const floorGrad = ctx.createLinearGradient(0, floorY, SIZE, floorY);
+    floorGrad.addColorStop(0, 'rgba(34,211,238,0)');
+    floorGrad.addColorStop(0.3, 'rgba(34,211,238,0.18)');
+    floorGrad.addColorStop(0.7, 'rgba(34,211,238,0.18)');
+    floorGrad.addColorStop(1, 'rgba(34,211,238,0)');
+    ctx.strokeStyle = floorGrad;
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(4, floorY);
+    ctx.lineTo(SIZE - 4, floorY);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Bars: heights animate with slow downward drift ──
+    bars.forEach((bar, i) => {
+      // Each bar oscillates slowly between its base and ~65% of base
+      // creating a "cost reducing" visual over time
+      const drift = Math.sin(t * 0.5 + bar.phase) * 0.18;
+      const targetH = bar.baseH * (0.75 - drift);
+
+      // Smooth lerp toward target
+      bar.currentH += (targetH - bar.currentH) * 0.04;
+
+      const x = startX + i * (barW + barGap);
+      const y = floorY - bar.currentH;
+
+      // Bar gradient: cyan-bright top → deep blue bottom
+      const barGrad = ctx.createLinearGradient(x, y, x, floorY);
+      barGrad.addColorStop(0,   'rgba(34,211,238,0.90)');
+      barGrad.addColorStop(0.4, 'rgba(37,99,235,0.75)');
+      barGrad.addColorStop(1,   'rgba(29,78,216,0.20)');
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(34,211,238,0.50)';
+      ctx.shadowBlur = 8;
+
+      // Rounded top
+      const rr = Math.min(2, barW / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.lineTo(x + barW - rr, y);
+      ctx.quadraticCurveTo(x + barW, y, x + barW, y + rr);
+      ctx.lineTo(x + barW, floorY);
+      ctx.lineTo(x, floorY);
+      ctx.lineTo(x, y + rr);
+      ctx.quadraticCurveTo(x, y, x + rr, y);
+      ctx.closePath();
+      ctx.fillStyle = barGrad;
+      ctx.fill();
+
+      // Top highlight
+      ctx.fillStyle = 'rgba(200,240,255,0.25)';
+      ctx.fillRect(x, y, barW, 2);
+      ctx.restore();
+    });
+
+    // ── Descending trend line over bars ─────────────
+    ctx.save();
+    ctx.strokeStyle = 'rgba(34,211,238,0.75)';
+    ctx.lineWidth = 1.2;
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = 'rgba(34,211,238,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.setLineDash([2, 2]);
+    ctx.lineDashOffset = -t * 8; // animates dashes flowing downward
+
+    ctx.beginPath();
+    bars.forEach((bar, i) => {
+      const x = startX + i * (barW + barGap) + barW / 2;
+      const y = floorY - bar.currentH;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // ── Falling arrow (animates down-right diagonally) ──
+    const arrowCycle = (t * 0.5) % 1;
+    const arrowY = cy - 8 + arrowCycle * 12;
+    const arrowAlpha = arrowCycle < 0.7
+      ? arrowCycle / 0.7
+      : 1 - (arrowCycle - 0.7) / 0.3;
+    drawArrow(12, arrowY, 12, arrowAlpha * 0.85);
+
+    // Second arrow offset in time
+    const arrowCycle2 = ((t * 0.5) + 0.5) % 1;
+    const arrowY2 = cy - 8 + arrowCycle2 * 12;
+    const arrowAlpha2 = arrowCycle2 < 0.7
+      ? arrowCycle2 / 0.7
+      : 1 - (arrowCycle2 - 0.7) / 0.3;
+    drawArrow(12, arrowY2, 12, arrowAlpha2 * 0.55);
+
+    // ── Badge ────────────────────────────────────────
+    const badgeAlpha = 0.7 + 0.3 * Math.sin(t * 1.2);
+    drawBadge(badgeAlpha);
+
+    // ── Bottom glow bloom ────────────────────────────
+    const bloom = ctx.createRadialGradient(cx, floorY + 2, 0, cx, floorY + 2, 28);
+    bloom.addColorStop(0, 'rgba(34,211,238,0.18)');
+    bloom.addColorStop(1, 'rgba(34,211,238,0)');
+    ctx.beginPath();
+    ctx.arc(cx, floorY + 2, 28, 0, Math.PI * 2);
+    ctx.fillStyle = bloom;
+    ctx.fill();
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+})();
+</script>
+
+<script is:inline>
+(() => {
+  const canvas = document.getElementById('orb-canvas');
+  if (!canvas) return;
+
+  const DPR = window.devicePixelRatio || 1;
+  const SIZE = 90;
+  canvas.width  = SIZE * DPR;
+  canvas.height = SIZE * DPR;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  let t = 0;
+
+  // Colour palette matching site theme: deep blue → accent blue → soft cyan
+  const COLOURS = [
+    [37,  99,  235],  // accent blue
+    [96,  165, 250],  // mid blue
+    [147, 197, 253],  // soft cyan
+    [59,  130, 246],  // bright blue
+  ];
+
+  function lerp(a, b, n) { return a + (b - a) * n; }
+  function lerpColour(c1, c2, n) {
+    return [
+      Math.round(lerp(c1[0], c2[0], n)),
+      Math.round(lerp(c1[1], c2[1], n)),
+      Math.round(lerp(c1[2], c2[2], n)),
+    ];
+  }
+
+  function drawFrame() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    t += 0.018;
+
+    // ── Outer halo glow ──────────────────────────────
+    const haloR = 36 + Math.sin(t * 0.7) * 3;
+    const halo = ctx.createRadialGradient(cx, cy, haloR * 0.4, cx, cy, haloR + 8);
+    halo.addColorStop(0,   'rgba(37,99,235,0)');
+    halo.addColorStop(0.5, 'rgba(37,99,235,0.12)');
+    halo.addColorStop(1,   'rgba(96,165,250,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, haloR + 8, 0, Math.PI * 2);
+    ctx.fillStyle = halo;
+    ctx.fill();
+
+    // ── Core orb ─────────────────────────────────────
+    const orbR = 28 + Math.sin(t * 0.5) * 1.5;
+
+    // Rotating gradient — shifts colour over time
+    const angle = t * 0.6;
+    const gx1 = cx + Math.cos(angle) * orbR * 0.6;
+    const gy1 = cy + Math.sin(angle) * orbR * 0.6;
+    const gx2 = cx + Math.cos(angle + Math.PI) * orbR * 0.6;
+    const gy2 = cy + Math.sin(angle + Math.PI) * orbR * 0.6;
+
+    const colProgress = (Math.sin(t * 0.4) + 1) / 2;
+    const colIdx = Math.floor(colProgress * (COLOURS.length - 1));
+    const colFrac = (colProgress * (COLOURS.length - 1)) % 1;
+    const c1 = COLOURS[colIdx];
+    const c2 = COLOURS[Math.min(colIdx + 1, COLOURS.length - 1)];
+    const col = lerpColour(c1, c2, colFrac);
+
+    const grad = ctx.createRadialGradient(gx1, gy1, 0, cx, cy, orbR);
+    grad.addColorStop(0,   `rgba(${col[0]},${col[1]},${col[2]},0.95)`);
+    grad.addColorStop(0.45,`rgba(${Math.round(col[0]*0.6)},${Math.round(col[1]*0.6)},${Math.round(col[2]*0.8)},0.85)`);
+    grad.addColorStop(0.8, `rgba(7,20,60,0.90)`);
+    grad.addColorStop(1,   `rgba(7,9,15,0.95)`);
+
+    ctx.save();
+    ctx.shadowColor = `rgba(${col[0]},${col[1]},${col[2]},0.8)`;
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    // ── Swirling ring 1 ──────────────────────────────
+    const r1 = orbR + 4;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(t * 0.9);
+    ctx.scale(1, 0.35);
+    ctx.beginPath();
+    ctx.arc(0, 0, r1, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(147,197,253,${0.55 + 0.25 * Math.sin(t * 1.2)})`;
+    ctx.lineWidth = 1.2;
+    ctx.shadowColor = 'rgba(147,197,253,0.8)';
+    ctx.shadowBlur = 8;
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Swirling ring 2 ──────────────────────────────
+    const r2 = orbR + 2;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-t * 0.6 + 1.2);
+    ctx.scale(0.35, 1);
+    ctx.beginPath();
+    ctx.arc(0, 0, r2, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(96,165,250,${0.40 + 0.20 * Math.sin(t * 0.8)})`;
+    ctx.lineWidth = 0.8;
+    ctx.shadowColor = 'rgba(96,165,250,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Swirling ring 3 — diagonal ───────────────────
+    const r3 = orbR + 1;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(t * 1.1 + 2.4);
+    ctx.scale(0.6, 0.22);
+    ctx.beginPath();
+    ctx.arc(0, 0, r3, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(255,255,255,${0.20 + 0.15 * Math.sin(t * 1.5)})`;
+    ctx.lineWidth = 0.7;
+    ctx.shadowColor = 'rgba(255,255,255,0.5)';
+    ctx.shadowBlur = 5;
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Inner shimmer highlight ───────────────────────
+    const shimX = cx + Math.cos(t * 0.7) * 8;
+    const shimY = cy + Math.sin(t * 0.7) * 8 - 5;
+    const shim = ctx.createRadialGradient(shimX, shimY, 0, shimX, shimY, 14);
+    shim.addColorStop(0,   `rgba(255,255,255,${0.25 + 0.15 * Math.sin(t)})`);
+    shim.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.arc(shimX, shimY, 14, 0, Math.PI * 2);
+    ctx.fillStyle = shim;
+    ctx.fill();
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  drawFrame();
+})();
+</script>
+
+<script is:inline>
+(() => {
   const canvas = document.getElementById('cta-graph-canvas');
   if (!canvas) return;
 
@@ -1114,6 +1983,16 @@ const personJsonLd = {
             card.classList.remove(outClass);
             card.classList.add(inClass);
 
+            // Show orb when this card enters
+            const orb = card.querySelector('#orb-canvas');
+            if (orb) orb.style.opacity = '1';
+          const cost = card.querySelector('#cost-canvas');
+          if (cost) cost.style.opacity = '1';
+          const brands = card.querySelector('#brands-canvas');
+          if (brands) brands.style.opacity = '1';
+          const years = card.querySelector('#years-canvas');
+          if (years) years.style.opacity = '1';
+
             // Reset and restart counter inside this card
             const counter = card.querySelector('[data-counter-root]');
             if (counter) {
@@ -1136,6 +2015,16 @@ const personJsonLd = {
           } else if (seen) {
             card.classList.remove(inClass);
             card.classList.add(outClass);
+
+            // Hide orb when card exits
+            const orb = card.querySelector('#orb-canvas');
+            if (orb) orb.style.opacity = '0';
+          const cost = card.querySelector('#cost-canvas');
+          if (cost) cost.style.opacity = '0';
+          const brands = card.querySelector('#brands-canvas');
+          if (brands) brands.style.opacity = '0';
+          const years = card.querySelector('#years-canvas');
+          if (years) years.style.opacity = '0';
           }
         });
       }, { threshold: 0.35, rootMargin: '0px 0px -100px 0px' });
@@ -2034,6 +2923,50 @@ const personJsonLd = {
     box-shadow: 0 0 0 1px rgba(147,197,253,0.10), 0 20px 50px rgba(0,0,0,0.4);
   }
 
+  /* -- PERFORMANCE: GPU layers for all animated elements -- */
+
+  .metric-card,
+  .cap-card,
+  .work-left,
+  .work-card-1,
+  .work-card-2,
+  .work-card-3,
+  .work-card-center,
+  .work-card-4 {
+    will-change: transform, opacity, filter;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  section {
+    contain: layout style;
+  }
+
+  .hero-section {
+    contain: layout style paint;
+    isolation: isolate;
+  }
+
+  .testi-track,
+  .ticker-row {
+    will-change: transform;
+    transform: translateZ(0);
+    contain: layout style;
+  }
+
+  .hero-portrait-layer img {
+    will-change: transform, filter;
+    transform: translateZ(0);
+  }
+
+  #cta-graph-canvas,
+  #star-canvas {
+    will-change: transform;
+    transform: translateZ(0);
+    image-rendering: pixelated;
+  }
+
   .work-card-center {
     animation: centerCardPulse 5s ease-in-out infinite;
   }
@@ -2055,8 +2988,8 @@ const personJsonLd = {
   to   { transform: rotate(360deg) translateX(210px) rotate(-360deg); }
 }
 @keyframes dot2Orbit {
-  from { transform: rotate(0deg) translateX(180px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(151px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(151px) rotate(-360deg); }
 }
 @keyframes dot3Orbit {
   from { transform: rotate(0deg) translateX(92px) rotate(0deg); }
