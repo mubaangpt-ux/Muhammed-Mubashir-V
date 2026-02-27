@@ -420,7 +420,9 @@ const isActive = (href: string) =>
             style="color: rgba(147,197,253,0.30);"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
             onmouseout="this.style.color='rgba(147,197,253,0.30)'">
-            ?
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; animation: iconPop 0.4s ease; flex-shrink:0;">
+              <path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/>
+            </svg>
           </span>
         </a>
 
@@ -480,15 +482,27 @@ const isActive = (href: string) =>
             <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Connect</p>
             <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">?</span> WhatsApp � {profile.whatsappDisplay}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
+                <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+              </svg>
+              WhatsApp &middot; {profile.whatsappDisplay}
             </a>
             <a href={profile.links.email}
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">?</span> {profile.email}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
+                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                <path d="m4 7 8 6 8-6"/>
+              </svg>
+              {profile.email}
             </a>
             <a href={profile.links.instagram} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">?</span> {profile.links.instagramHandle}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
+                <rect x="3" y="3" width="18" height="18" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1"/>
+              </svg>
+              {profile.links.instagramHandle}
             </a>
           </div>
 
