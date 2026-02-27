@@ -340,17 +340,25 @@ const personJsonLd = {
         <!-- Card 0: drops from above -->
         <div class="metric-card metric-drop space-y-2" data-metric="0" style="position: relative; overflow: hidden;">
           <!-- Animated orb canvas -->
-          <canvas id="orb-canvas" style="
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            width: 62px;
-            height: 62px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 1.2s ease;
-          "></canvas>
+          <dotlottie-player
+            src="/lottie/ai-brain.lottie"
+            background="transparent"
+            speed="0.8"
+            loop
+            autoplay
+            style="
+              position: absolute;
+              right: 4px;
+              top: 4px;
+              width: 66px;
+              height: 66px;
+              pointer-events: none;
+              z-index: 0;
+              opacity: 0;
+              transition: opacity 1.2s ease;
+            "
+            id="orb-lottie"
+          ></dotlottie-player>
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
             <AnimatedCounter client:idle value={profile.impactMetrics[0].value} />
           </p>
@@ -2092,7 +2100,7 @@ const personJsonLd = {
             card.classList.add(inClass);
 
             // Show orb when this card enters
-            const orb = card.querySelector('#orb-canvas');
+            const orb = card.querySelector('#orb-canvas, #orb-lottie');
             if (orb) orb.style.opacity = '1';
           const cost = card.querySelector('#cost-canvas');
           if (cost) cost.style.opacity = '1';
@@ -2125,7 +2133,7 @@ const personJsonLd = {
             card.classList.add(outClass);
 
             // Hide orb when card exits
-            const orb = card.querySelector('#orb-canvas');
+            const orb = card.querySelector('#orb-canvas, #orb-lottie');
             if (orb) orb.style.opacity = '0';
           const cost = card.querySelector('#cost-canvas');
           if (cost) cost.style.opacity = '0';
