@@ -168,6 +168,44 @@ const isActive = (href: string) =>
       body.splash-active {
         overflow: hidden;
       }
+
+      /* Force 60fps GPU compositing on all animated elements */
+      *[style*="animation"],
+      *[style*="transition"],
+      .reveal,
+      .metric-card,
+      .cap-card,
+      .work-left,
+      .work-card-1,
+      .work-card-2,
+      .work-card-3,
+      .work-card-center,
+      .work-card-4,
+      .testi-card,
+      .testi-track,
+      .orbit-dot,
+      .orbit-ring,
+      canvas {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
+
+      /* Prevent subpixel rendering lag on text animations */
+      .reveal,
+      .metric-card p,
+      .cap-card p {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeSpeed;
+      }
+
+      /* Contain paint to reduce repaint area */
+      .hero-section {
+        contain: layout style paint;
+        isolation: isolate;
+      }
     </style>
   </head>
     <body class="antialiased">
@@ -719,7 +757,16 @@ const isActive = (href: string) =>
 
       // -- Main loop --------------------------------------------
       let lastTime = 0;
-      function loop(now) {
+      let lastFrame = 0;
+      const TARGET_FPS = 60;
+      const FRAME_INTERVAL = 1000 / TARGET_FPS;
+      function loop(now = 0) {
+        const delta = now - lastFrame;
+        if (delta < FRAME_INTERVAL - 0.5) {
+          animId = requestAnimationFrame(loop);
+          return;
+        }
+        lastFrame = now - (delta % FRAME_INTERVAL);
         const dt = now - lastTime;
         lastTime = now;
 
@@ -737,7 +784,7 @@ const isActive = (href: string) =>
         window.addEventListener('scroll', handleScroll, { passive: true });
         // First shooting star after 10-20s so user sees it relatively quickly
         shootingTimer = setTimeout(launchShootingStar, 10000 + Math.random() * 10000);
-        requestAnimationFrame((t) => { lastTime = t; loop(t); });
+        requestAnimationFrame((t) => { lastTime = t; lastFrame = t; loop(t); });
       }
 
       // Respect reduced motion

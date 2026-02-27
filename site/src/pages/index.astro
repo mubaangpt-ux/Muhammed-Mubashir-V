@@ -98,21 +98,21 @@ const personJsonLd = {
 
     <!-- ORBITAL RINGS: fixed 360x360, centered in stage -->
     <div class="absolute pointer-events-none"
-      style="width: 420px; height: 420px; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 0;">
+      style="width: 420px; height: 420px; top: 38%; left: 50%; transform: translate3d(-50%, -50%, 0); z-index: 0; will-change: transform; contain: layout style;">
 
       <!-- Ring 1: 360px diameter ? radius 180px -->
-      <div class="absolute" style="inset: 0; border-radius: 50%; border: 1px solid rgba(147,197,253,0.18); animation: orbitSpin1 18s linear infinite;"></div>
+      <div class="absolute orbit-ring" style="inset: 0; border-radius: 50%; border: 1px solid rgba(147,197,253,0.18); animation: orbitSpin1 18s linear infinite;"></div>
       <!-- Ring 2: inset 14% ? diameter 259px ? radius 130px -->
-      <div class="absolute" style="inset: 14%; border-radius: 50%; border: 1px solid rgba(37,99,235,0.28); animation: orbitSpin2 28s linear infinite reverse;"></div>
+      <div class="absolute orbit-ring" style="inset: 14%; border-radius: 50%; border: 1px solid rgba(37,99,235,0.28); animation: orbitSpin2 28s linear infinite reverse;"></div>
       <!-- Ring 3: inset 28% ? diameter 159px ? radius 79px -->
-      <div class="absolute" style="inset: 28%; border-radius: 50%; border: 1px dashed rgba(147,197,253,0.13); animation: orbitSpin1 42s linear infinite;"></div>
+      <div class="absolute orbit-ring" style="inset: 28%; border-radius: 50%; border: 1px dashed rgba(147,197,253,0.13); animation: orbitSpin1 42s linear infinite;"></div>
 
       <!-- Dot 1: translateX(180px) matches Ring 1 radius exactly -->
-      <div class="absolute" style="width:6px; height:6px; top:50%; left:50%; margin:-3px 0 0 -3px; border-radius:50%; background:#93c5fd; box-shadow: 0 0 10px rgba(147,197,253,0.95), 0 0 22px rgba(37,99,235,0.6); animation: dot1Orbit 18s linear infinite;"></div>
+      <div class="absolute orbit-dot" style="width:6px; height:6px; top:50%; left:50%; margin:-3px 0 0 -3px; border-radius:50%; background:#93c5fd; box-shadow: 0 0 10px rgba(147,197,253,0.95), 0 0 22px rgba(37,99,235,0.6); animation: dot1Orbit 18s linear infinite;"></div>
       <!-- Dot 2: translateX(130px) matches Ring 2 radius exactly -->
-      <div class="absolute" style="width:5px; height:5px; top:50%; left:50%; margin:-2.5px 0 0 -2.5px; border-radius:50%; background:#ffffff; box-shadow: 0 0 8px rgba(255,255,255,0.95), 0 0 18px rgba(147,197,253,0.7); animation: dot2Orbit 28s linear infinite reverse;"></div>
+      <div class="absolute orbit-dot" style="width:5px; height:5px; top:50%; left:50%; margin:-2.5px 0 0 -2.5px; border-radius:50%; background:#ffffff; box-shadow: 0 0 8px rgba(255,255,255,0.95), 0 0 18px rgba(147,197,253,0.7); animation: dot2Orbit 28s linear infinite reverse;"></div>
       <!-- Dot 3: translateX(79px) matches Ring 3 radius exactly -->
-      <div class="absolute" style="width:4px; height:4px; top:50%; left:50%; margin:-2px 0 0 -2px; border-radius:50%; background:#60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.95); animation: dot3Orbit 42s linear infinite;"></div>
+      <div class="absolute orbit-dot" style="width:4px; height:4px; top:50%; left:50%; margin:-2px 0 0 -2px; border-radius:50%; background:#60a5fa; box-shadow: 0 0 8px rgba(96,165,250,0.95); animation: dot3Orbit 42s linear infinite;"></div>
     </div>
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
@@ -324,11 +324,10 @@ const personJsonLd = {
           <!-- Animated orb canvas -->
           <canvas id="orb-canvas" style="
             position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 90px;
-            height: 90px;
+            right: 8px;
+            top: 8px;
+            width: 62px;
+            height: 62px;
             pointer-events: none;
             z-index: 0;
             opacity: 0;
@@ -345,11 +344,10 @@ const personJsonLd = {
         <div class="metric-card metric-slide-left space-y-2 md:pl-8" data-metric="1" style="position: relative; overflow: hidden;">
           <canvas id="cost-canvas" style="
             position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 90px;
-            height: 90px;
+            right: 8px;
+            top: 8px;
+            width: 62px;
+            height: 62px;
             pointer-events: none;
             z-index: 0;
             opacity: 0;
@@ -366,11 +364,10 @@ const personJsonLd = {
         <div class="metric-card metric-rise space-y-2 md:pl-8" data-metric="2" style="position: relative; overflow: hidden;">
           <canvas id="brands-canvas" style="
             position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 90px;
-            height: 90px;
+            right: 8px;
+            top: 8px;
+            width: 62px;
+            height: 62px;
             pointer-events: none;
             z-index: 0;
             opacity: 0;
@@ -387,11 +384,10 @@ const personJsonLd = {
         <div class="metric-card metric-slide-right space-y-2 md:pl-8" data-metric="3" style="position: relative; overflow: hidden;">
           <canvas id="years-canvas" style="
             position: absolute;
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 90px;
-            height: 90px;
+            right: 8px;
+            top: 8px;
+            width: 62px;
+            height: 62px;
             pointer-events: none;
             z-index: 0;
             opacity: 0;
@@ -931,7 +927,7 @@ const personJsonLd = {
   if (!canvas) return;
 
   const DPR = window.devicePixelRatio || 1;
-  const SIZE = 90;
+  const SIZE = 62;
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
   const ctx = canvas.getContext('2d');
@@ -1123,9 +1119,14 @@ const personJsonLd = {
     ctx.fill();
   }
 
-  function drawFrame() {
+  let yearsLastFrame = 0;
+  function drawFrame(now = 0) {
+    const yearsDelta = now - yearsLastFrame;
+    if (yearsDelta < 14) { requestAnimationFrame(drawFrame); return; }
+    yearsLastFrame = now;
+    const dt = Math.min(yearsDelta / 16.67, 2);
     ctx.clearRect(0, 0, SIZE, SIZE);
-    t += 0.014;
+    t += 0.014 * dt;
     updateParticles();
     drawParticles();
     drawHourglass();
@@ -1144,7 +1145,7 @@ const personJsonLd = {
   if (!canvas) return;
 
   const DPR = window.devicePixelRatio || 1;
-  const SIZE = 90;
+  const SIZE = 62;
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
   const ctx = canvas.getContext('2d');
@@ -1252,9 +1253,14 @@ const personJsonLd = {
   const pulseRings = [];
   let lastPulse = 0;
 
-  function drawFrame() {
+  let brandsLastFrame = 0;
+  function drawFrame(now = 0) {
+    const brandsDelta = now - brandsLastFrame;
+    if (brandsDelta < 14) { requestAnimationFrame(drawFrame); return; }
+    brandsLastFrame = now;
+    const dt = Math.min(brandsDelta / 16.67, 2);
     ctx.clearRect(0, 0, SIZE, SIZE);
-    t += 0.016;
+    t += 0.016 * dt;
 
     // Spawn pulse ring from hub every 1.8 seconds
     if (t - lastPulse > 1.8) {
@@ -1389,7 +1395,7 @@ const personJsonLd = {
   if (!canvas) return;
 
   const DPR = window.devicePixelRatio || 1;
-  const SIZE = 90;
+  const SIZE = 62;
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
   const ctx = canvas.getContext('2d');
@@ -1479,9 +1485,14 @@ const personJsonLd = {
     ctx.restore();
   }
 
-  function drawFrame() {
+  let costLastFrame = 0;
+  function drawFrame(now = 0) {
+    const costDelta = now - costLastFrame;
+    if (costDelta < 14) { requestAnimationFrame(drawFrame); return; }
+    costLastFrame = now;
+    const dt = Math.min(costDelta / 16.67, 2);
     ctx.clearRect(0, 0, SIZE, SIZE);
-    t += 0.016;
+    t += 0.016 * dt;
 
     // ── Floor grid line ──────────────────────────────
     ctx.save();
@@ -1604,7 +1615,7 @@ const personJsonLd = {
   if (!canvas) return;
 
   const DPR = window.devicePixelRatio || 1;
-  const SIZE = 90;
+  const SIZE = 62;
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
   const ctx = canvas.getContext('2d');
@@ -1614,125 +1625,177 @@ const personJsonLd = {
   const cy = SIZE / 2;
   let t = 0;
 
-  // Colour palette matching site theme: deep blue → accent blue → soft cyan
-  const COLOURS = [
-    [37,  99,  235],  // accent blue
-    [96,  165, 250],  // mid blue
-    [147, 197, 253],  // soft cyan
-    [59,  130, 246],  // bright blue
+  // AI neural network brain — nodes + synapses + pulse signals
+  // Arranged in layers: input(3) → hidden(4) → output(2)
+  const LAYERS = [
+    { nodes: 3, x: cx - 18 },
+    { nodes: 4, x: cx },
+    { nodes: 2, x: cx + 18 },
   ];
 
-  function lerp(a, b, n) { return a + (b - a) * n; }
-  function lerpColour(c1, c2, n) {
-    return [
-      Math.round(lerp(c1[0], c2[0], n)),
-      Math.round(lerp(c1[1], c2[1], n)),
-      Math.round(lerp(c1[2], c2[2], n)),
-    ];
-  }
+  // Build node positions
+  const allNodes = [];
+  LAYERS.forEach((layer, li) => {
+    const spacing = SIZE * 0.72 / (layer.nodes + 1);
+    for (let ni = 0; ni < layer.nodes; ni++) {
+      allNodes.push({
+        x: layer.x,
+        y: cy - (SIZE * 0.36) + spacing * (ni + 1),
+        layer: li,
+        index: ni,
+        pulsePhase: Math.random() * Math.PI * 2,
+        activationPhase: Math.random() * Math.PI * 2,
+      });
+    }
+  });
 
-  function drawFrame() {
+  // Build connections between adjacent layers
+  const connections = [];
+  LAYERS.forEach((layer, li) => {
+    if (li >= LAYERS.length - 1) return;
+    const fromNodes = allNodes.filter(n => n.layer === li);
+    const toNodes   = allNodes.filter(n => n.layer === li + 1);
+    fromNodes.forEach(from => {
+      toNodes.forEach(to => {
+        connections.push({
+          from, to,
+          signalPos: Math.random(),
+          signalSpeed: 0.004 + Math.random() * 0.006,
+          active: Math.random() > 0.3,
+          strength: 0.3 + Math.random() * 0.7,
+        });
+      });
+    });
+  });
+
+  // Floating binary/hex digits in background
+  const floatChars = Array.from({ length: 10 }, (_, i) => ({
+    char: ['0','1','A','F','∑','λ','∇','⊕','01','10'][i],
+    x: 4 + Math.random() * (SIZE - 8),
+    y: 4 + Math.random() * (SIZE - 8),
+    alpha: 0.06 + Math.random() * 0.10,
+    speed: 0.004 + Math.random() * 0.006,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  let orbLastFrame = 0;
+  function drawFrame(now = 0) {
+    const orbDelta = now - orbLastFrame;
+    if (orbDelta < 14) { requestAnimationFrame(drawFrame); return; }
+    orbLastFrame = now;
+    const dt = Math.min(orbDelta / 16.67, 2);
     ctx.clearRect(0, 0, SIZE, SIZE);
-    t += 0.018;
+    t += 0.016 * dt;
 
-    // ── Outer halo glow ──────────────────────────────
-    const haloR = 36 + Math.sin(t * 0.7) * 3;
-    const halo = ctx.createRadialGradient(cx, cy, haloR * 0.4, cx, cy, haloR + 8);
-    halo.addColorStop(0,   'rgba(37,99,235,0)');
-    halo.addColorStop(0.5, 'rgba(37,99,235,0.12)');
-    halo.addColorStop(1,   'rgba(96,165,250,0)');
+    // ── Background ambient glow ──────────────────────
+    const bg = ctx.createRadialGradient(cx, cy, 4, cx, cy, 28);
+    bg.addColorStop(0, 'rgba(37,99,235,0.14)');
+    bg.addColorStop(1, 'rgba(37,99,235,0)');
     ctx.beginPath();
-    ctx.arc(cx, cy, haloR + 8, 0, Math.PI * 2);
-    ctx.fillStyle = halo;
+    ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+    ctx.fillStyle = bg;
     ctx.fill();
 
-    // ── Core orb ─────────────────────────────────────
-    const orbR = 28 + Math.sin(t * 0.5) * 1.5;
+    // ── Floating background chars ────────────────────
+    floatChars.forEach(fc => {
+      fc.phase += fc.speed;
+      ctx.save();
+      ctx.globalAlpha = fc.alpha * (0.5 + 0.5 * Math.sin(fc.phase));
+      ctx.font = `400 4.5px "DM Mono", monospace`;
+      ctx.fillStyle = 'rgba(96,165,250,0.7)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(fc.char, fc.x, fc.y);
+      ctx.restore();
+    });
 
-    // Rotating gradient — shifts colour over time
-    const angle = t * 0.6;
-    const gx1 = cx + Math.cos(angle) * orbR * 0.6;
-    const gy1 = cy + Math.sin(angle) * orbR * 0.6;
-    const gx2 = cx + Math.cos(angle + Math.PI) * orbR * 0.6;
-    const gy2 = cy + Math.sin(angle + Math.PI) * orbR * 0.6;
+    // ── Connections (synapses) ───────────────────────
+    connections.forEach(conn => {
+      if (!conn.active) return;
+      conn.signalPos = (conn.signalPos + conn.signalSpeed) % 1;
 
-    const colProgress = (Math.sin(t * 0.4) + 1) / 2;
-    const colIdx = Math.floor(colProgress * (COLOURS.length - 1));
-    const colFrac = (colProgress * (COLOURS.length - 1)) % 1;
-    const c1 = COLOURS[colIdx];
-    const c2 = COLOURS[Math.min(colIdx + 1, COLOURS.length - 1)];
-    const col = lerpColour(c1, c2, colFrac);
+      const alpha = conn.strength * 0.25;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = 'rgba(96,165,250,0.6)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(conn.from.x, conn.from.y);
+      ctx.lineTo(conn.to.x, conn.to.y);
+      ctx.stroke();
 
-    const grad = ctx.createRadialGradient(gx1, gy1, 0, cx, cy, orbR);
-    grad.addColorStop(0,   `rgba(${col[0]},${col[1]},${col[2]},0.95)`);
-    grad.addColorStop(0.45,`rgba(${Math.round(col[0]*0.6)},${Math.round(col[1]*0.6)},${Math.round(col[2]*0.8)},0.85)`);
-    grad.addColorStop(0.8, `rgba(7,20,60,0.90)`);
-    grad.addColorStop(1,   `rgba(7,9,15,0.95)`);
+      // Signal pulse travelling along synapse
+      const sx = conn.from.x + (conn.to.x - conn.from.x) * conn.signalPos;
+      const sy = conn.from.y + (conn.to.y - conn.from.y) * conn.signalPos;
 
+      ctx.globalAlpha = conn.strength * 0.9;
+      ctx.shadowColor = 'rgba(147,197,253,0.9)';
+      ctx.shadowBlur = 5;
+      ctx.fillStyle = 'rgba(147,197,253,0.95)';
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // ── Nodes (neurons) ─────────────────────────────
+    allNodes.forEach(node => {
+      const activation = 0.5 + 0.5 * Math.sin(t * 1.4 + node.activationPhase);
+      const isOutput = node.layer === LAYERS.length - 1;
+      const r = isOutput ? 4.5 : 3.2;
+
+      // Outer pulse ring
+      const pulseR = r + 2.5 + activation * 2;
+      ctx.save();
+      ctx.globalAlpha = activation * 0.35;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, pulseR, 0, Math.PI * 2);
+      ctx.strokeStyle = isOutput
+        ? 'rgba(147,197,253,0.8)'
+        : 'rgba(96,165,250,0.6)';
+      ctx.lineWidth = 0.6;
+      ctx.shadowColor = 'rgba(147,197,253,0.5)';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.restore();
+
+      // Node fill
+      const ng = ctx.createRadialGradient(
+        node.x - r*0.3, node.y - r*0.3, 0,
+        node.x, node.y, r
+      );
+      if (isOutput) {
+        ng.addColorStop(0, `rgba(255,255,255,${0.8 + 0.2*activation})`);
+        ng.addColorStop(0.5, `rgba(147,197,253,${0.7 + 0.3*activation})`);
+        ng.addColorStop(1, 'rgba(37,99,235,0.4)');
+      } else {
+        ng.addColorStop(0, `rgba(200,220,255,${0.6 + 0.3*activation})`);
+        ng.addColorStop(0.5, `rgba(96,165,250,${0.5 + 0.3*activation})`);
+        ng.addColorStop(1, 'rgba(37,99,235,0.2)');
+      }
+
+      ctx.save();
+      ctx.shadowColor = isOutput
+        ? 'rgba(147,197,253,0.9)'
+        : 'rgba(96,165,250,0.6)';
+      ctx.shadowBlur = isOutput ? 10 : 6;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = ng;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // ── Scan line sweeping across ────────────────────
+    const scanX = cx - 22 + ((t * 18) % 44);
+    const scanGrad = ctx.createLinearGradient(scanX - 4, 0, scanX + 4, 0);
+    scanGrad.addColorStop(0, 'rgba(147,197,253,0)');
+    scanGrad.addColorStop(0.5, 'rgba(147,197,253,0.12)');
+    scanGrad.addColorStop(1, 'rgba(147,197,253,0)');
     ctx.save();
-    ctx.shadowColor = `rgba(${col[0]},${col[1]},${col[2]},0.8)`;
-    ctx.shadowBlur = 14;
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
-    ctx.fillStyle = grad;
-    ctx.fill();
+    ctx.fillStyle = scanGrad;
+    ctx.fillRect(scanX - 4, 2, 8, SIZE - 4);
     ctx.restore();
-
-    // ── Swirling ring 1 ──────────────────────────────
-    const r1 = orbR + 4;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(t * 0.9);
-    ctx.scale(1, 0.35);
-    ctx.beginPath();
-    ctx.arc(0, 0, r1, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(147,197,253,${0.55 + 0.25 * Math.sin(t * 1.2)})`;
-    ctx.lineWidth = 1.2;
-    ctx.shadowColor = 'rgba(147,197,253,0.8)';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
-    ctx.restore();
-
-    // ── Swirling ring 2 ──────────────────────────────
-    const r2 = orbR + 2;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(-t * 0.6 + 1.2);
-    ctx.scale(0.35, 1);
-    ctx.beginPath();
-    ctx.arc(0, 0, r2, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(96,165,250,${0.40 + 0.20 * Math.sin(t * 0.8)})`;
-    ctx.lineWidth = 0.8;
-    ctx.shadowColor = 'rgba(96,165,250,0.6)';
-    ctx.shadowBlur = 6;
-    ctx.stroke();
-    ctx.restore();
-
-    // ── Swirling ring 3 — diagonal ───────────────────
-    const r3 = orbR + 1;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(t * 1.1 + 2.4);
-    ctx.scale(0.6, 0.22);
-    ctx.beginPath();
-    ctx.arc(0, 0, r3, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(255,255,255,${0.20 + 0.15 * Math.sin(t * 1.5)})`;
-    ctx.lineWidth = 0.7;
-    ctx.shadowColor = 'rgba(255,255,255,0.5)';
-    ctx.shadowBlur = 5;
-    ctx.stroke();
-    ctx.restore();
-
-    // ── Inner shimmer highlight ───────────────────────
-    const shimX = cx + Math.cos(t * 0.7) * 8;
-    const shimY = cy + Math.sin(t * 0.7) * 8 - 5;
-    const shim = ctx.createRadialGradient(shimX, shimY, 0, shimX, shimY, 14);
-    shim.addColorStop(0,   `rgba(255,255,255,${0.25 + 0.15 * Math.sin(t)})`);
-    shim.addColorStop(1,   'rgba(255,255,255,0)');
-    ctx.beginPath();
-    ctx.arc(shimX, shimY, 14, 0, Math.PI * 2);
-    ctx.fillStyle = shim;
-    ctx.fill();
 
     requestAnimationFrame(drawFrame);
   }
@@ -1784,8 +1847,15 @@ const personJsonLd = {
     return 1 - Math.pow(1 - t, 4);
   }
 
+  let ctaLastFrame = 0;
   function drawFrame(now) {
     if (!startTime) { startTime = now; phaseStart = now; }
+    const ctaDelta = now - ctaLastFrame;
+    if (ctaDelta < 14 && ctaLastFrame !== 0) {
+      requestAnimationFrame(drawFrame);
+      return;
+    }
+    ctaLastFrame = now;
 
     const W = canvas.width;
     const H = canvas.height;
@@ -2286,6 +2356,9 @@ const personJsonLd = {
     align-items: center;
     width: max-content;
     will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   /* Each row at a different speed */
@@ -2975,6 +3048,18 @@ const personJsonLd = {
     0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 20px 60px rgba(0,0,0,0.4); }
     50%      { box-shadow: 0 0 0 1px rgba(147,197,253,0.22), 0 20px 60px rgba(37,99,235,0.15); }
   }
+  .orbit-dot {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
+  .orbit-ring {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+  }
 @keyframes orbitSpin1 {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
@@ -2984,22 +3069,25 @@ const personJsonLd = {
   to   { transform: rotate(360deg); }
 }
 @keyframes dot1Orbit {
-  from { transform: rotate(0deg) translateX(210px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(210px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(210px) rotate(0deg) translateZ(0); }
+  to   { transform: rotate(360deg) translateX(210px) rotate(-360deg) translateZ(0); }
 }
 @keyframes dot2Orbit {
-  from { transform: rotate(0deg) translateX(151px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(151px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(151px) rotate(0deg) translateZ(0); }
+  to   { transform: rotate(360deg) translateX(151px) rotate(-360deg) translateZ(0); }
 }
 @keyframes dot3Orbit {
-  from { transform: rotate(0deg) translateX(92px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(92px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(92px) rotate(0deg) translateZ(0); }
+  to   { transform: rotate(360deg) translateX(92px) rotate(-360deg) translateZ(0); }
 }
 
   /* -- TESTIMONIAL MARQUEE -- */
   .testi-track {
     animation: testiScroll 55s linear infinite;
     will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   .testi-track:hover {
     animation-play-state: paused;
@@ -3043,6 +3131,7 @@ const personJsonLd = {
     border-color: rgba(37,99,235,0.60) !important;
   }
 </style>
+
 
 
 
