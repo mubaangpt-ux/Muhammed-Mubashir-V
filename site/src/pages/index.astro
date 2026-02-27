@@ -94,11 +94,11 @@ const personJsonLd = {
 
   <!-- STAGE: rings + portrait share same container so they stay aligned -->
   <div class="relative flex items-end justify-center mx-auto"
-    style="z-index: 1; width: 100%; height: clamp(340px, 44vh, 460px); margin-bottom: -155px;">
+    style="z-index: 1; width: 100%; height: clamp(380px, 48vh, 500px); margin-bottom: -165px;">
 
     <!-- ORBITAL RINGS: fixed 360x360, centered in stage -->
     <div class="absolute pointer-events-none"
-      style="width: 360px; height: 360px; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 0;">
+      style="width: 420px; height: 420px; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 0;">
 
       <!-- Ring 1: 360px diameter ? radius 180px -->
       <div class="absolute" style="inset: 0; border-radius: 50%; border: 1px solid rgba(147,197,253,0.18); animation: orbitSpin1 18s linear infinite;"></div>
@@ -116,7 +116,7 @@ const personJsonLd = {
     </div>
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
-    <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(300px, 38vw, 420px); height: 100%; flex-shrink: 0;">
+    <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(340px, 44vw, 480px); height: 100%; flex-shrink: 0;">
       <img
         src="/profile.png"
         alt=""
@@ -126,13 +126,13 @@ const personJsonLd = {
           object-fit: contain;
           object-position: bottom;
           z-index: 0;
-          opacity: 0.55;
+          opacity: 0.30;
           filter:
-            blur(22px)
-            brightness(0.7)
-            saturate(1.4)
-            hue-rotate(-15deg)
-            drop-shadow(0 0 30px rgba(37,99,235,0.8));
+            blur(28px)
+            brightness(0.35)
+            saturate(2.0)
+            hue-rotate(-20deg)
+            drop-shadow(0 0 40px rgba(37,99,235,0.9));
           mix-blend-mode: screen;
           pointer-events: none;
         "
@@ -145,11 +145,10 @@ const personJsonLd = {
         loading="eager"
         class="block w-full h-full"
         style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; z-index: 1; position: relative; filter:
-          drop-shadow(0 0 8px rgba(96,165,250,0.70))
-          drop-shadow(0 0 20px rgba(37,99,235,0.55))
-          drop-shadow(0 0 45px rgba(37,99,235,0.30))
-          drop-shadow(0 0 80px rgba(37,99,235,0.15))
-          brightness(1.05) contrast(1.03) saturate(0.90);"
+          drop-shadow(0 0 6px rgba(37,99,235,0.50))
+          drop-shadow(0 0 18px rgba(37,99,235,0.28))
+          drop-shadow(0 0 50px rgba(37,99,235,0.12))
+          brightness(1.02) contrast(1.05) saturate(0.92);"
       />
       <!-- Edge dissolve mask -->
       <div class="absolute inset-0" style="-webkit-mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); -webkit-mask-composite: source-in; mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); mask-composite: intersect;"></div>
@@ -213,7 +212,7 @@ const personJsonLd = {
     </div>
 
     <!-- DISCIPLINES -->
-    <div class="reveal mt-3" data-delay="0.24">
+    <div class="reveal mt-4" data-delay="0.24">
       <p class="text-xs font-mono tracking-[0.28em] uppercase" style="color: rgba(147,197,253,0.65);">{profile.headline}</p>
     </div>
 
@@ -319,7 +318,7 @@ const personJsonLd = {
         <!-- Card 0: drops from above -->
         <div class="metric-card metric-drop space-y-2" data-metric="0">
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
-            <AnimatedCounter client:visible value={profile.impactMetrics[0].value} />
+            <AnimatedCounter client:idle value={profile.impactMetrics[0].value} />
           </p>
           <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[0].label}</p>
           <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[0].detail}</p>
@@ -328,7 +327,7 @@ const personJsonLd = {
         <!-- Card 1: slides from left -->
         <div class="metric-card metric-slide-left space-y-2 md:pl-8" data-metric="1">
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
-            <AnimatedCounter client:visible value={profile.impactMetrics[1].value} />
+            <AnimatedCounter client:idle value={profile.impactMetrics[1].value} />
           </p>
           <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[1].label}</p>
           <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[1].detail}</p>
@@ -337,7 +336,7 @@ const personJsonLd = {
         <!-- Card 2: rises from below -->
         <div class="metric-card metric-rise space-y-2 md:pl-8" data-metric="2">
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
-            <AnimatedCounter client:visible value={profile.impactMetrics[2].value} />
+            <AnimatedCounter client:idle value={profile.impactMetrics[2].value} />
           </p>
           <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[2].label}</p>
           <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[2].detail}</p>
@@ -346,7 +345,7 @@ const personJsonLd = {
         <!-- Card 3: slides from right -->
         <div class="metric-card metric-slide-right space-y-2 md:pl-8" data-metric="3">
           <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
-            <AnimatedCounter client:visible value={profile.impactMetrics[3].value} />
+            <AnimatedCounter client:idle value={profile.impactMetrics[3].value} />
           </p>
           <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[3].label}</p>
           <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[3].detail}</p>
@@ -1102,28 +1101,47 @@ const personJsonLd = {
 
 <script is:inline>
   (() => {
-    const cards = document.querySelectorAll('.metric-card');
-    if (!cards.length) return;
+    // Metric cards with counter reset
+    document.querySelectorAll('.metric-drop, .metric-slide-left, .metric-rise, .metric-slide-right').forEach(card => {
+      let seen = false;
+      const inClass = 'metric-in';
+      const outClass = 'metric-out';
 
-    let hasAnimatedIn = false;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            seen = true;
+            card.classList.remove(outClass);
+            card.classList.add(inClass);
 
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          hasAnimatedIn = true;
-          entry.target.classList.remove('metric-out');
-          entry.target.classList.add('metric-in');
-        } else if (hasAnimatedIn) {
-          entry.target.classList.remove('metric-in');
-          entry.target.classList.add('metric-out');
-        }
-      });
-    }, {
-      threshold: 0.3,
-      rootMargin: '0px 0px -80px 0px'
+            // Reset and restart counter inside this card
+            const counter = card.querySelector('[data-counter-root]');
+            if (counter) {
+              // Dispatch custom event to restart the count
+              counter.dispatchEvent(new CustomEvent('restart-counter', { bubbles: false }));
+            }
+
+            // Fallback: find the span and trigger intersection re-check
+            // by briefly hiding and re-showing via a class toggle
+            const span = card.querySelector('span');
+            if (span) {
+              const resetObs = new IntersectionObserver((e) => {
+                if (e[0].isIntersecting) {
+                  // Already handled by AnimatedCounter's own observer
+                }
+                resetObs.disconnect();
+              }, { threshold: 0.1 });
+              resetObs.observe(span);
+            }
+          } else if (seen) {
+            card.classList.remove(inClass);
+            card.classList.add(outClass);
+          }
+        });
+      }, { threshold: 0.35, rootMargin: '0px 0px -100px 0px' });
+
+      obs.observe(card);
     });
-
-    cards.forEach(card => obs.observe(card));
   })();
 </script>
 
@@ -1546,7 +1564,7 @@ const personJsonLd = {
 
   .metric-drop {
     transform: translateY(-40px) rotateX(25deg);
-    transition: opacity 0.7s, transform 0.7s;
+    transition: opacity 1.4s cubic-bezier(0.22,1,0.36,1), transform 1.4s cubic-bezier(0.34,1.4,0.64,1), filter 1.0s ease;
     transform-origin: top center;
   }
   .metric-drop.metric-in {
@@ -1556,7 +1574,7 @@ const personJsonLd = {
 
   .metric-slide-left {
     transform: translateX(-50px) scale(0.92);
-    transition: opacity 0.65s 0.1s, transform 0.65s 0.1s;
+    transition: opacity 1.3s cubic-bezier(0.22,1,0.36,1) 0.12s, transform 1.3s cubic-bezier(0.22,1,0.36,1) 0.12s;
   }
   .metric-slide-left.metric-in {
     opacity: 1;
@@ -1566,7 +1584,7 @@ const personJsonLd = {
   .metric-rise {
     transform: translateY(40px);
     filter: blur(4px);
-    transition: opacity 0.7s 0.2s, transform 0.7s 0.2s, filter 0.7s 0.2s;
+    transition: opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.22s, transform 1.4s cubic-bezier(0.22,1,0.36,1) 0.22s, filter 1.1s ease 0.22s;
   }
   .metric-rise.metric-in {
     opacity: 1;
@@ -1576,7 +1594,7 @@ const personJsonLd = {
 
   .metric-slide-right {
     transform: translateX(50px) rotateY(15deg);
-    transition: opacity 0.65s 0.3s, transform 0.65s 0.3s;
+    transition: opacity 1.3s cubic-bezier(0.22,1,0.36,1) 0.32s, transform 1.3s cubic-bezier(0.22,1,0.36,1) 0.32s;
     transform-origin: right center;
   }
   .metric-slide-right.metric-in {
@@ -1589,25 +1607,25 @@ const personJsonLd = {
     opacity: 0;
     transform: translateY(-50px) rotateX(35deg) scale(0.9);
     filter: blur(3px);
-    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.3s ease;
+    transition: opacity 0.85s ease, transform 0.85s ease, filter 0.65s ease;
   }
   .metric-slide-left.metric-out {
     opacity: 0;
     transform: translateX(-40px) scale(0.93);
     filter: blur(2px);
-    transition: opacity 0.38s ease 0.05s, transform 0.38s ease 0.05s, filter 0.3s ease 0.05s;
+    transition: opacity 0.80s ease 0.06s, transform 0.80s ease 0.06s, filter 0.60s ease 0.06s;
   }
   .metric-rise.metric-out {
     opacity: 0;
     transform: translateY(45px);
     filter: blur(4px);
-    transition: opacity 0.4s ease 0.08s, transform 0.4s ease 0.08s, filter 0.35s ease 0.08s;
+    transition: opacity 0.85s ease 0.10s, transform 0.85s ease 0.10s, filter 0.65s ease 0.10s;
   }
   .metric-slide-right.metric-out {
     opacity: 0;
     transform: translateX(40px) rotateY(10deg);
     filter: blur(2px);
-    transition: opacity 0.38s ease 0.12s, transform 0.38s ease 0.12s, filter 0.3s ease 0.12s;
+    transition: opacity 0.80s ease 0.14s, transform 0.80s ease 0.14s, filter 0.60s ease 0.14s;
   }
 
   .metric-card:hover {
@@ -1629,9 +1647,9 @@ const personJsonLd = {
     transform: translateY(-120px) rotateX(60deg) scale(0.8);
     filter: blur(3px);
     transition:
-      opacity 0.7s cubic-bezier(0.22,1,0.36,1),
-      transform 0.7s cubic-bezier(0.34,1.56,0.64,1),
-      filter 0.5s ease;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1),
+      transform 1.4s cubic-bezier(0.34,1.56,0.64,1),
+      filter 1.0s ease;
     transform-origin: top center;
     transform-style: preserve-3d;
   }
@@ -1645,9 +1663,9 @@ const personJsonLd = {
     transform: translateX(80px) rotateY(-90deg) scale(0.85);
     filter: blur(4px);
     transition:
-      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s,
-      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s,
-      filter 0.5s ease 0.1s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.14s,
+      transform 1.4s cubic-bezier(0.22,1,0.36,1) 0.14s,
+      filter 1.0s ease 0.14s;
     transform-origin: left center;
     transform-style: preserve-3d;
   }
@@ -1661,9 +1679,9 @@ const personJsonLd = {
     transform: scale(0.3) rotate(-12deg);
     filter: blur(8px) brightness(2);
     transition:
-      opacity 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s,
-      transform 0.8s cubic-bezier(0.34,1.4,0.64,1) 0.2s,
-      filter 0.6s ease 0.2s;
+      opacity 1.5s cubic-bezier(0.22,1,0.36,1) 0.24s,
+      transform 1.5s cubic-bezier(0.34,1.4,0.64,1) 0.24s,
+      filter 1.1s ease 0.24s;
     transform-origin: center center;
   }
   .cap-card-2.cap-in {
@@ -1676,9 +1694,9 @@ const personJsonLd = {
     transform: translateY(100px) rotateX(-50deg) scale(0.9);
     filter: blur(5px);
     transition:
-      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.15s,
-      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.15s,
-      filter 0.5s ease 0.15s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.18s,
+      transform 1.4s cubic-bezier(0.22,1,0.36,1) 0.18s,
+      filter 1.0s ease 0.18s;
     transform-origin: bottom center;
     transform-style: preserve-3d;
   }
@@ -1692,9 +1710,9 @@ const personJsonLd = {
     transform: scale(1.35) rotate(8deg) skewX(-8deg);
     filter: blur(6px) saturate(2);
     transition:
-      opacity 0.8s cubic-bezier(0.22,1,0.36,1) 0.25s,
-      transform 0.8s cubic-bezier(0.34,1.3,0.64,1) 0.25s,
-      filter 0.6s ease 0.25s;
+      opacity 1.5s cubic-bezier(0.22,1,0.36,1) 0.30s,
+      transform 1.5s cubic-bezier(0.34,1.3,0.64,1) 0.30s,
+      filter 1.1s ease 0.30s;
   }
   .cap-card-4.cap-in {
     opacity: 1;
@@ -1706,9 +1724,9 @@ const personJsonLd = {
     transform: translateX(-80px) rotateY(90deg) scale(0.85);
     filter: blur(4px);
     transition:
-      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s,
-      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s,
-      filter 0.5s ease 0.3s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.36s,
+      transform 1.4s cubic-bezier(0.22,1,0.36,1) 0.36s,
+      filter 1.0s ease 0.36s;
     transform-origin: right center;
     transform-style: preserve-3d;
   }
@@ -1724,42 +1742,42 @@ const personJsonLd = {
     opacity: 0;
     transform: translateY(-80px) rotateX(40deg) scale(0.88);
     filter: blur(3px);
-    transition: opacity 0.42s ease, transform 0.42s ease, filter 0.32s ease;
+    transition: opacity 0.90s ease, transform 0.90s ease, filter 0.70s ease;
   }
 
   .cap-card-1.cap-out {
     opacity: 0;
     transform: translateX(60px) rotateY(-60deg) scale(0.88);
     filter: blur(3px);
-    transition: opacity 0.40s ease 0.05s, transform 0.40s ease 0.05s, filter 0.30s ease 0.05s;
+    transition: opacity 0.85s ease 0.06s, transform 0.85s ease 0.06s, filter 0.65s ease 0.06s;
   }
 
   .cap-card-2.cap-out {
     opacity: 0;
     transform: scale(0.4) rotate(8deg);
     filter: blur(6px) brightness(1.8);
-    transition: opacity 0.44s ease 0.08s, transform 0.44s ease 0.08s, filter 0.34s ease 0.08s;
+    transition: opacity 0.90s ease 0.10s, transform 0.90s ease 0.10s, filter 0.70s ease 0.10s;
   }
 
   .cap-card-3.cap-out {
     opacity: 0;
     transform: translateY(70px) rotateX(-35deg) scale(0.91);
     filter: blur(3px);
-    transition: opacity 0.42s ease 0.04s, transform 0.42s ease 0.04s, filter 0.32s ease 0.04s;
+    transition: opacity 0.88s ease 0.05s, transform 0.88s ease 0.05s, filter 0.68s ease 0.05s;
   }
 
   .cap-card-4.cap-out {
     opacity: 0;
     transform: scale(1.2) rotate(5deg) skewX(-5deg);
     filter: blur(5px) saturate(1.8);
-    transition: opacity 0.44s ease 0.10s, transform 0.44s ease 0.10s, filter 0.34s ease 0.10s;
+    transition: opacity 0.90s ease 0.12s, transform 0.90s ease 0.12s, filter 0.70s ease 0.12s;
   }
 
   .cap-card-5.cap-out {
     opacity: 0;
     transform: translateX(-60px) rotateY(60deg) scale(0.88);
     filter: blur(3px);
-    transition: opacity 0.40s ease 0.14s, transform 0.40s ease 0.14s, filter 0.30s ease 0.14s;
+    transition: opacity 0.85s ease 0.16s, transform 0.85s ease 0.16s, filter 0.65s ease 0.16s;
   }
 
   .cap-card.cap-out:hover { transform: none !important; }
@@ -1892,9 +1910,9 @@ const personJsonLd = {
     transform: translateX(0) rotateY(0deg);
     filter: blur(0);
     transition:
-      opacity 1.1s cubic-bezier(0.22,1,0.36,1),
-      transform 1.1s cubic-bezier(0.22,1,0.36,1),
-      filter 0.8s ease;
+      opacity 1.6s cubic-bezier(0.22,1,0.36,1),
+      transform 1.6s cubic-bezier(0.22,1,0.36,1),
+      filter 1.2s ease;
   }
 
   .work-card-1.work-in {
@@ -1902,9 +1920,9 @@ const personJsonLd = {
     transform: translateX(0) translateY(0) rotateX(0deg);
     filter: blur(0);
     transition:
-      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.10s,
-      transform 1.0s cubic-bezier(0.34,1.3,0.64,1) 0.10s,
-      filter 0.70s ease 0.10s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.15s,
+      transform 1.4s cubic-bezier(0.34,1.3,0.64,1) 0.15s,
+      filter 1.0s ease 0.15s;
   }
 
   .work-card-2.work-in {
@@ -1912,9 +1930,9 @@ const personJsonLd = {
     transform: translateX(0) translateY(0) rotateY(0deg);
     filter: blur(0);
     transition:
-      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.22s,
-      transform 1.0s cubic-bezier(0.22,1,0.36,1) 0.22s,
-      filter 0.70s ease 0.22s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.28s,
+      transform 1.4s cubic-bezier(0.22,1,0.36,1) 0.28s,
+      filter 1.0s ease 0.28s;
   }
 
   .work-card-3.work-in {
@@ -1922,9 +1940,9 @@ const personJsonLd = {
     transform: translateY(0) rotateX(0deg) scale(1);
     filter: blur(0);
     transition:
-      opacity 1.1s cubic-bezier(0.22,1,0.36,1) 0.12s,
-      transform 1.1s cubic-bezier(0.34,1.4,0.64,1) 0.12s,
-      filter 0.75s ease 0.12s;
+      opacity 1.5s cubic-bezier(0.22,1,0.36,1) 0.18s,
+      transform 1.5s cubic-bezier(0.34,1.4,0.64,1) 0.18s,
+      filter 1.1s ease 0.18s;
   }
 
   .work-card-center.work-in {
@@ -1932,9 +1950,9 @@ const personJsonLd = {
     transform: translateY(0) scale(1) rotate(0deg);
     filter: blur(0);
     transition:
-      opacity 1.2s cubic-bezier(0.22,1,0.36,1) 0.06s,
-      transform 1.2s cubic-bezier(0.34,1.25,0.64,1) 0.06s,
-      filter 0.85s ease 0.06s;
+      opacity 1.6s cubic-bezier(0.22,1,0.36,1) 0.08s,
+      transform 1.6s cubic-bezier(0.34,1.25,0.64,1) 0.08s,
+      filter 1.2s ease 0.08s;
   }
 
   .work-card-4.work-in {
@@ -1942,9 +1960,9 @@ const personJsonLd = {
     transform: translateY(0) rotateX(0deg) scale(1);
     filter: blur(0);
     transition:
-      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.28s,
-      transform 1.0s cubic-bezier(0.34,1.3,0.64,1) 0.28s,
-      filter 0.70s ease 0.28s;
+      opacity 1.4s cubic-bezier(0.22,1,0.36,1) 0.35s,
+      transform 1.4s cubic-bezier(0.34,1.3,0.64,1) 0.35s,
+      filter 1.0s ease 0.35s;
   }
 
   .work-left.work-out {
@@ -1952,9 +1970,9 @@ const personJsonLd = {
     transform: translateX(-60px) rotateY(10deg);
     filter: blur(2px);
     transition:
-      opacity 0.65s ease,
-      transform 0.65s ease,
-      filter 0.50s ease;
+      opacity 1.0s ease,
+      transform 1.0s ease,
+      filter 0.75s ease;
   }
 
   .work-card-1.work-out {
@@ -1962,9 +1980,9 @@ const personJsonLd = {
     transform: translateX(50px) translateY(-25px) rotateX(8deg);
     filter: blur(2px);
     transition:
-      opacity 0.60s ease 0.05s,
-      transform 0.60s ease 0.05s,
-      filter 0.45s ease 0.05s;
+      opacity 0.90s ease 0.06s,
+      transform 0.90s ease 0.06s,
+      filter 0.70s ease 0.06s;
   }
 
   .work-card-2.work-out {
@@ -1972,9 +1990,9 @@ const personJsonLd = {
     transform: translateX(50px) rotateY(-12deg);
     filter: blur(2px);
     transition:
-      opacity 0.60s ease 0.08s,
-      transform 0.60s ease 0.08s,
-      filter 0.45s ease 0.08s;
+      opacity 0.90s ease 0.10s,
+      transform 0.90s ease 0.10s,
+      filter 0.70s ease 0.10s;
   }
 
   .work-card-3.work-out {
@@ -1982,9 +2000,9 @@ const personJsonLd = {
     transform: translateY(50px) rotateX(-10deg) scale(0.95);
     filter: blur(2px);
     transition:
-      opacity 0.60s ease 0.03s,
-      transform 0.60s ease 0.03s,
-      filter 0.45s ease 0.03s;
+      opacity 0.90s ease 0.04s,
+      transform 0.90s ease 0.04s,
+      filter 0.70s ease 0.04s;
   }
 
   .work-card-center.work-out {
@@ -1992,9 +2010,9 @@ const personJsonLd = {
     transform: translateY(40px) scale(0.92) rotate(1deg);
     filter: blur(3px);
     transition:
-      opacity 0.65s ease,
-      transform 0.65s ease,
-      filter 0.50s ease;
+      opacity 1.0s ease,
+      transform 1.0s ease,
+      filter 0.75s ease;
   }
 
   .work-card-4.work-out {
@@ -2002,9 +2020,9 @@ const personJsonLd = {
     transform: translateY(-50px) rotateX(14deg) scale(0.94);
     filter: blur(2px);
     transition:
-      opacity 0.60s ease 0.08s,
-      transform 0.60s ease 0.08s,
-      filter 0.45s ease 0.08s;
+      opacity 0.90s ease 0.10s,
+      transform 0.90s ease 0.10s,
+      filter 0.70s ease 0.10s;
   }
 
   /* Card hover glow */
@@ -2033,16 +2051,16 @@ const personJsonLd = {
   to   { transform: rotate(360deg); }
 }
 @keyframes dot1Orbit {
+  from { transform: rotate(0deg) translateX(210px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(210px) rotate(-360deg); }
+}
+@keyframes dot2Orbit {
   from { transform: rotate(0deg) translateX(180px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
 }
-@keyframes dot2Orbit {
-  from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
-}
 @keyframes dot3Orbit {
-  from { transform: rotate(0deg) translateX(79px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(79px) rotate(-360deg); }
+  from { transform: rotate(0deg) translateX(92px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(92px) rotate(-360deg); }
 }
 
   /* -- TESTIMONIAL MARQUEE -- */

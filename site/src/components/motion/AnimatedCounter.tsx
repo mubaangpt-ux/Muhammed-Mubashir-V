@@ -26,7 +26,7 @@ const parseValue = (value: string): ParsedValue => {
   return { isNumeric: true, number: numeric, suffix: match[2] ?? "" };
 };
 
-export default function AnimatedCounter({ value, duration = 1200 }: Props) {
+export default function AnimatedCounter({ value, duration = 2200 }: Props) {
   const prefersReducedMotion = useReducedMotion();
   const ref = useRef<HTMLSpanElement | null>(null);
   const { isNumeric, number, suffix } = useMemo(() => parseValue(value), [value]);
@@ -47,30 +47,52 @@ export default function AnimatedCounter({ value, duration = 1200 }: Props) {
     if (!el) return;
 
     let hasAnimated = false;
+    let rafId: number | null = null;
+
+    const runAnimation = () => {
+      const start = performance.now();
+      const animate = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(number * eased);
+        setDisplay(`${formatNumber(current)}${suffix}`);
+        if (progress < 1) {
+          rafId = requestAnimationFrame(animate);
+        }
+      };
+      setDisplay(`0${suffix}`);
+      rafId = requestAnimationFrame(animate);
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting && !hasAnimated) {
           hasAnimated = true;
-          const start = performance.now();
-          const animate = (now: number) => {
-            const progress = Math.min((now - start) / duration, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = Math.round(number * eased);
-            setDisplay(`${formatNumber(current)}${suffix}`);
-            if (progress < 1) requestAnimationFrame(animate);
-          };
-          setDisplay(`0${suffix}`);
-          requestAnimationFrame(animate);
-          observer.disconnect();
+          if (rafId) cancelAnimationFrame(rafId);
+          runAnimation();
+        } else if (!entries[0]?.isIntersecting) {
+          hasAnimated = false;
         }
       },
-      { threshold: 0.75 }
+      { threshold: 0.10 }
     );
 
+    const restartAnimation = () => {
+      hasAnimated = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      observer.unobserve(el);
+      observer.observe(el);
+    };
+
+    el.addEventListener("restart-counter", restartAnimation as EventListener);
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      el.removeEventListener("restart-counter", restartAnimation as EventListener);
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [duration, isNumeric, number, prefersReducedMotion, suffix, value]);
 
-  return <span ref={ref}>{display}</span>;
+  return <span ref={ref} data-counter-root>{display}</span>;
 }
 
