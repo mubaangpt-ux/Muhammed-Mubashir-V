@@ -1,6 +1,24 @@
 ﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  MessageCircle,
+  TrendingUp,
+  BarChart3,
+  Globe,
+  Layers,
+  Cpu,
+  Code2,
+  Zap,
+  ChevronDown,
+  ExternalLink,
+  Plus,
+  Check,
+  Star,
+  Building2,
+} from "lucide-react";
 import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { testimonials } from "../data/testimonials";
@@ -226,7 +244,7 @@ const personJsonLd = {
         <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
           class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
           style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);">
-          &#8599; WhatsApp
+          <ArrowUpRight client:visible size={14} strokeWidth={2.2} /> WhatsApp
         </a>
         <a href="/work" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">Work</a>
         <a href="/about" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">About</a>
@@ -432,9 +450,9 @@ const personJsonLd = {
           style={`grid-area: c${i}; transition: all 0.3s cubic-bezier(0.22,1,0.36,1);`}
         >
           <div class="flex items-start justify-between mb-4">
-            <span class="text-2xl text-accent-soft/60 font-mono group-hover:text-accent-soft transition-colors">
+            <div class="cap-icon text-2xl text-accent-soft/60 font-mono group-hover:text-accent-soft transition-colors" style="filter: drop-shadow(0 0 6px rgba(147,197,253,0.4));">
               {cap.icon}
-            </span>
+            </div>
             <span class="text-xs font-mono text-slate-700 group-hover:text-slate-500 transition-colors">
               0{i + 1}
             </span>
@@ -476,9 +494,7 @@ const personJsonLd = {
             style="border: 1px solid rgba(255,255,255,0.12); color: #93c5fd; background: rgba(37,99,235,0.08);"
             onmouseover="this.style.background='rgba(37,99,235,0.18)'; this.style.borderColor='rgba(147,197,253,0.35)'"
             onmouseout="this.style.background='rgba(37,99,235,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block"></span>
-            View all projects
-            <span class="group-hover:translate-x-1 transition-transform">&#8594;</span>
+            <Zap client:visible size={13} strokeWidth={2} /> View all projects
           </a>
         </div>
 
@@ -551,7 +567,7 @@ const personJsonLd = {
               ))}
             </div>
             <p class="text-xs font-mono text-slate-600 mt-4 group-hover:text-accent-soft transition-colors">
-              View case study &#8594;
+              View case study <ArrowRight client:visible size={13} strokeWidth={2} />
             </p>
           </div>
         </a>
@@ -604,7 +620,7 @@ const personJsonLd = {
               ))}
             </div>
             <p class="text-xs font-mono text-slate-600 mt-4 group-hover:text-accent-soft transition-colors">
-              View case study &#8594;
+              View case study <ArrowRight client:visible size={13} strokeWidth={2} />
             </p>
           </div>
         </a>
@@ -652,7 +668,7 @@ const personJsonLd = {
           <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-slate-700">2025</span>
             <span class="text-xs font-mono text-slate-600 group-hover:text-accent-soft transition-colors">
-              Learn more &#8594;
+              Learn more <ArrowRight client:visible size={13} strokeWidth={2} />
             </span>
           </div>
         </div>
@@ -691,7 +707,7 @@ const personJsonLd = {
           <p class="text-xs text-slate-400">Jul 2025 &ndash; Jan 2026</p>
           <a href="/work/multi-company-digital-ops"
             class="inline-flex items-center gap-1.5 mt-4 text-xs font-mono text-accent-soft/70 hover:text-accent-soft transition-colors">
-            View case study &#8594;
+            View case study <ArrowRight client:visible size={13} strokeWidth={2} />
           </a>
         </div>
 
@@ -734,7 +750,7 @@ const personJsonLd = {
           <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-slate-700">2025</span>
             <span class="text-xs font-mono text-slate-600 group-hover:text-accent-soft transition-colors">
-              Learn more &#8594;
+              Learn more <ArrowRight client:visible size={13} strokeWidth={2} />
             </span>
           </div>
         </div>
@@ -760,7 +776,7 @@ const personJsonLd = {
       <button id="testi-open-btn"
         class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-white self-start sm:self-auto flex-shrink-0"
         style="background: rgba(37,99,235,0.18); border: 1px solid rgba(37,99,235,0.40); backdrop-filter: blur(12px); transition: all 0.25s ease;">
-        <span style="color:#93c5fd;">&#43;</span> Leave a testimonial
+        <Plus client:visible size={14} strokeWidth={2.2} color="#93c5fd" /> Leave a testimonial
       </button>
     </div>
   </div>
@@ -915,13 +931,13 @@ const personJsonLd = {
             class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.45), inset 0 1px 0 rgba(255,255,255,0.15);"
           >
-            &#8599; Message on WhatsApp
+            <ArrowUpRight client:visible size={14} strokeWidth={2.2} /> Message on WhatsApp
           </a>
           <a
             href="/contact"
             class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white"
           >
-            Open Contact Page &#8594;
+            Open Contact Page <ArrowRight client:visible size={14} strokeWidth={2.2} />
           </a>
         </div>
       </div>
