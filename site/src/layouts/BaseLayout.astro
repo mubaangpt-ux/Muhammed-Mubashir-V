@@ -1,4 +1,4 @@
-﻿---
+---
 import "../styles/global.css";
 import { profile } from "../data/profile";
 
@@ -99,10 +99,10 @@ const isActive = (href: string) =>
     <!-- NAV -->
     <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(7,9,15,0.28); border-bottom: 1px solid rgba(255,255,255,0.04);">
 
-      <!-- Top micro-bar: location left · name center · status right -->
+      <!-- Top micro-bar: location left � name center � status right -->
       <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
         <span class="text-xs font-mono tracking-widest uppercase hidden sm:block justify-self-start" style="color: rgba(147,197,253,0.45);">
-          {profile.location} &nbsp;·&nbsp; Available for mandates
+          {profile.location} &nbsp;�&nbsp; Available for mandates
         </span>
         <a href="/" class="justify-self-center" style="padding-left: 4px;">
           <div class="flex items-center gap-2 sm:hidden">
@@ -121,7 +121,7 @@ const isActive = (href: string) =>
             {profile.name}
           </span>
         </a>
-        <div class="flex items-center gap-1.5 justify-self-end">
+        <div class="hidden items-center gap-1.5 justify-self-end sm:flex">
           <div class="w-1.5 h-1.5 rounded-full bg-green-400" style="box-shadow: 0 0 6px rgba(74,222,128,0.6); opacity: 0.8;"></div>
           <span class="text-xs font-mono tracking-widest uppercase hidden sm:block" style="color: rgba(147,197,253,0.40);">Open to work</span>
         </div>
@@ -136,7 +136,7 @@ const isActive = (href: string) =>
             style="color: rgba(147,197,253,0.30);"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
             onmouseout="this.style.color='rgba(147,197,253,0.30)'">
-            ◈
+            ?
           </span>
         </a>
 
@@ -165,7 +165,7 @@ const isActive = (href: string) =>
           class="hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-wider transition-all duration-200 hover:scale-[1.03] justify-self-end"
           style="background: rgba(37,99,235,0.20); border: 1px solid rgba(37,99,235,0.40); color: #93c5fd;"
         >
-          <span style="color: #93c5fd;">↗</span> WhatsApp
+          <span style="color: #93c5fd;">?</span> WhatsApp
         </a>
       </div>
 
@@ -193,15 +193,15 @@ const isActive = (href: string) =>
             <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Connect</p>
             <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">↗</span> WhatsApp · {profile.whatsappDisplay}
+              <span class="text-xs text-accent-soft">?</span> WhatsApp � {profile.whatsappDisplay}
             </a>
             <a href={profile.links.email}
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">✉</span> {profile.email}
+              <span class="text-xs text-accent-soft">?</span> {profile.email}
             </a>
             <a href={profile.links.instagram} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <span class="text-xs text-accent-soft">◎</span> {profile.links.instagramHandle}
+              <span class="text-xs text-accent-soft">?</span> {profile.links.instagramHandle}
             </a>
           </div>
 
@@ -218,8 +218,8 @@ const isActive = (href: string) =>
         </div>
 
         <div class="mt-8 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p class="text-xs text-slate-600">© {new Date().getFullYear()} {profile.name} — All rights reserved.</p>
-          <p class="text-xs text-slate-700 font-mono">Dubai, UAE · Available for new mandates</p>
+          <p class="text-xs text-slate-600">� {new Date().getFullYear()} {profile.name} � All rights reserved.</p>
+          <p class="text-xs text-slate-700 font-mono">Dubai, UAE � Available for new mandates</p>
         </div>
       </div>
     </footer>
@@ -275,7 +275,7 @@ const isActive = (href: string) =>
               obs.unobserve(el);
             }
           });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.18, rootMargin: '0px 0px -80px 0px' });
         els.forEach((el) => obs.observe(el));
       })();
     </script>
@@ -288,10 +288,10 @@ const isActive = (href: string) =>
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      // ── Config ──────────────────────────────────────────────
+      // -- Config ----------------------------------------------
       const CFG = {
         starCount: 280,          // total stars
-        maxRadius: 1.1,          // biggest star radius (px) — keep tiny
+        maxRadius: 1.1,          // biggest star radius (px) � keep tiny
         minRadius: 0.15,         // smallest
         twinkleSpeed: 0.008,     // how fast alpha oscillates
         twinkleVariance: 0.018,  // randomness of twinkle speed per star
@@ -304,7 +304,7 @@ const isActive = (href: string) =>
         colorVariance: true,     // subtle blue/white colour variation
       };
 
-      // ── State ────────────────────────────────────────────────
+      // -- State ------------------------------------------------
       let W, H;
       let stars = [];
       let shootingStar = null;
@@ -312,7 +312,7 @@ const isActive = (href: string) =>
       let animId = null;
       let scrollY = 0;
 
-      // ── Resize ───────────────────────────────────────────────
+      // -- Resize -----------------------------------------------
       function resize() {
         W = canvas.width  = window.innerWidth;
         H = canvas.height = window.innerHeight * 0.55;
@@ -320,7 +320,7 @@ const isActive = (href: string) =>
         buildStars();
       }
 
-      // ── Star colours ─────────────────────────────────────────
+      // -- Star colours -----------------------------------------
       const STAR_COLOURS = [
         [200, 220, 255],  // cool blue-white
         [210, 228, 255],  // ice white
@@ -329,12 +329,12 @@ const isActive = (href: string) =>
         [200, 215, 255],  // pale blue
       ];
 
-      // ── Build star array ─────────────────────────────────────
+      // -- Build star array -------------------------------------
       function buildStars() {
         stars = [];
         for (let i = 0; i < CFG.starCount; i++) {
           const col = STAR_COLOURS[Math.floor(Math.random() * STAR_COLOURS.length)];
-          // Bias stars toward top — sqrt pushes distribution upward
+          // Bias stars toward top � sqrt pushes distribution upward
           const yFrac = Math.pow(Math.random(), 1.6) * CFG.topBias;
           stars.push({
             x: Math.random() * W,
@@ -353,16 +353,16 @@ const isActive = (href: string) =>
         }
       }
 
-      // ── Schedule next shooting star ──────────────────────────
+      // -- Schedule next shooting star --------------------------
       function scheduleShootingStar() {
         const [min, max] = CFG.shootingStarInterval;
         const delay = min + Math.random() * (max - min);
         shootingTimer = setTimeout(launchShootingStar, delay);
       }
 
-      // ── Launch a shooting star ───────────────────────────────
+      // -- Launch a shooting star -------------------------------
       function launchShootingStar() {
-        // Start from top area, angle 20-40° below horizontal
+        // Start from top area, angle 20-40� below horizontal
         const angle = (20 + Math.random() * 20) * Math.PI / 180;
         const startX = W * (0.1 + Math.random() * 0.6);
         const startY = H * (0.05 + Math.random() * 0.25);
@@ -374,7 +374,7 @@ const isActive = (href: string) =>
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           alpha: 0,
-          phase: 'in',  // in → hold → out
+          phase: 'in',  // in ? hold ? out
           startTime: performance.now(),
           trailLength: CFG.shootingTrailLength + Math.random() * 60,
           width: 1.5 + Math.random() * 0.8,
@@ -383,18 +383,18 @@ const isActive = (href: string) =>
         scheduleShootingStar();
       }
 
-      // ── Draw background gradient ─────────────────────────────
+      // -- Draw background gradient -----------------------------
       function drawBackground() {
-        // Deep obsidian at bottom → dark navy at top
+        // Deep obsidian at bottom ? dark navy at top
         const grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0,   'rgba(6,10,26,0.0)');   // very top — transparent (let body show)
+        grad.addColorStop(0,   'rgba(6,10,26,0.0)');   // very top � transparent (let body show)
         grad.addColorStop(0.3, 'rgba(7,11,28,0.0)');
         grad.addColorStop(1,   'rgba(7,9,15,0.0)');    // seamless with body
         ctx.clearRect(0, 0, W, H);
-        // Canvas is transparent — stars draw over the body gradient naturally
+        // Canvas is transparent � stars draw over the body gradient naturally
       }
 
-      // ── Draw all stars ───────────────────────────────────────
+      // -- Draw all stars ---------------------------------------
       function drawStars(dt) {
         stars.forEach(star => {
           // Twinkle
@@ -430,7 +430,7 @@ const isActive = (href: string) =>
         });
       }
 
-      // ── Draw shooting star ───────────────────────────────────
+      // -- Draw shooting star -----------------------------------
       function drawShootingStar(now) {
         if (!shootingStar) return;
         const ss = shootingStar;
@@ -487,7 +487,7 @@ const isActive = (href: string) =>
         ctx.restore();
       }
 
-      // ── Scroll fade ──────────────────────────────────────────
+      // -- Scroll fade ------------------------------------------
       function handleScroll() {
         scrollY = window.scrollY;
         // Fade out over the first 40vh of scroll
@@ -496,7 +496,7 @@ const isActive = (href: string) =>
         canvas.style.opacity = opacity;
       }
 
-      // ── Main loop ────────────────────────────────────────────
+      // -- Main loop --------------------------------------------
       let lastTime = 0;
       function loop(now) {
         const dt = now - lastTime;
@@ -509,7 +509,7 @@ const isActive = (href: string) =>
         animId = requestAnimationFrame(loop);
       }
 
-      // ── Init ─────────────────────────────────────────────────
+      // -- Init -------------------------------------------------
       function init() {
         resize();
         window.addEventListener('resize', resize, { passive: true });
@@ -546,3 +546,4 @@ const isActive = (href: string) =>
 
   </body>
 </html>
+

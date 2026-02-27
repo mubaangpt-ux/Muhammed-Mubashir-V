@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
 type Props = {
@@ -64,7 +64,7 @@ export default function AnimatedCounter({ value, duration = 1200 }: Props) {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.75 }
     );
 
     observer.observe(el);
@@ -73,3 +73,4 @@ export default function AnimatedCounter({ value, duration = 1200 }: Props) {
 
   return <span ref={ref}>{display}</span>;
 }
+

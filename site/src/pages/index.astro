@@ -1,4 +1,4 @@
-﻿---
+---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import { profile } from "../data/profile";
@@ -100,11 +100,11 @@ const personJsonLd = {
     <div class="absolute pointer-events-none"
       style="width: 360px; height: 360px; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 0;">
 
-      <!-- Ring 1: 360px diameter → radius 180px -->
+      <!-- Ring 1: 360px diameter ? radius 180px -->
       <div class="absolute" style="inset: 0; border-radius: 50%; border: 1px solid rgba(147,197,253,0.18); animation: orbitSpin1 18s linear infinite;"></div>
-      <!-- Ring 2: inset 14% → diameter 259px → radius 130px -->
+      <!-- Ring 2: inset 14% ? diameter 259px ? radius 130px -->
       <div class="absolute" style="inset: 14%; border-radius: 50%; border: 1px solid rgba(37,99,235,0.28); animation: orbitSpin2 28s linear infinite reverse;"></div>
-      <!-- Ring 3: inset 28% → diameter 159px → radius 79px -->
+      <!-- Ring 3: inset 28% ? diameter 159px ? radius 79px -->
       <div class="absolute" style="inset: 28%; border-radius: 50%; border: 1px dashed rgba(147,197,253,0.13); animation: orbitSpin1 42s linear infinite;"></div>
 
       <!-- Dot 1: translateX(180px) matches Ring 1 radius exactly -->
@@ -117,6 +117,22 @@ const personJsonLd = {
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
     <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(300px, 38vw, 420px); height: 100%; flex-shrink: 0;">
+      <!-- Colour blend overlay — sits behind portrait via z-index -->
+      <div class="absolute inset-0 pointer-events-none" style="
+        z-index: 0;
+        background:
+          radial-gradient(ellipse 85% 60% at 50% 0%,
+            rgba(37,99,235,0.28) 0%,
+            rgba(96,165,250,0.12) 35%,
+            transparent 70%),
+          radial-gradient(ellipse 50% 40% at 30% 50%,
+            rgba(37,99,235,0.10) 0%,
+            transparent 65%),
+          radial-gradient(ellipse 50% 40% at 70% 50%,
+            rgba(59,130,246,0.08) 0%,
+            transparent 65%);
+        mix-blend-mode: screen;
+      "></div>
       <img
         src="/profile.png"
         alt="Muhammed Mubashir V"
@@ -124,12 +140,27 @@ const personJsonLd = {
         height="420"
         loading="eager"
         class="block w-full h-full"
-        style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; filter: drop-shadow(0 0 25px rgba(37,99,235,0.50)) drop-shadow(0 0 70px rgba(37,99,235,0.25)) brightness(1.08) contrast(1.05);"
+        style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; filter: drop-shadow(0 0 20px rgba(37,99,235,0.65)) drop-shadow(0 0 55px rgba(37,99,235,0.40)) drop-shadow(0 0 100px rgba(96,165,250,0.30)) brightness(1.06) contrast(1.04) saturate(0.88) hue-rotate(-8deg);"
       />
       <!-- Edge dissolve mask -->
       <div class="absolute inset-0" style="-webkit-mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); -webkit-mask-composite: source-in; mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); mask-composite: intersect;"></div>
       <!-- Bottom ground fog: portrait feet melt into baseline -->
       <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="height: 38%; background: linear-gradient(0deg, #07090f 0%, #07090f 10%, rgba(7,9,15,0.88) 22%, rgba(7,9,15,0.55) 42%, transparent 100%);"></div>
+      <!-- Rim light — thin glowing edge around portrait sides -->
+      <div class="absolute inset-0 pointer-events-none" style="
+        z-index: 3;
+        background:
+          radial-gradient(ellipse 12% 70% at 2% 45%,
+            rgba(96,165,250,0.35) 0%,
+            transparent 100%),
+          radial-gradient(ellipse 12% 70% at 98% 45%,
+            rgba(96,165,250,0.25) 0%,
+            transparent 100%),
+          radial-gradient(ellipse 60% 15% at 50% 0%,
+            rgba(147,197,253,0.20) 0%,
+            transparent 100%);
+        mix-blend-mode: screen;
+      "></div>
     </div>
     <!-- Full-width ground shadow - extends portrait fade to screen edges -->
     <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
@@ -183,7 +214,7 @@ const personJsonLd = {
     </div>
 
     <!-- ROLE -->
-    <div class="reveal mt-5" data-delay="0.20">
+    <div class="reveal mt-8" data-delay="0.20">
       <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide">{profile.roleTitle}</p>
     </div>
 
@@ -230,18 +261,11 @@ const personJsonLd = {
   <!-- END CONTENT COLUMN -->
 
 
-  <!-- SCROLL INDICATOR -->
-  <div class="hero-scroll-indicator absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none" style="z-index:3;">
-    <div class="w-px h-6" style="background: linear-gradient(180deg, rgba(147,197,253,0.35) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite;"></div>
-    <span class="text-xs font-mono tracking-[0.3em] uppercase" style="color: rgba(147,197,253,0.25);">Scroll</span>
-    <div class="w-px h-6" style="background: linear-gradient(180deg, rgba(147,197,253,0.15) 0%, transparent 100%); animation: scrollPulse 2s ease-in-out infinite; animation-delay: 0.3s;"></div>
-  </div>
-
 </section>
 
 
 <!-- ----------------------------------------------
-     TICKER STRIP ï¿½ 3 ROW LOOP
+     TICKER STRIP � 3 ROW LOOP
 ----------------------------------------------- -->
 <div class="ticker-section relative border-y mt-10" style="border-color: rgba(255,255,255,0.06); overflow: hidden; padding: 8px 0;">
 
@@ -255,7 +279,7 @@ const personJsonLd = {
     style="width: 140px; background: linear-gradient(270deg, #07090f 0%, #07090f 25%, transparent 100%);">
   </div>
 
-  <!-- ROW 1 ï¿½ Marketing skills, medium speed -->
+  <!-- ROW 1 � Marketing skills, medium speed -->
   <div class="ticker-row-wrap" style="padding: 10px 0 6px;">
     <div class="ticker-row row-1">
       {[...tickerRow1, ...tickerRow1, ...tickerRow1, ...tickerRow1].map((item, i) => (
@@ -267,7 +291,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 2 ï¿½ AI tools, slower -->
+  <!-- ROW 2 � AI tools, slower -->
   <div class="ticker-row-wrap" style="padding: 6px 0;">
     <div class="ticker-row row-2">
       {[...tickerRow2, ...tickerRow2, ...tickerRow2, ...tickerRow2].map((item, i) => (
@@ -279,7 +303,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 3 ï¿½ Web & design tools, faster -->
+  <!-- ROW 3 � Web & design tools, faster -->
   <div class="ticker-row-wrap" style="padding: 6px 0 10px;">
     <div class="ticker-row row-3">
       {[...tickerRow3, ...tickerRow3, ...tickerRow3, ...tickerRow3].map((item, i) => (
@@ -299,18 +323,45 @@ const personJsonLd = {
 ----------------------------------------------- -->
 <section class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
-    <div class="reveal glass-panel-ultra rounded-3xl px-8 py-10 md:px-12 md:py-12" data-delay="0.05">
+    <div class="glass-panel-ultra rounded-3xl px-8 py-10 md:px-12 md:py-12">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x"
-        style="--tw-divide-opacity: 0.08; divide-color: rgba(255,255,255,0.08);">
-        {profile.impactMetrics.map((metric, i) => (
-          <div class={`space-y-2 ${i > 0 ? "md:pl-8" : ""}`}>
-            <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
-              <AnimatedCounter client:visible value={metric.value} />
-            </p>
-            <p class="text-sm font-medium text-accent-soft">{metric.label}</p>
-            <p class="text-xs text-slate-500 leading-relaxed">{metric.detail}</p>
-          </div>
-        ))}
+        style="divide-color: rgba(255,255,255,0.08);">
+
+        <!-- Card 0: drops from above -->
+        <div class="metric-card metric-drop space-y-2" data-metric="0">
+          <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
+            <AnimatedCounter client:visible value={profile.impactMetrics[0].value} />
+          </p>
+          <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[0].label}</p>
+          <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[0].detail}</p>
+        </div>
+
+        <!-- Card 1: slides from left -->
+        <div class="metric-card metric-slide-left space-y-2 md:pl-8" data-metric="1">
+          <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
+            <AnimatedCounter client:visible value={profile.impactMetrics[1].value} />
+          </p>
+          <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[1].label}</p>
+          <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[1].detail}</p>
+        </div>
+
+        <!-- Card 2: rises from below -->
+        <div class="metric-card metric-rise space-y-2 md:pl-8" data-metric="2">
+          <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
+            <AnimatedCounter client:visible value={profile.impactMetrics[2].value} />
+          </p>
+          <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[2].label}</p>
+          <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[2].detail}</p>
+        </div>
+
+        <!-- Card 3: slides from right -->
+        <div class="metric-card metric-slide-right space-y-2 md:pl-8" data-metric="3">
+          <p class="font-display font-bold text-white" style="font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.04em;">
+            <AnimatedCounter client:visible value={profile.impactMetrics[3].value} />
+          </p>
+          <p class="text-sm font-medium text-accent-soft">{profile.impactMetrics[3].label}</p>
+          <p class="text-xs text-slate-500 leading-relaxed">{profile.impactMetrics[3].detail}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -323,8 +374,7 @@ const personJsonLd = {
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
     <!-- Header -->
-    <div class="reveal mb-14" data-delay="0.05">
-      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Capabilities</p>
+    <div class="reveal mb-14" data-delay="0.15">
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <h2 class="font-display font-semibold text-white text-balance"
           style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em; max-width: 28ch;">
@@ -340,8 +390,8 @@ const personJsonLd = {
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {profile.capabilities.map((cap, i) => (
         <div
-          class="reveal glass-panel ring-hover rounded-2xl p-6 group cursor-default"
-          data-delay={String(0.05 + i * 0.06)}
+          class={`cap-card cap-card-${i} glass-panel ring-hover rounded-2xl p-6 group cursor-default`}
+          data-cap-index={String(i)}
           style="transition: all 0.3s cubic-bezier(0.22,1,0.36,1);"
         >
           <div class="flex items-start justify-between mb-4">
@@ -362,7 +412,7 @@ const personJsonLd = {
 
 
 <!-- ----------------------------------------------
-     FEATURED WORK ï¿½ ALEX MAREX LAYOUT
+     FEATURED WORK � ALEX MAREX LAYOUT
 ----------------------------------------------- -->
 <section class="work-section py-24 px-6 section-border" id="work">
   <div class="mx-auto max-w-6xl">
@@ -372,12 +422,6 @@ const personJsonLd = {
 
       <!-- LEFT: Heading block -->
       <div class="work-left">
-        <div class="reveal" data-delay="0.04">
-          <p class="text-xs font-mono tracking-[0.32em] uppercase mb-5"
-            style="color: rgba(147,197,253,0.55);">
-            // Case Studies
-          </p>
-        </div>
         <div class="reveal" data-delay="0.08">
           <h2 class="font-display font-bold text-white mb-6 text-balance"
             style="font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -0.03em; line-height: 1.05;">
@@ -397,7 +441,7 @@ const personJsonLd = {
             onmouseout="this.style.background='rgba(37,99,235,0.08)'; this.style.borderColor='rgba(255,255,255,0.12)'">
             <span class="w-1.5 h-1.5 rounded-full bg-accent-soft inline-block"></span>
             View all projects
-            <span class="group-hover:translate-x-1 transition-transform">?</span>
+            <span class="group-hover:translate-x-1 transition-transform">&#8594;</span>
           </a>
         </div>
 
@@ -406,11 +450,11 @@ const personJsonLd = {
           <p class="text-xs font-mono tracking-widest uppercase text-slate-600 mb-3">Results at a glance</p>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="font-display font-bold text-white text-2xl" style="letter-spacing: -0.04em;">600+</p>
+              <p class="font-display font-bold text-white text-2xl" style="letter-spacing: -0.04em;">1000+</p>
               <p class="text-xs text-slate-500 mt-0.5">Verified leads in 6 months</p>
             </div>
             <div>
-              <p class="font-display font-bold text-white text-2xl" style="letter-spacing: -0.04em;">3+</p>
+              <p class="font-display font-bold text-white text-2xl" style="letter-spacing: -0.04em;">4+</p>
               <p class="text-xs text-slate-500 mt-0.5">Industries served in UAE</p>
             </div>
           </div>
@@ -420,14 +464,14 @@ const personJsonLd = {
       <!-- RIGHT: Two stacked glass cards -->
       <div class="flex flex-col gap-5">
 
-        <!-- Card 1 ï¿½ 180 Degree -->
+        <!-- Card 1 � 180 Degree -->
         <a href="/work/180-degree-meal-planner"
           class="work-card-right work-card-1 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
 
           <!-- Image area -->
           <div class="relative overflow-hidden" style="height: 180px; background: rgba(37,99,235,0.08);">
-            <!-- Placeholder ï¿½ replace src with real screenshot -->
+            <!-- Placeholder � replace src with real screenshot -->
             <div class="w-full h-full flex items-center justify-center"
               style="background: linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(7,9,15,0.8) 100%);">
               <div class="text-center">
@@ -455,7 +499,7 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              180 Degree ï¿½ Healthy Meal Plans + Web App Plugin
+              Healthy Meal Plans + Web App Plugin
             </h3>
             <p class="text-xs font-mono text-slate-600 mb-3">2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
@@ -475,7 +519,7 @@ const personJsonLd = {
           </div>
         </a>
 
-        <!-- Card 2 ï¿½ bluemark -->
+        <!-- Card 2 � bluemark -->
         <a href="/work/bluemark-real-estate-leadgen"
           class="work-card-right work-card-2 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
@@ -508,9 +552,9 @@ const personJsonLd = {
           <!-- Content -->
           <div class="p-5">
             <h3 class="font-display font-semibold text-white text-base mb-1 group-hover:text-accent-soft transition-colors">
-              bluemark Real Estate ï¿½ Luxury Lead Gen System
+              bluemark Real Estate &ndash; Luxury Lead Gen System
             </h3>
-            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 ï¿½ Jul 2025</p>
+            <p class="text-xs font-mono text-slate-600 mb-3">Jan 2025 &ndash; Jul 2025</p>
             <p class="text-sm text-slate-400 leading-relaxed">
               Developed a real-estate lead engine using creative testing, segmented audience strategy, and WhatsApp-first follow-up flows.
             </p>
@@ -535,7 +579,7 @@ const personJsonLd = {
     <!-- --- ROW 2: 3-column stagger (like reference "Features" block) --- -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
 
-      <!-- Left card ï¿½ offset DOWN -->
+      <!-- Left card � offset DOWN -->
       <a href="/work/raslan-bc-growth"
         class="work-card-bottom work-card-3 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-top: 60px;">
@@ -577,11 +621,11 @@ const personJsonLd = {
         </div>
       </a>
 
-      <!-- CENTER image card ï¿½ tall, no offset -->
+      <!-- CENTER image card � tall, no offset -->
       <div class="work-card-bottom work-card-center rounded-2xl overflow-hidden relative"
         style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px); min-height: 380px;">
 
-        <!-- Placeholder center image ï¿½ replace with your brand/campaign photo -->
+        <!-- Placeholder center image � replace with your brand/campaign photo -->
         <div class="w-full h-full absolute inset-0 flex items-center justify-center"
           style="background: linear-gradient(160deg, rgba(37,99,235,0.18) 0%, rgba(7,9,15,0.95) 100%);">
           <div class="text-center p-8">
@@ -620,7 +664,7 @@ const personJsonLd = {
         </div>
       </div>
 
-      <!-- Right card ï¿½ offset UP -->
+      <!-- Right card � offset UP -->
       <a href="/work/raslan-media-content-performance"
         class="work-card-bottom work-card-4 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-bottom: 60px;">
@@ -668,41 +712,94 @@ const personJsonLd = {
 <!-- ----------------------------------------------
      TESTIMONIALS
 ----------------------------------------------- -->
-<section class="py-20 px-4 section-border">
-  <div class="mx-auto max-w-6xl">
-    <div class="reveal mb-14" data-delay="0.05">
-      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Testimonials</p>
-      <h2 class="font-display font-semibold text-white"
-        style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em;">
-        What partners say
-      </h2>
-    </div>
+<section class="py-20 section-border overflow-hidden">
+  <div class="mx-auto max-w-6xl px-4">
 
-    <div class="grid gap-5 md:grid-cols-2">
-      {testimonials.entries.map((item, i) => (
-        <div class="reveal glass-panel rounded-2xl p-8" data-delay={String(0.08 + i * 0.1)}>
-          <div class="text-4xl text-accent-soft/25 font-display leading-none mb-4 select-none">"</div>
-          <p class="text-base text-slate-300 leading-relaxed italic mb-6">
-            {item.quote}
-          </p>
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-              style="background: linear-gradient(135deg, rgba(37,99,235,0.7), rgba(147,197,253,0.4)); border: 1px solid rgba(147,197,253,0.2);">
-              {item.name.charAt(0)}
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-white">{item.name}</p>
-              <p class="text-xs text-slate-500">{item.role} ï¿½ {item.company}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+    <!-- Header row -->
+    <div class="reveal mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-delay="0.05">
+      <div>
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Testimonials</p>
+        <h2 class="font-display font-semibold text-white"
+          style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); letter-spacing: -0.03em;">
+          What partners say
+        </h2>
+      </div>
 
-    <p class="reveal mt-8 text-sm text-slate-600 italic border-l-2 border-accent/25 pl-4" data-delay="0.2">
+      <!-- Submit button -->
+      <button id="testi-open-btn"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-white self-start sm:self-auto"
+        style="background: rgba(37,99,235,0.18); border: 1px solid rgba(37,99,235,0.40); backdrop-filter: blur(12px); transition: all 0.25s ease; flex-shrink: 0;">
+        <span style="color:#93c5fd;">&#43;</span> Leave a testimonial
+      </button>
+    </div>
+  </div>
+
+  <!-- Marquee track — full bleed -->
+  <div class="relative" style="mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);">
+    <div id="testi-track" class="testi-track flex gap-5" style="width: max-content;">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 mt-10">
+    <p class="reveal text-sm text-slate-600 italic border-l-2 border-accent/25 pl-4" data-delay="0.2">
       {testimonials.requestLine}
     </p>
   </div>
+
+  <!-- Submit modal -->
+  <div id="testi-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none !important; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+    <div class="relative w-full max-w-md rounded-2xl p-8"
+      style="background: rgba(12,18,40,0.98); border: 1px solid rgba(147,197,253,0.20); box-shadow: 0 32px 80px rgba(0,0,0,0.6);">
+
+      <!-- Close -->
+      <button id="testi-close-btn" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors text-lg">&#215;</button>
+
+      <h3 class="font-display font-semibold text-white text-lg mb-6">Share your experience</h3>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your name</label>
+          <input id="testi-name" type="text" placeholder="e.g. Ahmed Al Mansouri"
+            class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
+            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your role &amp; company</label>
+          <input id="testi-role" type="text" placeholder="e.g. Marketing Director · XYZ Group"
+            class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
+            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your testimonial</label>
+          <textarea id="testi-quote" rows="4" placeholder="What was your experience working together?"
+            class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none resize-none"
+            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 mt-6">
+        <button id="testi-submit-btn"
+          class="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02]"
+          style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 20px rgba(37,99,235,0.4);">
+          Submit testimonial
+        </button>
+        <button id="testi-cancel-btn"
+          class="rounded-xl px-5 py-2.5 text-sm text-slate-400 hover:text-white transition-colors"
+          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+          Cancel
+        </button>
+      </div>
+
+      <p id="testi-success" class="mt-4 text-sm text-green-400 font-mono text-center" style="display:none;">
+        &#10003; Thank you! Your testimonial has been added.
+      </p>
+    </div>
+  </div>
+
 </section>
 
 
@@ -711,13 +808,20 @@ const personJsonLd = {
 ----------------------------------------------- -->
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
-    <div class="reveal glass-panel-ultra rounded-3xl px-8 py-14 md:px-16 md:py-16 relative overflow-hidden" data-delay="0.05">
+    <div class="reveal glass-panel-ultra rounded-3xl relative overflow-hidden" data-delay="0.05"
+      style="min-height: 280px;">
+
       <!-- Background glow -->
       <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
-        style="background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%); filter: blur(40px);">
+        style="background: radial-gradient(circle, rgba(37,99,235,0.22) 0%, transparent 70%); filter: blur(40px);">
+      </div>
+      <!-- Extra right-side glow for graph area -->
+      <div class="absolute top-0 right-0 bottom-0 w-2/3 pointer-events-none"
+        style="background: radial-gradient(ellipse 80% 100% at 100% 60%, rgba(37,99,235,0.18) 0%, transparent 65%); filter: blur(20px);">
       </div>
 
-      <div class="relative z-10 max-w-2xl">
+      <!-- Left: text content -->
+      <div class="relative z-10 px-8 py-14 md:px-16 md:py-16 max-w-lg">
         <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-5">Start a Conversation</p>
         <h2 class="font-display font-bold text-white mb-4 text-balance"
           style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); letter-spacing: -0.035em;">
@@ -744,10 +848,458 @@ const personJsonLd = {
           </a>
         </div>
       </div>
+
+      <!-- Right: animated trading graph -->
+      <div class="absolute right-0 top-0 bottom-0 pointer-events-none"
+        style="width: 50%; min-width: 280px;
+          mask-image: linear-gradient(90deg, transparent 0%, black 30%, black 100%),
+                      linear-gradient(0deg, black 0%, black 80%, transparent 100%);
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 30%, black 100%),
+                      linear-gradient(0deg, black 0%, black 80%, transparent 100%);
+          mask-composite: intersect;
+          -webkit-mask-composite: source-in;">
+        <canvas id="cta-graph-canvas" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+
     </div>
   </div>
 </section>
 
+
+<script is:inline>
+(() => {
+  const canvas = document.getElementById('cta-graph-canvas');
+  if (!canvas) return;
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const ctx = canvas.getContext('2d');
+
+  // Bar data — heights as fractions 0..1, will animate upward
+  const BARS = [
+    { target: 0.22, delay: 0    },
+    { target: 0.30, delay: 0.08 },
+    { target: 0.26, delay: 0.16 },
+    { target: 0.42, delay: 0.24 },
+    { target: 0.38, delay: 0.32 },
+    { target: 0.55, delay: 0.40 },
+    { target: 0.50, delay: 0.48 },
+    { target: 0.68, delay: 0.56 },
+    { target: 0.62, delay: 0.64 },
+    { target: 0.80, delay: 0.72 },
+    { target: 0.75, delay: 0.80 },
+    { target: 0.92, delay: 0.88 },
+  ];
+
+  const TOTAL_DURATION = 3800; // ms — slow rise
+  const LOOP_PAUSE     = 1800; // ms pause at top before resetting
+  let startTime = null;
+  let phase = 'rise'; // rise | pause | reset
+  let phaseStart = null;
+
+  // current animated heights
+  const current = BARS.map(() => 0);
+
+  function easeOutQuart(t) {
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function drawFrame(now) {
+    if (!startTime) { startTime = now; phaseStart = now; }
+
+    const W = canvas.width;
+    const H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const elapsed = now - phaseStart;
+
+    if (phase === 'rise') {
+      const progress = Math.min(elapsed / TOTAL_DURATION, 1);
+
+      BARS.forEach((bar, i) => {
+        const barProgress = Math.max(0, Math.min(
+          (progress - bar.delay * 0.5) / (1 - bar.delay * 0.5), 1
+        ));
+        current[i] = easeOutQuart(barProgress) * bar.target;
+      });
+
+      if (progress >= 1) { phase = 'pause'; phaseStart = now; }
+
+    } else if (phase === 'pause') {
+      if (elapsed >= LOOP_PAUSE) { phase = 'rise'; phaseStart = now; current.fill(0); }
+
+    } else if (phase === 'reset') {
+      phase = 'rise'; phaseStart = now; current.fill(0);
+    }
+
+    // Layout
+    const barCount  = BARS.length;
+    const gap       = W * 0.018;
+    const barW      = (W - gap * (barCount + 1)) / barCount;
+    const floorY    = H * 0.88;
+    const maxBarH   = H * 0.80;
+
+    // Draw bars
+    BARS.forEach((bar, i) => {
+      const x    = gap + i * (barW + gap);
+      const barH = current[i] * maxBarH;
+      const y    = floorY - barH;
+
+      // Bar gradient — dark blue at bottom, bright blue-white at top
+      const grad = ctx.createLinearGradient(x, y, x, floorY);
+      grad.addColorStop(0,   'rgba(147,197,253,0.95)');
+      grad.addColorStop(0.3, 'rgba(59,130,246,0.85)');
+      grad.addColorStop(1,   'rgba(29,78,216,0.30)');
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(96,165,250,0.70)';
+      ctx.shadowBlur  = 14 * window.devicePixelRatio;
+
+      // Rounded top corners
+      const r = Math.min(barW * 0.3, 5 * window.devicePixelRatio);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + barW - r, y);
+      ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+      ctx.lineTo(x + barW, floorY);
+      ctx.lineTo(x, floorY);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Top cap glow highlight
+      if (barH > 4) {
+        const capGrad = ctx.createLinearGradient(x, y, x + barW, y);
+        capGrad.addColorStop(0, 'rgba(255,255,255,0)');
+        capGrad.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+        capGrad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = capGrad;
+        ctx.fillRect(x, y, barW, Math.min(3 * window.devicePixelRatio, barH));
+      }
+
+      ctx.restore();
+    });
+
+    // Draw line chart over bars — connects bar tops
+    ctx.save();
+    ctx.shadowColor = 'rgba(200,230,255,0.90)';
+    ctx.shadowBlur  = 10 * window.devicePixelRatio;
+    ctx.strokeStyle = 'rgba(200,228,255,0.85)';
+    ctx.lineWidth   = 1.8 * window.devicePixelRatio;
+    ctx.lineJoin    = 'round';
+    ctx.lineCap     = 'round';
+
+    ctx.beginPath();
+    BARS.forEach((bar, i) => {
+      const x    = gap + i * (barW + gap) + barW / 2;
+      const barH = current[i] * maxBarH;
+      const y    = floorY - barH;
+      if (i === 0) ctx.moveTo(x, y);
+      else         ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    // Glowing dot at the latest (rightmost) bar top
+    const lastI  = BARS.length - 1;
+    const dotX   = gap + lastI * (barW + gap) + barW / 2;
+    const dotY   = floorY - current[lastI] * maxBarH;
+    if (current[lastI] > 0.01) {
+      ctx.save();
+      const dotGrad = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 10 * window.devicePixelRatio);
+      dotGrad.addColorStop(0, 'rgba(255,255,255,1)');
+      dotGrad.addColorStop(0.3, 'rgba(147,197,253,0.9)');
+      dotGrad.addColorStop(1, 'rgba(37,99,235,0)');
+      ctx.fillStyle = dotGrad;
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, 10 * window.devicePixelRatio, 0, Math.PI * 2);
+      ctx.fill();
+      // Inner solid dot
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, 3 * window.devicePixelRatio, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Floor line
+    ctx.save();
+    const floorGrad = ctx.createLinearGradient(0, floorY, W, floorY);
+    floorGrad.addColorStop(0, 'rgba(147,197,253,0)');
+    floorGrad.addColorStop(0.3, 'rgba(147,197,253,0.25)');
+    floorGrad.addColorStop(1, 'rgba(147,197,253,0.05)');
+    ctx.strokeStyle = floorGrad;
+    ctx.lineWidth = 1 * window.devicePixelRatio;
+    ctx.beginPath();
+    ctx.moveTo(0, floorY);
+    ctx.lineTo(W, floorY);
+    ctx.stroke();
+    ctx.restore();
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  // Start when section enters viewport
+  const ctaSection = canvas.closest('section');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        startTime = null;
+        phaseStart = null;
+        phase = 'rise';
+        current.fill(0);
+        requestAnimationFrame(drawFrame);
+        observer.unobserve(ctaSection);
+      }
+    });
+  }, { threshold: 0.3 });
+  if (ctaSection) observer.observe(ctaSection);
+  else requestAnimationFrame(drawFrame);
+
+})();
+</script>
+
+<script is:inline>
+  (() => {
+    const capCards = document.querySelectorAll('.cap-card');
+    if (!capCards.length) return;
+
+    let hasAnimatedIn = false;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          hasAnimatedIn = true;
+          entry.target.classList.remove('cap-out');
+          entry.target.classList.add('cap-in');
+        } else if (hasAnimatedIn) {
+          entry.target.classList.remove('cap-in');
+          entry.target.classList.add('cap-out');
+        }
+      });
+    }, {
+      threshold: 0.18,
+      rootMargin: '0px 0px -60px 0px'
+    });
+
+    capCards.forEach(card => obs.observe(card));
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    const cards = document.querySelectorAll('.metric-card');
+    if (!cards.length) return;
+
+    let hasAnimatedIn = false;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          hasAnimatedIn = true;
+          entry.target.classList.remove('metric-out');
+          entry.target.classList.add('metric-in');
+        } else if (hasAnimatedIn) {
+          entry.target.classList.remove('metric-in');
+          entry.target.classList.add('metric-out');
+        }
+      });
+    }, {
+      threshold: 0.3,
+      rootMargin: '0px 0px -80px 0px'
+    });
+
+    cards.forEach(card => obs.observe(card));
+  })();
+</script>
+
+<script is:inline>
+(() => {
+
+  /* -- Seed testimonials -- */
+  const SEED = [
+    {
+      quote: "Execution quality improved quickly once the funnel, creatives, and reporting were aligned under one operating rhythm.",
+      name: "Placeholder Client",
+      role: "Commercial Director",
+      company: "Regional Services Group"
+    },
+    {
+      quote: "Campaign decisions became easier because tracking and lead-quality signals were finally consistent across teams.",
+      name: "Placeholder Stakeholder",
+      role: "Marketing Head",
+      company: "Growth Portfolio"
+    },
+    {
+      quote: "The Meta campaigns went from guesswork to a repeatable system within the first month. CPL dropped by over 30%.",
+      name: "Nour Al Rashid",
+      role: "Head of Growth",
+      company: "Dubai Realty Group"
+    },
+    {
+      quote: "Our content pipeline was chaos before this. Now we have a weekly cadence, clear briefs, and measurable reach.",
+      name: "Sara Khalid",
+      role: "Brand Manager",
+      company: "UAE Lifestyle Co."
+    },
+    {
+      quote: "He delivered the WordPress plugin system in two weeks. It handles lead intake, scoring, and routing automatically.",
+      name: "Omar Faris",
+      role: "CTO",
+      company: "PropTech Ventures"
+    },
+    {
+      quote: "Working across three brands simultaneously, he kept every campaign aligned and reporting clean. Rare operational skill.",
+      name: "Layla Al Mansoori",
+      role: "VP Marketing",
+      company: "Al Noor Holdings"
+    }
+  ];
+
+  function getInitial(name) {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  function buildCard(t, isNew = false) {
+    const div = document.createElement('div');
+    div.className = 'testi-card' + (isNew ? ' testi-new' : '');
+    div.innerHTML = `
+      <div style="font-size:2rem; color:rgba(147,197,253,0.20); font-family:'Sora',sans-serif; line-height:1; margin-bottom:1rem; select:none;">&ldquo;</div>
+      <p style="font-size:0.9rem; color:#cbd5e1; line-height:1.7; font-style:italic; margin-bottom:1.5rem;">${t.quote}</p>
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+          font-size:0.75rem; font-weight:700; color:#fff; flex-shrink:0;
+          background:linear-gradient(135deg,rgba(37,99,235,0.7),rgba(147,197,253,0.4));
+          border:1px solid rgba(147,197,253,0.20);">
+          ${getInitial(t.name)}
+        </div>
+        <div>
+          <p style="font-size:0.85rem; font-weight:600; color:#f1f5f9;">${t.name}</p>
+          <p style="font-size:0.75rem; color:#64748b;">${t.role} &middot; ${t.company}</p>
+        </div>
+      </div>
+    `;
+    return div;
+  }
+
+  function loadUserTestimonials() {
+    try {
+      return JSON.parse(localStorage.getItem('user_testimonials') || '[]');
+    } catch { return []; }
+  }
+
+  function saveUserTestimonials(arr) {
+    try { localStorage.setItem('user_testimonials', JSON.stringify(arr)); } catch {}
+  }
+
+  function populateTrack() {
+    const track = document.getElementById('testi-track');
+    if (!track) return;
+    track.innerHTML = '';
+
+    const userTestis = loadUserTestimonials();
+    const all = [...SEED, ...userTestis];
+
+    // Double the array for seamless loop
+    [...all, ...all].forEach(t => {
+      track.appendChild(buildCard(t));
+    });
+  }
+
+  function addNewCard(t) {
+    const userTestis = loadUserTestimonials();
+    userTestis.push(t);
+    saveUserTestimonials(userTestis);
+
+    const track = document.getElementById('testi-track');
+    if (!track) return;
+
+    // Insert two copies (for both halves of the loop) before the midpoint
+    const allCards = track.children;
+    const mid = Math.floor(allCards.length / 2);
+
+    const card1 = buildCard(t, true);
+    const card2 = buildCard(t, false);
+
+    track.insertBefore(card1, allCards[mid] || null);
+    track.appendChild(card2);
+  }
+
+  /* -- Modal logic -- */
+  function openModal() {
+    const m = document.getElementById('testi-modal');
+    if (m) { m.style.display = 'flex'; m.style.setProperty('display','flex','important'); }
+  }
+  function closeModal() {
+    const m = document.getElementById('testi-modal');
+    if (m) { m.style.setProperty('display','none','important'); }
+    const s = document.getElementById('testi-success');
+    if (s) s.style.display = 'none';
+    ['testi-name','testi-role','testi-quote'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    populateTrack();
+
+    const openBtn   = document.getElementById('testi-open-btn');
+    const closeBtn  = document.getElementById('testi-close-btn');
+    const cancelBtn = document.getElementById('testi-cancel-btn');
+    const submitBtn = document.getElementById('testi-submit-btn');
+    const modal     = document.getElementById('testi-modal');
+
+    if (openBtn)   openBtn.addEventListener('click', openModal);
+    if (closeBtn)  closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (modal)     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        const name  = document.getElementById('testi-name')?.value.trim();
+        const role  = document.getElementById('testi-role')?.value.trim();
+        const quote = document.getElementById('testi-quote')?.value.trim();
+
+        if (!name || !quote) {
+          if (!name) document.getElementById('testi-name').style.borderColor = 'rgba(239,68,68,0.6)';
+          if (!quote) document.getElementById('testi-quote').style.borderColor = 'rgba(239,68,68,0.6)';
+          return;
+        }
+
+        const parts = role ? role.split('·') : ['', ''];
+        const t = {
+          quote,
+          name,
+          role: (parts[0] || role || 'Client').trim(),
+          company: (parts[1] || 'UAE').trim()
+        };
+
+        addNewCard(t);
+
+        const success = document.getElementById('testi-success');
+        if (success) success.style.display = 'block';
+        submitBtn.textContent = '✓ Added';
+        submitBtn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+
+        setTimeout(() => {
+          closeModal();
+          submitBtn.textContent = 'Submit testimonial';
+          submitBtn.style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)';
+        }, 1800);
+      });
+    }
+  });
+
+})();
+</script>
 
 <script is:inline>
   (() => {
@@ -786,8 +1338,8 @@ const personJsonLd = {
         }
       });
     }, {
-      threshold: 0.08,
-      rootMargin: '0px 0px -60px 0px'
+      threshold: 0.15,
+      rootMargin: '0px 0px -120px 0px'
     });
 
     obs.observe(section);
@@ -796,7 +1348,7 @@ const personJsonLd = {
 <style>
 
   /* ------------------------------------------------
-     TICKER ï¿½ 3 ROWS, EACH A CONTINUOUS LOOP
+     TICKER � 3 ROWS, EACH A CONTINUOUS LOOP
   ------------------------------------------------ */
 
   /* Outer wrapper clips overflow */
@@ -805,7 +1357,7 @@ const personJsonLd = {
     width: 100%;
   }
 
-  /* Row: single flex line, no wrapping ï¿½ CRITICAL */
+  /* Row: single flex line, no wrapping � CRITICAL */
   .ticker-row {
     display: flex;
     flex-direction: row;
@@ -827,7 +1379,7 @@ const personJsonLd = {
 
   /* Seamless loop keyframe
      -25% = one copy of the list (4 copies total, so 1/4 = 25%)
-     When it snaps from -25% back to 0 the content is identical ï¿½ invisible jump */
+     When it snaps from -25% back to 0 the content is identical � invisible jump */
   @keyframes marqueeLeft {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-25%); }
@@ -839,7 +1391,7 @@ const personJsonLd = {
   ------------------------------------------------ */
 
   .ticker-item {
-    /* Stays on one line ï¿½ CRITICAL */
+    /* Stays on one line � CRITICAL */
     display: inline-flex;
     flex-shrink: 0;
     white-space: nowrap;
@@ -853,7 +1405,7 @@ const personJsonLd = {
     text-transform: uppercase;
     color: rgba(92, 107, 128, 0.85);
 
-    /* Glow animation ï¿½ delay set per item via CSS var */
+    /* Glow animation � delay set per item via CSS var */
     animation: itemGlow 9s ease-in-out infinite;
     animation-delay: var(--glow-delay, 0s);
     animation-fill-mode: both;
@@ -971,6 +1523,256 @@ const personJsonLd = {
     transform: scale(0.99);
   }
 
+  /* -- METRICS CARDS -- 4 unique entrance animations -- */
+
+  .metric-card {
+    opacity: 0;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .metric-drop {
+    transform: translateY(-40px) rotateX(25deg);
+    transition: opacity 0.7s, transform 0.7s;
+    transform-origin: top center;
+  }
+  .metric-drop.metric-in {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+
+  .metric-slide-left {
+    transform: translateX(-50px) scale(0.92);
+    transition: opacity 0.65s 0.1s, transform 0.65s 0.1s;
+  }
+  .metric-slide-left.metric-in {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  .metric-rise {
+    transform: translateY(40px);
+    filter: blur(4px);
+    transition: opacity 0.7s 0.2s, transform 0.7s 0.2s, filter 0.7s 0.2s;
+  }
+  .metric-rise.metric-in {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+
+  .metric-slide-right {
+    transform: translateX(50px) rotateY(15deg);
+    transition: opacity 0.65s 0.3s, transform 0.65s 0.3s;
+    transform-origin: right center;
+  }
+  .metric-slide-right.metric-in {
+    opacity: 1;
+    transform: translateX(0) rotateY(0deg);
+  }
+
+  /* -- METRIC CARDS OUT -- */
+  .metric-drop.metric-out {
+    opacity: 0;
+    transform: translateY(-50px) rotateX(35deg) scale(0.9);
+    filter: blur(3px);
+    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.3s ease;
+  }
+  .metric-slide-left.metric-out {
+    opacity: 0;
+    transform: translateX(-40px) scale(0.93);
+    filter: blur(2px);
+    transition: opacity 0.38s ease 0.05s, transform 0.38s ease 0.05s, filter 0.3s ease 0.05s;
+  }
+  .metric-rise.metric-out {
+    opacity: 0;
+    transform: translateY(45px);
+    filter: blur(4px);
+    transition: opacity 0.4s ease 0.08s, transform 0.4s ease 0.08s, filter 0.35s ease 0.08s;
+  }
+  .metric-slide-right.metric-out {
+    opacity: 0;
+    transform: translateX(40px) rotateY(10deg);
+    filter: blur(2px);
+    transition: opacity 0.38s ease 0.12s, transform 0.38s ease 0.12s, filter 0.3s ease 0.12s;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-4px) !important;
+    transition: transform 0.3s ease !important;
+  }
+  .metric-card:hover p:first-child {
+    text-shadow: 0 0 30px rgba(147,197,253,0.5), 0 0 60px rgba(37,99,235,0.25);
+  }
+
+  /* CAPABILITIES -- 6 UNIQUE 3D CARD ANIMATIONS */
+
+  .cap-card {
+    opacity: 0;
+    will-change: transform, opacity, filter;
+  }
+
+  .cap-card-0 {
+    transform: translateY(-120px) rotateX(60deg) scale(0.8);
+    filter: blur(3px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+      transform 0.7s cubic-bezier(0.34,1.56,0.64,1),
+      filter 0.5s ease;
+    transform-origin: top center;
+    transform-style: preserve-3d;
+  }
+  .cap-card-0.cap-in {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) scale(1);
+    filter: blur(0);
+  }
+
+  .cap-card-1 {
+    transform: translateX(80px) rotateY(-90deg) scale(0.85);
+    filter: blur(4px);
+    transition:
+      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s,
+      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s,
+      filter 0.5s ease 0.1s;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+  }
+  .cap-card-1.cap-in {
+    opacity: 1;
+    transform: translateX(0) rotateY(0deg) scale(1);
+    filter: blur(0);
+  }
+
+  .cap-card-2 {
+    transform: scale(0.3) rotate(-12deg);
+    filter: blur(8px) brightness(2);
+    transition:
+      opacity 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s,
+      transform 0.8s cubic-bezier(0.34,1.4,0.64,1) 0.2s,
+      filter 0.6s ease 0.2s;
+    transform-origin: center center;
+  }
+  .cap-card-2.cap-in {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: blur(0) brightness(1);
+  }
+
+  .cap-card-3 {
+    transform: translateY(100px) rotateX(-50deg) scale(0.9);
+    filter: blur(5px);
+    transition:
+      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.15s,
+      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.15s,
+      filter 0.5s ease 0.15s;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+  }
+  .cap-card-3.cap-in {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) scale(1);
+    filter: blur(0);
+  }
+
+  .cap-card-4 {
+    transform: scale(1.35) rotate(8deg) skewX(-8deg);
+    filter: blur(6px) saturate(2);
+    transition:
+      opacity 0.8s cubic-bezier(0.22,1,0.36,1) 0.25s,
+      transform 0.8s cubic-bezier(0.34,1.3,0.64,1) 0.25s,
+      filter 0.6s ease 0.25s;
+  }
+  .cap-card-4.cap-in {
+    opacity: 1;
+    transform: scale(1) rotate(0deg) skewX(0deg);
+    filter: blur(0) saturate(1);
+  }
+
+  .cap-card-5 {
+    transform: translateX(-80px) rotateY(90deg) scale(0.85);
+    filter: blur(4px);
+    transition:
+      opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s,
+      transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.3s,
+      filter 0.5s ease 0.3s;
+    transform-origin: right center;
+    transform-style: preserve-3d;
+  }
+  .cap-card-5.cap-in {
+    opacity: 1;
+    transform: translateX(0) rotateY(0deg) scale(1);
+    filter: blur(0);
+  }
+
+  /* -- CAP CARDS OUT -- each exits opposite to how it entered -- */
+
+  .cap-card-0.cap-out {
+    opacity: 0;
+    transform: translateY(-80px) rotateX(40deg) scale(0.88);
+    filter: blur(3px);
+    transition: opacity 0.42s ease, transform 0.42s ease, filter 0.32s ease;
+  }
+
+  .cap-card-1.cap-out {
+    opacity: 0;
+    transform: translateX(60px) rotateY(-60deg) scale(0.88);
+    filter: blur(3px);
+    transition: opacity 0.40s ease 0.05s, transform 0.40s ease 0.05s, filter 0.30s ease 0.05s;
+  }
+
+  .cap-card-2.cap-out {
+    opacity: 0;
+    transform: scale(0.4) rotate(8deg);
+    filter: blur(6px) brightness(1.8);
+    transition: opacity 0.44s ease 0.08s, transform 0.44s ease 0.08s, filter 0.34s ease 0.08s;
+  }
+
+  .cap-card-3.cap-out {
+    opacity: 0;
+    transform: translateY(70px) rotateX(-35deg) scale(0.91);
+    filter: blur(3px);
+    transition: opacity 0.42s ease 0.04s, transform 0.42s ease 0.04s, filter 0.32s ease 0.04s;
+  }
+
+  .cap-card-4.cap-out {
+    opacity: 0;
+    transform: scale(1.2) rotate(5deg) skewX(-5deg);
+    filter: blur(5px) saturate(1.8);
+    transition: opacity 0.44s ease 0.10s, transform 0.44s ease 0.10s, filter 0.34s ease 0.10s;
+  }
+
+  .cap-card-5.cap-out {
+    opacity: 0;
+    transform: translateX(-60px) rotateY(60deg) scale(0.88);
+    filter: blur(3px);
+    transition: opacity 0.40s ease 0.14s, transform 0.40s ease 0.14s, filter 0.30s ease 0.14s;
+  }
+
+  .cap-card.cap-out:hover { transform: none !important; }
+
+  .cap-card-0:hover { transform: translateY(-6px) rotateX(4deg) !important; }
+  .cap-card-1:hover { transform: translateY(-6px) rotateY(-4deg) !important; }
+  .cap-card-2:hover { transform: translateY(-6px) rotate(1deg) scale(1.02) !important; }
+  .cap-card-3:hover { transform: translateY(-6px) rotateX(-4deg) !important; }
+  .cap-card-4:hover { transform: translateY(-6px) skewX(1deg) scale(1.02) !important; }
+  .cap-card-5:hover { transform: translateY(-6px) rotateY(4deg) !important; }
+
+  .cap-card {
+    transition-property: transform, box-shadow;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+  }
+  .cap-card:hover {
+    box-shadow: 0 0 0 1px rgba(147,197,253,0.25),
+                0 24px 60px rgba(0,0,0,0.5),
+                0 0 40px rgba(37,99,235,0.12);
+  }
+
+  .cap-card-0, .cap-card-1, .cap-card-2,
+  .cap-card-3, .cap-card-4, .cap-card-5 {
+    perspective: 800px;
+  }
+
 
   /* ------------------------------------------------
      HERO PHOTO ORBIT RINGS (keep if already present)
@@ -982,17 +1784,17 @@ const personJsonLd = {
 
   /* --- DOT ORBITS ---------------------------- */
 
-  /* Dot 1 ï¿½ 170px radius */
+  /* Dot 1 � 170px radius */
   
 
-  /* Dot 2 ï¿½ 140px radius */
+  /* Dot 2 � 140px radius */
   
 
-  /* Dot 3 ï¿½ 110px radius */
+  /* Dot 3 � 110px radius */
   
 
   /* ------------------------------------------------
-     HERO CENTERED ï¿½ NEW STYLES
+     HERO CENTERED � NEW STYLES
   ------------------------------------------------ */
 
   /* Scroll indicator pulse */
@@ -1034,12 +1836,12 @@ const personJsonLd = {
   }
 
   /* ------------------------------------------------ 
-     HERO VIEWPORT FIT ï¿½ MOBILE OVERRIDES
+     HERO VIEWPORT FIT � MOBILE OVERRIDES
   ------------------------------------------------ */
 
   /* Hide summary and CTAs on mobile to keep headline visible */
   @media (max-width: 639px) {
-    /* Summary stays ï¿½ just tighter */
+    /* Summary stays � just tighter */
     .hero-summary { margin-top: 8px; }
 
     /* CTA pill smaller on mobile */
@@ -1062,29 +1864,134 @@ const personJsonLd = {
      FEATURED WORK ? SCROLL ANIMATIONS
   ------------------------------------------------ */
 
-  /* Initial hidden states before animation */
-  .work-left        { opacity: 0; transform: translateX(-50px); }
-  .work-card-1      { opacity: 0; transform: translateX(60px) translateY(20px); }
-  .work-card-2      { opacity: 0; transform: translateX(60px) translateY(30px); }
-  .work-card-3      { opacity: 0; transform: translateY(60px); }
-  .work-card-center { opacity: 0; transform: translateY(40px) scale(0.96); }
-  .work-card-4      { opacity: 0; transform: translateY(-40px); }
+  /* WORK SECTION -- IN + OUT ANIMATIONS */
 
-  /* Animated IN state */
-  .work-left.work-in        { opacity: 1; transform: translateX(0); transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1); }
-  .work-card-1.work-in      { opacity: 1; transform: translateX(0) translateY(0); transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.10s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.10s; }
-  .work-card-2.work-in      { opacity: 1; transform: translateX(0) translateY(0); transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.22s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.22s; }
-  .work-card-3.work-in      { opacity: 1; transform: translateY(0); transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.14s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.14s; }
-  .work-card-center.work-in { opacity: 1; transform: translateY(0) scale(1); transition: opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.06s, transform 0.80s cubic-bezier(0.22,1,0.36,1) 0.06s; }
-  .work-card-4.work-in      { opacity: 1; transform: translateY(0); transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.26s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.26s; }
+  .work-left        { opacity: 0; transform: translateX(-80px) rotateY(15deg); filter: blur(3px); }
+  .work-card-1      { opacity: 0; transform: translateX(70px) translateY(30px) rotateX(12deg); filter: blur(2px); }
+  .work-card-2      { opacity: 0; transform: translateX(70px) translateY(40px) rotateY(-18deg); filter: blur(3px); }
+  .work-card-3      { opacity: 0; transform: translateY(80px) rotateX(-15deg) scale(0.93); filter: blur(2px); }
+  .work-card-center { opacity: 0; transform: translateY(60px) scale(0.88) rotate(-2deg); filter: blur(4px); }
+  .work-card-4      { opacity: 0; transform: translateY(-70px) rotateX(20deg) scale(0.92); filter: blur(3px); }
 
-  /* Animated OUT state (section leaving) */
-  .work-left.work-out        { opacity: 0; transform: translateX(-30px); transition: opacity 0.5s ease, transform 0.5s ease; }
-  .work-card-1.work-out      { opacity: 0; transform: translateX(30px); transition: opacity 0.45s ease 0.05s, transform 0.45s ease 0.05s; }
-  .work-card-2.work-out      { opacity: 0; transform: translateX(30px); transition: opacity 0.45s ease 0.10s, transform 0.45s ease 0.10s; }
-  .work-card-3.work-out      { opacity: 0; transform: translateY(30px); transition: opacity 0.4s ease, transform 0.4s ease; }
-  .work-card-center.work-out { opacity: 0; transform: scale(0.97); transition: opacity 0.4s ease 0.04s, transform 0.4s ease 0.04s; }
-  .work-card-4.work-out      { opacity: 0; transform: translateY(-20px); transition: opacity 0.4s ease 0.08s, transform 0.4s ease 0.08s; }
+  .work-left.work-in {
+    opacity: 1;
+    transform: translateX(0) rotateY(0deg);
+    filter: blur(0);
+    transition:
+      opacity 0.85s cubic-bezier(0.22,1,0.36,1),
+      transform 0.85s cubic-bezier(0.22,1,0.36,1),
+      filter 0.6s ease;
+  }
+
+  .work-card-1.work-in {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotateX(0deg);
+    filter: blur(0);
+    transition:
+      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.08s,
+      transform 0.80s cubic-bezier(0.34,1.3,0.64,1) 0.08s,
+      filter 0.55s ease 0.08s;
+  }
+
+  .work-card-2.work-in {
+    opacity: 1;
+    transform: translateX(0) translateY(0) rotateY(0deg);
+    filter: blur(0);
+    transition:
+      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.18s,
+      transform 0.80s cubic-bezier(0.22,1,0.36,1) 0.18s,
+      filter 0.55s ease 0.18s;
+  }
+
+  .work-card-3.work-in {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) scale(1);
+    filter: blur(0);
+    transition:
+      opacity 0.85s cubic-bezier(0.22,1,0.36,1) 0.10s,
+      transform 0.85s cubic-bezier(0.34,1.4,0.64,1) 0.10s,
+      filter 0.6s ease 0.10s;
+  }
+
+  .work-card-center.work-in {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+    filter: blur(0);
+    transition:
+      opacity 0.90s cubic-bezier(0.22,1,0.36,1) 0.05s,
+      transform 0.90s cubic-bezier(0.34,1.25,0.64,1) 0.05s,
+      filter 0.65s ease 0.05s;
+  }
+
+  .work-card-4.work-in {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg) scale(1);
+    filter: blur(0);
+    transition:
+      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.22s,
+      transform 0.80s cubic-bezier(0.34,1.3,0.64,1) 0.22s,
+      filter 0.55s ease 0.22s;
+  }
+
+  .work-left.work-out {
+    opacity: 0;
+    transform: translateX(-60px) rotateY(10deg);
+    filter: blur(2px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s ease,
+      filter 0.35s ease;
+  }
+
+  .work-card-1.work-out {
+    opacity: 0;
+    transform: translateX(50px) translateY(-25px) rotateX(8deg);
+    filter: blur(2px);
+    transition:
+      opacity 0.40s ease 0.04s,
+      transform 0.40s ease 0.04s,
+      filter 0.3s ease 0.04s;
+  }
+
+  .work-card-2.work-out {
+    opacity: 0;
+    transform: translateX(50px) rotateY(-12deg);
+    filter: blur(2px);
+    transition:
+      opacity 0.40s ease 0.08s,
+      transform 0.40s ease 0.08s,
+      filter 0.3s ease 0.08s;
+  }
+
+  .work-card-3.work-out {
+    opacity: 0;
+    transform: translateY(50px) rotateX(-10deg) scale(0.95);
+    filter: blur(2px);
+    transition:
+      opacity 0.40s ease 0.02s,
+      transform 0.40s ease 0.02s,
+      filter 0.3s ease 0.02s;
+  }
+
+  .work-card-center.work-out {
+    opacity: 0;
+    transform: translateY(40px) scale(0.92) rotate(1deg);
+    filter: blur(3px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s ease,
+      filter 0.35s ease;
+  }
+
+  .work-card-4.work-out {
+    opacity: 0;
+    transform: translateY(-50px) rotateX(14deg) scale(0.94);
+    filter: blur(2px);
+    transition:
+      opacity 0.40s ease 0.06s,
+      transform 0.40s ease 0.06s,
+      filter 0.3s ease 0.06s;
+  }
 
   /* Card hover glow */
   .work-card-1:hover,
@@ -1123,7 +2030,55 @@ const personJsonLd = {
   from { transform: rotate(0deg) translateX(79px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(79px) rotate(-360deg); }
 }
+
+  /* -- TESTIMONIAL MARQUEE -- */
+  .testi-track {
+    animation: testiScroll 55s linear infinite;
+    will-change: transform;
+  }
+  .testi-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes testiScroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .testi-card {
+    flex-shrink: 0;
+    width: 360px;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(20px);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    cursor: default;
+  }
+  .testi-card:hover {
+    border-color: rgba(147,197,253,0.25);
+    box-shadow: 0 0 0 1px rgba(147,197,253,0.10), 0 20px 50px rgba(0,0,0,0.4);
+    transform: translateY(-4px);
+  }
+  .testi-card.testi-new {
+    border-color: rgba(37,99,235,0.45);
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.20), 0 0 30px rgba(37,99,235,0.15);
+    animation: newCardPop 0.6s cubic-bezier(0.34,1.5,0.64,1) forwards;
+  }
+  @keyframes newCardPop {
+    from { opacity: 0; transform: scale(0.85) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  #testi-modal[style*="flex"] { display: flex !important; }
+  #testi-name:focus, #testi-role:focus, #testi-quote:focus {
+    border-color: rgba(147,197,253,0.40) !important;
+    outline: none;
+  }
+  #testi-open-btn:hover {
+    background: rgba(37,99,235,0.30) !important;
+    border-color: rgba(37,99,235,0.60) !important;
+  }
 </style>
+
 
 
 
