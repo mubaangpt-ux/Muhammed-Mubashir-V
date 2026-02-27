@@ -3168,7 +3168,6 @@ const personJsonLd = {
   .work-card-center,
   .work-card-4 {
     will-change: transform, opacity, filter;
-    transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
@@ -3185,20 +3184,16 @@ const personJsonLd = {
   .testi-track,
   .ticker-row {
     will-change: transform;
-    transform: translateZ(0);
     contain: layout style;
   }
 
   .hero-portrait-layer img {
     will-change: transform, filter;
-    transform: translateZ(0);
   }
 
   #cta-graph-canvas,
   #star-canvas {
     will-change: transform;
-    transform: translateZ(0);
-    image-rendering: pixelated;
   }
 
   .work-card-center {
@@ -3299,7 +3294,6 @@ const personJsonLd = {
   }
   .testi-row {
     will-change: transform;
-    transform: translateZ(0);
     backface-visibility: hidden;
   }
   .testi-card-v2 {
@@ -3414,7 +3408,6 @@ const personJsonLd = {
   /* Browser only repaints the section that changed */
   section {
     contain: layout style;
-    transform: translateZ(0);
   }
 
   /* Card grids: isolated layout — child changes don't bubble up */

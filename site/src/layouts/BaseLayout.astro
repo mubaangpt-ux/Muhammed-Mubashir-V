@@ -104,7 +104,7 @@ const isActive = (href: string) =>
         --dur-cinema: 1.6s;
 
         /* GPU compositing defaults */
-        --gpu: translateZ(0);
+        --gpu: none;
       }
 
       /* ── FORCE GPU LAYERS — NEVER animate margin/padding/width/height ── */
@@ -125,44 +125,32 @@ const isActive = (href: string) =>
       .work-card-3,
       .work-card-center,
       .work-card-4 {
-        transform: var(--gpu);
         will-change: transform, opacity;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        contain: layout style paint;
       }
 
       /* Scrolling containers: own compositor layer */
       .testi-row,
       .testi-track,
       .ticker-row {
-        transform: var(--gpu);
         will-change: transform;
         backface-visibility: hidden;
-        contain: layout style;
       }
 
       /* Hero: isolated paint context */
       .hero-section {
-        contain: layout style paint;
         isolation: isolate;
-        transform: var(--gpu);
       }
 
       /* Sticky header: own layer */
       header, nav {
-        transform: var(--gpu);
-        will-change: transform;
         backface-visibility: hidden;
-        contain: layout style paint;
       }
 
       /* Canvas elements: GPU rendered */
       canvas {
-        transform: var(--gpu);
         will-change: transform;
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
       }
 
       @keyframes onlineHeartbeat {
@@ -206,12 +194,10 @@ const isActive = (href: string) =>
       }
 
       /* Force GPU layer for animated elements — eliminates paint lag */
-      .hero-section,
       .testi-track,
       .ticker-row,
       canvas {
         will-change: transform;
-        transform: translateZ(0);
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
       }
@@ -232,9 +218,7 @@ const isActive = (href: string) =>
 
       /* Eliminate paint on scroll for fixed/sticky elements */
       header {
-        will-change: transform;
-        transform: translateZ(0);
-        contain: layout style paint;
+        will-change: auto;
       }
       /* ── SPLASH SCREEN ── */
       @keyframes splashBeam {
@@ -291,24 +275,11 @@ const isActive = (href: string) =>
       }
 
       /* Force 60fps GPU compositing on all animated elements */
-      *[style*="animation"],
-      *[style*="transition"],
-      .reveal,
-      .metric-card,
-      .cap-card,
-      .work-left,
-      .work-card-1,
-      .work-card-2,
-      .work-card-3,
-      .work-card-center,
-      .work-card-4,
-      .testi-card,
-      .testi-track,
       .orbit-dot,
       .orbit-ring,
+      .testi-track,
+      .ticker-row,
       canvas {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
       }
@@ -324,7 +295,6 @@ const isActive = (href: string) =>
 
       /* Contain paint to reduce repaint area */
       .hero-section {
-        contain: layout style paint;
         isolation: isolate;
       }
     </style>
@@ -1128,42 +1098,6 @@ const isActive = (href: string) =>
     })();
     </script>
     <script is:inline src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.js"></script>
-    <script is:inline>
-      (function initLenis() {
-        // Dynamically import Lenis only after page is interactive
-        if (!('requestIdleCallback' in window)) {
-          window.requestIdleCallback = (cb) => setTimeout(cb, 1);
-        }
-
-        requestIdleCallback(() => {
-          import('https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.mjs').then(({ default: Lenis }) => {
-            const lenis = new Lenis({
-              duration: 1.25,
-              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-              smoothWheel: true,
-              syncTouch: false,
-              touchMultiplier: 1.8,
-            });
-
-            // Store globally so other scripts can access scroll values
-            window.__lenis = lenis;
-
-            // Tick with rAF
-            function raf(time) {
-              lenis.raf(time);
-              requestAnimationFrame(raf);
-            }
-            requestAnimationFrame(raf);
-
-            // Emit scroll value as CSS variable — zero JS style thrashing
-            lenis.on('scroll', ({ scroll, progress }) => {
-              document.documentElement.style.setProperty('--scroll-y', scroll + 'px');
-              document.documentElement.style.setProperty('--scroll-progress', progress.toFixed(4));
-            });
-          });
-        }, { timeout: 500 });
-      })();
-    </script>
   </body>
 </html>
 
