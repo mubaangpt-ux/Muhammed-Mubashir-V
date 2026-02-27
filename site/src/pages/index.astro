@@ -424,12 +424,12 @@ const personJsonLd = {
     </div>
 
     <!-- Grid -->
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="cap-bento-grid mt-12">
       {profile.capabilities.map((cap, i) => (
         <div
           class={`cap-card cap-card-${i} glass-panel ring-hover rounded-2xl p-6 group cursor-default`}
           data-cap-index={String(i)}
-          style="transition: all 0.3s cubic-bezier(0.22,1,0.36,1);"
+          style={`grid-area: c${i}; transition: all 0.3s cubic-bezier(0.22,1,0.36,1);`}
         >
           <div class="flex items-start justify-between mb-4">
             <span class="text-2xl text-accent-soft/60 font-mono group-hover:text-accent-soft transition-colors">
@@ -746,14 +746,10 @@ const personJsonLd = {
 </section>
 
 
-<!-- ----------------------------------------------
-     TESTIMONIALS
------------------------------------------------ -->
-<section class="py-20 section-border overflow-hidden">
+<!-- TESTIMONIALS — 3-ROW PARALLAX SCROLL -->
+<section class="py-20 section-border overflow-hidden" id="testi-section">
   <div class="mx-auto max-w-6xl px-4">
-
-    <!-- Header row -->
-    <div class="reveal mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-delay="0.05">
+    <div class="reveal mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6" data-delay="0.05">
       <div>
         <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Testimonials</p>
         <h2 class="font-display font-semibold text-white"
@@ -761,20 +757,29 @@ const personJsonLd = {
           What partners say
         </h2>
       </div>
-
-      <!-- Submit button -->
       <button id="testi-open-btn"
-        class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-white self-start sm:self-auto"
-        style="background: rgba(37,99,235,0.18); border: 1px solid rgba(37,99,235,0.40); backdrop-filter: blur(12px); transition: all 0.25s ease; flex-shrink: 0;">
+        class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-white self-start sm:self-auto flex-shrink-0"
+        style="background: rgba(37,99,235,0.18); border: 1px solid rgba(37,99,235,0.40); backdrop-filter: blur(12px); transition: all 0.25s ease;">
         <span style="color:#93c5fd;">&#43;</span> Leave a testimonial
       </button>
     </div>
   </div>
 
-  <!-- Marquee track â€” full bleed -->
-  <div class="relative" style="mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);">
-    <div id="testi-track" class="testi-track flex gap-5" style="width: max-content;">
-      <!-- Cards injected by JS -->
+  <!-- ROW 1 — scrolls right -->
+  <div class="testi-row-wrap mb-4" style="mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%); -webkit-mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%);">
+    <div class="testi-row" id="testi-row-1" data-direction="1" style="display:flex; gap:14px; width:max-content;">
+    </div>
+  </div>
+
+  <!-- ROW 2 — scrolls left -->
+  <div class="testi-row-wrap mb-4" style="mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%); -webkit-mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%);">
+    <div class="testi-row" id="testi-row-2" data-direction="-1" style="display:flex; gap:14px; width:max-content;">
+    </div>
+  </div>
+
+  <!-- ROW 3 — scrolls right -->
+  <div class="testi-row-wrap" style="mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%); -webkit-mask-image: linear-gradient(90deg,transparent 0%,black 6%,black 94%,transparent 100%);">
+    <div class="testi-row" id="testi-row-3" data-direction="1" style="display:flex; gap:14px; width:max-content;">
     </div>
   </div>
 
@@ -784,59 +789,76 @@ const personJsonLd = {
     </p>
   </div>
 
-  <!-- Submit modal -->
-  <div id="testi-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none !important; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+  <!-- SUBMIT MODAL -->
+  <div id="testi-modal" style="display:none; position:fixed; inset:0; z-index:50; align-items:center; justify-content:center; padding:1rem; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);">
     <div class="relative w-full max-w-md rounded-2xl p-8"
-      style="background: rgba(12,18,40,0.98); border: 1px solid rgba(147,197,253,0.20); box-shadow: 0 32px 80px rgba(0,0,0,0.6);">
-
-      <!-- Close -->
-      <button id="testi-close-btn" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors text-lg">&#215;</button>
-
+      style="background:rgba(12,18,40,0.98); border:1px solid rgba(147,197,253,0.20); box-shadow:0 32px 80px rgba(0,0,0,0.6);">
+      <button id="testi-close-btn" style="position:absolute; top:1rem; right:1rem; color:#64748b; font-size:1.2rem; background:none; border:none; cursor:pointer;">&#215;</button>
       <h3 class="font-display font-semibold text-white text-lg mb-6">Share your experience</h3>
+
+      <!-- Photo upload area -->
+      <div class="mb-5">
+        <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-2">Photo (optional)</label>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div id="testi-avatar-preview" style="
+            width:52px; height:52px; border-radius:50%; overflow:hidden; flex-shrink:0;
+            background:linear-gradient(135deg,rgba(37,99,235,0.7),rgba(147,197,253,0.4));
+            border:1px solid rgba(147,197,253,0.25);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.1rem; font-weight:700; color:#fff;
+            font-family:'DM Mono',monospace;">
+            ?
+          </div>
+          <label for="testi-photo-input" style="
+            display:inline-flex; align-items:center; gap:6px;
+            padding:6px 14px; border-radius:99px; cursor:pointer;
+            background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+            color:#94a3b8; font-size:0.72rem; font-family:'DM Mono',monospace;
+            letter-spacing:0.05em; text-transform:uppercase; transition:all 0.2s ease;">
+            &#8679; Upload photo
+          </label>
+          <input id="testi-photo-input" type="file" accept="image/*" style="display:none;" />
+        </div>
+      </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your name</label>
           <input id="testi-name" type="text" placeholder="e.g. Ahmed Al Mansouri"
             class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
-            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
-          />
+            style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); transition:border-color 0.2s ease;" />
         </div>
         <div>
           <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your role &amp; company</label>
-          <input id="testi-role" type="text" placeholder="e.g. Marketing Director Â· XYZ Group"
+          <input id="testi-role" type="text" placeholder="e.g. Marketing Director · XYZ Group"
             class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
-            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
-          />
+            style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); transition:border-color 0.2s ease;" />
         </div>
         <div>
           <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your testimonial</label>
           <textarea id="testi-quote" rows="4" placeholder="What was your experience working together?"
             class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none resize-none"
-            style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
-          ></textarea>
+            style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); transition:border-color 0.2s ease;"></textarea>
         </div>
       </div>
 
-      <div class="flex items-center gap-3 mt-6">
+      <div class="flex gap-3 mt-6">
         <button id="testi-submit-btn"
           class="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02]"
-          style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 20px rgba(37,99,235,0.4);">
+          style="background:linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 4px 20px rgba(37,99,235,0.4);">
           Submit testimonial
         </button>
         <button id="testi-cancel-btn"
           class="rounded-xl px-5 py-2.5 text-sm text-slate-400 hover:text-white transition-colors"
-          style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+          style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08);">
           Cancel
         </button>
       </div>
-
       <p id="testi-success" class="mt-4 text-sm text-green-400 font-mono text-center" style="display:none;">
         &#10003; Thank you! Your testimonial has been added.
       </p>
     </div>
   </div>
-
 </section>
 
 
@@ -2107,133 +2129,198 @@ const personJsonLd = {
 <script is:inline>
 (() => {
 
-  /* -- Seed testimonials -- */
+  /* ── Seed data ── */
   const SEED = [
-    {
-      quote: "Execution quality improved quickly once the funnel, creatives, and reporting were aligned under one operating rhythm.",
-      name: "Placeholder Client",
-      role: "Commercial Director",
-      company: "Regional Services Group"
-    },
-    {
-      quote: "Campaign decisions became easier because tracking and lead-quality signals were finally consistent across teams.",
-      name: "Placeholder Stakeholder",
-      role: "Marketing Head",
-      company: "Growth Portfolio"
-    },
-    {
-      quote: "The Meta campaigns went from guesswork to a repeatable system within the first month. CPL dropped by over 30%.",
-      name: "Nour Al Rashid",
-      role: "Head of Growth",
-      company: "Dubai Realty Group"
-    },
-    {
-      quote: "Our content pipeline was chaos before this. Now we have a weekly cadence, clear briefs, and measurable reach.",
-      name: "Sara Khalid",
-      role: "Brand Manager",
-      company: "UAE Lifestyle Co."
-    },
-    {
-      quote: "He delivered the WordPress plugin system in two weeks. It handles lead intake, scoring, and routing automatically.",
-      name: "Omar Faris",
-      role: "CTO",
-      company: "PropTech Ventures"
-    },
-    {
-      quote: "Working across three brands simultaneously, he kept every campaign aligned and reporting clean. Rare operational skill.",
-      name: "Layla Al Mansoori",
-      role: "VP Marketing",
-      company: "Al Noor Holdings"
-    }
+    { quote: "Execution quality improved quickly once the funnel, creatives, and reporting were aligned under one operating rhythm.", name: "Placeholder Client",     role: "Commercial Director",  company: "Regional Services Group",  photo: null },
+    { quote: "Campaign decisions became easier because tracking and lead-quality signals were finally consistent across teams.",    name: "Placeholder Stakeholder", role: "Marketing Head",       company: "Growth Portfolio",          photo: null },
+    { quote: "The Meta campaigns went from guesswork to a repeatable system within the first month. CPL dropped by over 30%.",     name: "Nour Al Rashid",          role: "Head of Growth",       company: "Dubai Realty Group",         photo: null },
+    { quote: "Our content pipeline was chaos before this. Now we have a weekly cadence, clear briefs, and measurable reach.",      name: "Sara Khalid",             role: "Brand Manager",        company: "UAE Lifestyle Co.",          photo: null },
+    { quote: "He delivered the WordPress plugin system in two weeks. It handles lead intake, scoring, and routing automatically.", name: "Omar Faris",              role: "CTO",                  company: "PropTech Ventures",          photo: null },
+    { quote: "Working across three brands simultaneously, he kept every campaign aligned and reporting clean. Rare operational skill.", name: "Layla Al Mansoori",  role: "VP Marketing",         company: "Al Noor Holdings",           photo: null },
+    { quote: "The tracking setup gave us visibility we never had. Decision speed improved dramatically within weeks.",             name: "Khalid Hassan",           role: "Performance Lead",     company: "Growth Studio Dubai",        photo: null },
+    { quote: "Creative briefs, content calendar, and ad copy all integrated into one system. Saved us 12 hours a week.",          name: "Reem Al Farsi",           role: "Head of Content",      company: "MENA Media Group",           photo: null },
+    { quote: "Funnel architecture was rebuilt from scratch. Lead quality improved by 40% in the first campaign cycle.",           name: "Faisal Al Tamimi",        role: "Digital Director",     company: "Apex Real Estate",           photo: null },
   ];
 
-  function getInitial(name) {
-    return name ? name.charAt(0).toUpperCase() : '?';
+  function getInitial(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
+
+  function getUserTestis() {
+    try { return JSON.parse(localStorage.getItem('user_testimonials_v2') || '[]'); } catch { return []; }
+  }
+  function saveUserTestis(arr) {
+    try { localStorage.setItem('user_testimonials_v2', JSON.stringify(arr)); } catch {}
   }
 
-  function buildCard(t, isNew = false) {
+  function buildCard(t, isNew) {
     const div = document.createElement('div');
-    div.className = 'testi-card' + (isNew ? ' testi-new' : '');
+    div.className = 'testi-card-v2' + (isNew ? ' testi-new-v2' : '');
+
+    const avatarHTML = t.photo
+      ? `<img src="${t.photo}" alt="${t.name}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid rgba(147,197,253,0.25);flex-shrink:0;" />`
+      : `<div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,rgba(37,99,235,0.7),rgba(147,197,253,0.4));border:1px solid rgba(147,197,253,0.20);">${getInitial(t.name)}</div>`;
+
     div.innerHTML = `
-      <div style="font-size:2rem; color:rgba(147,197,253,0.20); font-family:'Sora',sans-serif; line-height:1; margin-bottom:1rem; select:none;">&ldquo;</div>
-      <p style="font-size:0.9rem; color:#cbd5e1; line-height:1.7; font-style:italic; margin-bottom:1.5rem;">${t.quote}</p>
-      <div style="display:flex; align-items:center; gap:0.75rem;">
-        <div style="width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-          font-size:0.75rem; font-weight:700; color:#fff; flex-shrink:0;
-          background:linear-gradient(135deg,rgba(37,99,235,0.7),rgba(147,197,253,0.4));
-          border:1px solid rgba(147,197,253,0.20);">
-          ${getInitial(t.name)}
-        </div>
+      <div style="font-size:1.6rem;color:rgba(147,197,253,0.18);line-height:1;margin-bottom:0.7rem;user-select:none;">&ldquo;</div>
+      <p style="font-size:0.82rem;color:#cbd5e1;line-height:1.65;font-style:italic;margin-bottom:1.1rem;">${t.quote}</p>
+      <div style="display:flex;align-items:center;gap:0.65rem;">
+        ${avatarHTML}
         <div>
-          <p style="font-size:0.85rem; font-weight:600; color:#f1f5f9;">${t.name}</p>
-          <p style="font-size:0.75rem; color:#64748b;">${t.role} &middot; ${t.company}</p>
+          <p style="font-size:0.8rem;font-weight:600;color:#f1f5f9;">${t.name}</p>
+          <p style="font-size:0.7rem;color:#64748b;">${t.role} &middot; ${t.company}</p>
         </div>
-      </div>
-    `;
+      </div>`;
     return div;
   }
 
-  function loadUserTestimonials() {
-    try {
-      return JSON.parse(localStorage.getItem('user_testimonials') || '[]');
-    } catch { return []; }
+  /* ── Split into 3 rows ── */
+  function distributeToRows(all) {
+    const rows = [[], [], []];
+    all.forEach((t, i) => rows[i % 3].push(t));
+    return rows;
   }
 
-  function saveUserTestimonials(arr) {
-    try { localStorage.setItem('user_testimonials', JSON.stringify(arr)); } catch {}
-  }
-
-  function populateTrack() {
-    const track = document.getElementById('testi-track');
-    if (!track) return;
-    track.innerHTML = '';
-
-    const userTestis = loadUserTestimonials();
-    const all = [...SEED, ...userTestis];
-
-    // Double the array for seamless loop
-    [...all, ...all].forEach(t => {
-      track.appendChild(buildCard(t));
+  function populateRows() {
+    const all = [...SEED, ...getUserTestis()];
+    const [r1, r2, r3] = distributeToRows(all);
+    const rowData = [
+      { id: 'testi-row-1', items: r1 },
+      { id: 'testi-row-2', items: r2 },
+      { id: 'testi-row-3', items: r3 },
+    ];
+    rowData.forEach(({ id, items }) => {
+      const row = document.getElementById(id);
+      if (!row) return;
+      row.innerHTML = '';
+      // Triple for seamless infinite loop
+      [...items, ...items, ...items].forEach(t => row.appendChild(buildCard(t, false)));
     });
   }
 
-  function addNewCard(t) {
-    const userTestis = loadUserTestimonials();
-    userTestis.push(t);
-    saveUserTestimonials(userTestis);
+  /* ── Parallax + auto-scroll ── */
+  const rows = [];
+  let lastScrollY = window.scrollY;
+  let animFrame;
 
-    const track = document.getElementById('testi-track');
-    if (!track) return;
-
-    // Insert two copies (for both halves of the loop) before the midpoint
-    const allCards = track.children;
-    const mid = Math.floor(allCards.length / 2);
-
-    const card1 = buildCard(t, true);
-    const card2 = buildCard(t, false);
-
-    track.insertBefore(card1, allCards[mid] || null);
-    track.appendChild(card2);
+  function initRows() {
+    ['testi-row-1', 'testi-row-2', 'testi-row-3'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const direction = i % 2 === 0 ? 1 : -1;
+      const cardW = 314; // card width + gap
+      const singleW = el.children.length / 3 * cardW;
+      rows.push({ el, direction, x: i % 2 === 0 ? 0 : -singleW, singleW, speed: 0.28 + i * 0.06 });
+    });
   }
 
-  /* -- Modal logic -- */
+  function tick() {
+    const currentScrollY = window.scrollY;
+    const scrollDelta = currentScrollY - lastScrollY;
+    lastScrollY = currentScrollY;
+
+    // Check if in viewport
+    const section = document.getElementById('testi-section');
+    if (section) {
+      const rect = section.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+
+      rows.forEach(row => {
+        // Auto-scroll: slow constant drift
+        row.x += row.direction * row.speed;
+        // Scroll parallax: extra push based on scroll direction
+        row.x += row.direction * scrollDelta * 0.4;
+
+        // Seamless loop
+        if (row.direction > 0 && row.x > 0) row.x -= row.singleW;
+        if (row.direction < 0 && row.x < -row.singleW * 2) row.x += row.singleW;
+
+        row.el.style.transform = `translateX(${row.x}px) translateZ(0)`;
+      });
+    }
+
+    animFrame = requestAnimationFrame(tick);
+  }
+
+  /* ── Modal logic ── */
+  let uploadedPhotoData = null;
+
   function openModal() {
     const m = document.getElementById('testi-modal');
-    if (m) { m.style.display = 'flex'; m.style.setProperty('display','flex','important'); }
+    if (m) { m.style.display = 'flex'; }
   }
   function closeModal() {
     const m = document.getElementById('testi-modal');
-    if (m) { m.style.setProperty('display','none','important'); }
+    if (m) m.style.display = 'none';
+    uploadedPhotoData = null;
+    const preview = document.getElementById('testi-avatar-preview');
+    if (preview) { preview.innerHTML = '?'; preview.style.backgroundImage = ''; }
     const s = document.getElementById('testi-success');
     if (s) s.style.display = 'none';
     ['testi-name','testi-role','testi-quote'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.value = '';
+      if (el) { el.value = ''; el.style.borderColor = ''; }
+    });
+    const submitBtn = document.getElementById('testi-submit-btn');
+    if (submitBtn) { submitBtn.textContent = 'Submit testimonial'; submitBtn.style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)'; }
+  }
+
+  function addNewCard(t) {
+    const userT = getUserTestis();
+    userT.push(t);
+    saveUserTestis(userT);
+
+    // Add to the shortest row
+    const rowEls = ['testi-row-1','testi-row-2','testi-row-3'].map(id => document.getElementById(id));
+    const shortest = rowEls.reduce((a, b) => (a && b && a.children.length <= b.children.length ? a : b));
+    if (shortest) {
+      const card = buildCard(t, true);
+      shortest.appendChild(buildCard(t, false)); // second copy for loop
+      shortest.insertBefore(card, shortest.firstChild);
+    }
+
+    // Update singleW for all rows
+    rows.forEach(row => {
+      const cardW = 314;
+      row.singleW = Math.floor(row.el.children.length / 3) * cardW;
     });
   }
 
+  /* ── Photo upload handler ── */
+  function initPhotoUpload() {
+    const input = document.getElementById('testi-photo-input');
+    const preview = document.getElementById('testi-avatar-preview');
+    const nameInput = document.getElementById('testi-name');
+
+    if (input) {
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          uploadedPhotoData = ev.target.result;
+          if (preview) {
+            preview.innerHTML = '';
+            preview.style.cssText += `background-image:url(${uploadedPhotoData});background-size:cover;background-position:center;`;
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Update initial letter in preview when name typed
+    if (nameInput && preview) {
+      nameInput.addEventListener('input', () => {
+        if (!uploadedPhotoData) {
+          preview.innerHTML = getInitial(nameInput.value) || '?';
+        }
+      });
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
-    populateTrack();
+    populateRows();
+    initRows();
+    requestAnimationFrame(tick);
+    initPhotoUpload();
 
     const openBtn   = document.getElementById('testi-open-btn');
     const closeBtn  = document.getElementById('testi-close-btn');
@@ -2252,32 +2339,28 @@ const personJsonLd = {
         const role  = document.getElementById('testi-role')?.value.trim();
         const quote = document.getElementById('testi-quote')?.value.trim();
 
-        if (!name || !quote) {
-          if (!name) document.getElementById('testi-name').style.borderColor = 'rgba(239,68,68,0.6)';
-          if (!quote) document.getElementById('testi-quote').style.borderColor = 'rgba(239,68,68,0.6)';
-          return;
-        }
+        const nameEl  = document.getElementById('testi-name');
+        const quoteEl = document.getElementById('testi-quote');
+        if (!name)  { if (nameEl)  nameEl.style.borderColor  = 'rgba(239,68,68,0.6)'; }
+        if (!quote) { if (quoteEl) quoteEl.style.borderColor = 'rgba(239,68,68,0.6)'; }
+        if (!name || !quote) return;
 
-        const parts = role ? role.split('Â·') : ['', ''];
+        const parts = role ? role.split('·') : ['', ''];
         const t = {
           quote,
           name,
           role: (parts[0] || role || 'Client').trim(),
-          company: (parts[1] || 'UAE').trim()
+          company: (parts[1] || 'UAE').trim(),
+          photo: uploadedPhotoData || null,
         };
 
         addNewCard(t);
 
         const success = document.getElementById('testi-success');
         if (success) success.style.display = 'block';
-        submitBtn.textContent = 'âœ“ Added';
+        submitBtn.textContent = '✓ Added';
         submitBtn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
-
-        setTimeout(() => {
-          closeModal();
-          submitBtn.textContent = 'Submit testimonial';
-          submitBtn.style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)';
-        }, 1800);
+        setTimeout(closeModal, 1800);
       });
     }
   });
@@ -3129,6 +3212,122 @@ const personJsonLd = {
   #testi-open-btn:hover {
     background: rgba(37,99,235,0.30) !important;
     border-color: rgba(37,99,235,0.60) !important;
+  }
+
+  /* ── TESTIMONIALS 3-ROW ── */
+  .testi-row-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+  .testi-row {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  .testi-card-v2 {
+    flex-shrink: 0;
+    width: 300px;
+    border-radius: 1rem;
+    padding: 1.4rem 1.6rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    backdrop-filter: blur(20px);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    cursor: default;
+    position: relative;
+  }
+  .testi-card-v2:hover {
+    border-color: rgba(147,197,253,0.25);
+    box-shadow: 0 0 0 1px rgba(147,197,253,0.10), 0 16px 40px rgba(0,0,0,0.4);
+    transform: translateY(-3px);
+  }
+  .testi-card-v2.testi-new-v2 {
+    border-color: rgba(37,99,235,0.5);
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.25), 0 0 28px rgba(37,99,235,0.15);
+    animation: newCardPopV2 0.6s cubic-bezier(0.34,1.5,0.64,1) forwards;
+  }
+  @keyframes newCardPopV2 {
+    from { opacity:0; transform:scale(0.85) translateY(18px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+  #testi-modal.testi-open {
+    display: flex !important;
+  }
+  #testi-photo-input + label:hover,
+  label[for="testi-photo-input"]:hover {
+    background: rgba(255,255,255,0.10) !important;
+    color: #cbd5e1 !important;
+  }
+
+  /* ── CAPABILITIES BENTO GRID ── */
+  .cap-bento-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "c0  c1  c2"
+      "c0  c4  c2"
+      "c3  c4  c5";
+  }
+
+  /* Card 0 (Growth & Performance) — tall left, spans 2 rows */
+  .cap-bento-grid [style*="grid-area: c0"] {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  /* Card 1 (Tracking & Analytics) — top middle, normal */
+  .cap-bento-grid [style*="grid-area: c1"] {
+    min-height: 180px;
+  }
+
+  /* Card 2 (Web Systems) — tall right, spans 2 rows */
+  .cap-bento-grid [style*="grid-area: c2"] {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  /* Card 3 (Content & Creative) — bottom left, compact */
+  .cap-bento-grid [style*="grid-area: c3"] {
+    min-height: 160px;
+  }
+
+  /* Card 4 (Digital Operations) — center tall, spans 2 rows */
+  .cap-bento-grid [style*="grid-area: c4"] {
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* Card 5 (Web App & Plugin Dev) — bottom right, compact */
+  .cap-bento-grid [style*="grid-area: c5"] {
+    min-height: 160px;
+  }
+
+  /* Mobile: stack all cards single column */
+  @media (max-width: 767px) {
+    .cap-bento-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: unset;
+      grid-template-areas:
+        "c0"
+        "c1"
+        "c2"
+        "c3"
+        "c4"
+        "c5";
+    }
+    .cap-bento-grid [style*="grid-area: c0"],
+    .cap-bento-grid [style*="grid-area: c2"],
+    .cap-bento-grid [style*="grid-area: c4"] {
+      min-height: 220px;
+    }
   }
 </style>
 
