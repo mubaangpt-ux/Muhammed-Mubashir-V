@@ -94,7 +94,7 @@ const personJsonLd = {
 
   <!-- STAGE: rings + portrait share same container so they stay aligned -->
   <div class="relative flex items-end justify-center mx-auto"
-    style="z-index: 1; width: 100%; height: clamp(300px, 40vh, 420px); margin-bottom: -24px;">
+    style="z-index: 1; width: 100%; height: clamp(300px, 40vh, 420px); margin-bottom: -8px;">
 
     <!-- ORBITAL RINGS: fixed 360x360, centered in stage -->
     <div class="absolute pointer-events-none"
@@ -116,7 +116,7 @@ const personJsonLd = {
     </div>
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
-    <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(200px, 26vw, 270px); height: 100%; flex-shrink: 0;">
+    <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(260px, 32vw, 340px); height: 100%; flex-shrink: 0;">
       <img
         src="/profile.png"
         alt="Muhammed Mubashir V"
@@ -150,7 +150,7 @@ const personJsonLd = {
     <div class="relative w-full flex flex-col items-center" style="isolation: isolate;">
 
       <!-- Dark shade behind name -->
-      <div class="absolute pointer-events-none" style="inset-inline: 0; top: -20px; bottom: -10px; background: radial-gradient(ellipse 70% 100% at 50% 60%, rgba(7,9,15,0.60) 0%, rgba(7,9,15,0.35) 40%, transparent 100%); z-index: 0;"></div>
+      <div class="absolute pointer-events-none" style="inset-inline: 0; top: -120px; bottom: 0; background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(7,9,15,0.65) 0%, rgba(7,9,15,0.40) 35%, transparent 75%); z-index: 0;"></div>
 
       <!-- Name H1 -->
       <div class="reveal" data-delay="0.15" style="position: relative; z-index: 2;">
@@ -166,7 +166,7 @@ const personJsonLd = {
       </div>
 
       <!-- GLOW BASELINE -->
-      <div class="hero-glow-baseline reveal mx-auto" data-delay="0.16" style="position: relative; z-index: 2; height: 1px; width: clamp(200px, 55%, 420px); margin-top: 4px; margin-bottom: 0; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 20%, rgba(255,255,255,0.90) 50%, rgba(147,197,253,0.45) 80%, transparent 100%); box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 28px rgba(37,99,235,0.35), 0 2px 40px rgba(37,99,235,0.15);"></div>
+      <div class="hero-glow-baseline reveal mx-auto" data-delay="0.16" style="position: relative; z-index: 2; height: 1px; width: clamp(200px, 55%, 420px); margin-top: 1px; margin-bottom: 0; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 20%, rgba(255,255,255,0.90) 50%, rgba(147,197,253,0.45) 80%, transparent 100%); box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 28px rgba(37,99,235,0.35), 0 2px 40px rgba(37,99,235,0.15);"></div>
     </div>
 
     <!-- ROLE -->
@@ -1111,4 +1111,5 @@ const personJsonLd = {
   to   { transform: rotate(360deg) translateX(79px) rotate(-360deg); }
 }
 </style>
+
 
