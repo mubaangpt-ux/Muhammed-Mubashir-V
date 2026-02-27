@@ -11,21 +11,37 @@ export default defineConfig({
     plugins: [tailwindcss()],
     build: {
       chunkSizeWarningLimit: 1000,
-      cssMinify: true,
+      cssMinify: 'lightningcss',
       minify: 'esbuild',
+      target: 'esnext',
+      modulePreload: { polyfill: false },
       rollupOptions: {
+        treeshake: {
+          preset: 'recommended',
+          moduleSideEffects: false,
+        },
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom'],
-            'motion': ['framer-motion'],
-            'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
-          }
-        }
+          manualChunks(id) {
+            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+            if (id.includes('framer-motion')) return 'motion';
+            if (id.includes('gsap')) return 'gsap';
+            if (id.includes('lenis')) return 'lenis';
+            if (id.includes('lucide')) return 'icons';
+            if (id.includes('three')) return 'three-vendor';
+          },
+          compact: true,
+        },
       }
     },
     optimizeDeps: {
-      include: ['react', 'react-dom', 'framer-motion']
-    }
+      include: ['react', 'react-dom', 'gsap', 'lenis'],
+      exclude: ['@dotlottie/player-component'],
+    },
+    esbuild: {
+      drop: ['console', 'debugger'],
+      legalComments: 'none',
+      target: 'esnext',
+    },
   },
 
   integrations: [react()],

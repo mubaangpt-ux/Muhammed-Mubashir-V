@@ -2059,21 +2059,58 @@ const personJsonLd = {
 
 <script is:inline>
   (() => {
+    if (window.__scheduleWrite) return;
+
+    // ── BATCHED DOM WRITE QUEUE ─────────────────────────
+    // Groups all style mutations into a single rAF write frame
+    // Prevents layout thrashing (read → write → read → write)
+    const _writeQ = [];
+    let _rafScheduled = false;
+
+    window.__scheduleWrite = (fn) => {
+      _writeQ.push(fn);
+      if (!_rafScheduled) {
+        _rafScheduled = true;
+        requestAnimationFrame(() => {
+          _rafScheduled = false;
+          // All writes happen in ONE frame — zero layout thrashing
+          const batch = _writeQ.splice(0);
+          batch.forEach(f => f());
+        });
+      }
+    };
+  })();
+</script>
+
+<script is:inline>
+  (() => {
     const capCards = document.querySelectorAll('.cap-card');
     if (!capCards.length) return;
 
     let hasAnimatedIn = false;
+    const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
 
     const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          hasAnimatedIn = true;
-          entry.target.classList.remove('cap-out');
-          entry.target.classList.add('cap-in');
-        } else if (hasAnimatedIn) {
-          entry.target.classList.remove('cap-in');
-          entry.target.classList.add('cap-out');
-        }
+      const toProcess = entries.map(entry => ({
+        el: entry.target,
+        visible: entry.isIntersecting,
+      }));
+
+      scheduleWrite(() => {
+        toProcess.forEach(({ el, visible }) => {
+          if (visible) {
+            hasAnimatedIn = true;
+            const idx = parseInt(el.dataset.capIndex || '0', 10);
+            const delay = isNaN(idx) ? 0 : Math.min(idx * 60, 300);
+            setTimeout(() => {
+              el.classList.remove('cap-out');
+              el.classList.add('cap-in');
+            }, delay);
+          } else if (hasAnimatedIn) {
+            el.classList.remove('cap-in');
+            el.classList.add('cap-out');
+          }
+        });
       });
     }, {
       threshold: 0.18,
@@ -2087,61 +2124,72 @@ const personJsonLd = {
 <script is:inline>
   (() => {
     // Metric cards with counter reset
+    const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
     document.querySelectorAll('.metric-drop, .metric-slide-left, .metric-rise, .metric-slide-right').forEach(card => {
       let seen = false;
       const inClass = 'metric-in';
       const outClass = 'metric-out';
 
       const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            seen = true;
-            card.classList.remove(outClass);
-            card.classList.add(inClass);
+        const toProcess = entries.map(entry => ({
+          visible: entry.isIntersecting,
+        }));
 
-            // Show orb when this card enters
-            const orb = card.querySelector('#orb-canvas, #orb-lottie');
-            if (orb) orb.style.opacity = '1';
-          const cost = card.querySelector('#cost-canvas');
-          if (cost) cost.style.opacity = '1';
-          const brands = card.querySelector('#brands-canvas');
-          if (brands) brands.style.opacity = '1';
-          const years = card.querySelector('#years-canvas');
-          if (years) years.style.opacity = '1';
+        scheduleWrite(() => {
+          toProcess.forEach(({ visible }) => {
+            if (visible) {
+              seen = true;
+              const idx = parseInt(card.dataset.metric || '0', 10);
+              const delay = isNaN(idx) ? 0 : Math.min(idx * 60, 300);
+              setTimeout(() => {
+                card.classList.remove(outClass);
+                card.classList.add(inClass);
+              }, delay);
 
-            // Reset and restart counter inside this card
-            const counter = card.querySelector('[data-counter-root]');
-            if (counter) {
-              // Dispatch custom event to restart the count
-              counter.dispatchEvent(new CustomEvent('restart-counter', { bubbles: false }));
+              // Show orb when this card enters
+              const orb = card.querySelector('#orb-canvas, #orb-lottie');
+              if (orb) orb.style.opacity = '1';
+              const cost = card.querySelector('#cost-canvas');
+              if (cost) cost.style.opacity = '1';
+              const brands = card.querySelector('#brands-canvas');
+              if (brands) brands.style.opacity = '1';
+              const years = card.querySelector('#years-canvas');
+              if (years) years.style.opacity = '1';
+
+              // Reset and restart counter inside this card
+              const counter = card.querySelector('[data-counter-root]');
+              if (counter) {
+                // Dispatch custom event to restart the count
+                counter.dispatchEvent(new CustomEvent('restart-counter', { bubbles: false }));
+              }
+
+              // Fallback: find the span and trigger intersection re-check
+              // by briefly hiding and re-showing via a class toggle
+              const span = card.querySelector('span');
+              if (span) {
+                const resetObs = new IntersectionObserver((e) => {
+                  if (e[0].isIntersecting) {
+                    // Already handled by AnimatedCounter's own observer
+                  }
+                  resetObs.disconnect();
+                }, { threshold: 0.1 });
+                resetObs.observe(span);
+              }
+            } else if (seen) {
+              card.classList.remove(inClass);
+              card.classList.add(outClass);
+
+              // Hide orb when card exits
+              const orb = card.querySelector('#orb-canvas, #orb-lottie');
+              if (orb) orb.style.opacity = '0';
+              const cost = card.querySelector('#cost-canvas');
+              if (cost) cost.style.opacity = '0';
+              const brands = card.querySelector('#brands-canvas');
+              if (brands) brands.style.opacity = '0';
+              const years = card.querySelector('#years-canvas');
+              if (years) years.style.opacity = '0';
             }
-
-            // Fallback: find the span and trigger intersection re-check
-            // by briefly hiding and re-showing via a class toggle
-            const span = card.querySelector('span');
-            if (span) {
-              const resetObs = new IntersectionObserver((e) => {
-                if (e[0].isIntersecting) {
-                  // Already handled by AnimatedCounter's own observer
-                }
-                resetObs.disconnect();
-              }, { threshold: 0.1 });
-              resetObs.observe(span);
-            }
-          } else if (seen) {
-            card.classList.remove(inClass);
-            card.classList.add(outClass);
-
-            // Hide orb when card exits
-            const orb = card.querySelector('#orb-canvas, #orb-lottie');
-            if (orb) orb.style.opacity = '0';
-          const cost = card.querySelector('#cost-canvas');
-          if (cost) cost.style.opacity = '0';
-          const brands = card.querySelector('#brands-canvas');
-          if (brands) brands.style.opacity = '0';
-          const years = card.querySelector('#years-canvas');
-          if (years) years.style.opacity = '0';
-          }
+          });
         });
       }, { threshold: 0.35, rootMargin: '0px 0px -100px 0px' });
 
@@ -2411,26 +2459,32 @@ const personJsonLd = {
 
     // Track which cards have ever been seen
     const seen = new Set();
+    const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
 
     const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const el = entry.target;
+      const toProcess = entries.map(entry => ({
+        el: entry.target,
+        visible: entry.isIntersecting,
+      }));
 
-        if (entry.isIntersecting) {
-          seen.add(el);
-          // Small delay on first appearance so card is solidly in frame
-          const delay = seen.size === 1 ? 120 : 60;
-          setTimeout(() => {
-            el.classList.remove('work-out');
-            el.classList.add('work-in');
-          }, delay);
-        } else if (seen.has(el)) {
-          // Card has been seen before â€” trigger out animation
-          setTimeout(() => {
-            el.classList.remove('work-in');
-            el.classList.add('work-out');
-          }, 40);
-        }
+      scheduleWrite(() => {
+        toProcess.forEach(({ el, visible }) => {
+          if (visible) {
+            seen.add(el);
+            // Small delay so user sees the fly-in
+            const delay = seen.size === 1 ? 120 : 60;
+            setTimeout(() => {
+              el.classList.remove('work-out');
+              el.classList.add('work-in');
+            }, delay);
+          } else if (seen.has(el)) {
+            // Card has been seen before — trigger out animation
+            setTimeout(() => {
+              el.classList.remove('work-in');
+              el.classList.add('work-out');
+            }, 40);
+          }
+        });
       });
     }, {
       // Lower threshold so card must be well inside viewport before IN fires
@@ -3352,6 +3406,61 @@ const personJsonLd = {
     .cap-bento-grid [style*="grid-area: c4"] {
       min-height: 220px;
     }
+  }
+
+  /* ── LAYOUT CONTAINMENT — limits browser repaint scope ── */
+
+  /* Each section is an isolated paint context */
+  /* Browser only repaints the section that changed */
+  section {
+    contain: layout style;
+    transform: translateZ(0);
+  }
+
+  /* Card grids: isolated layout — child changes don't bubble up */
+  .cap-bento-grid,
+  .glass-panel-ultra {
+    contain: layout style;
+  }
+
+  /* Metric cards grid */
+  .grid-cols-2,
+  .grid-cols-4 {
+    contain: layout;
+  }
+
+  /* ── PREVENT SCROLL JANK ── */
+  /* Touch scroll acceleration */
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  /* Prevent paint during transform animations */
+  .cap-card.cap-in,
+  .cap-card.cap-out,
+  .metric-card.metric-in,
+  .metric-card.metric-out,
+  .work-left.work-in,
+  .work-left.work-out,
+  .work-card-1.work-in, .work-card-1.work-out,
+  .work-card-2.work-in, .work-card-2.work-out,
+  .work-card-3.work-in, .work-card-3.work-out,
+  .work-card-center.work-in, .work-card-center.work-out,
+  .work-card-4.work-in, .work-card-4.work-out {
+    pointer-events: none;
+    contain: layout style paint;
+  }
+
+  /* Re-enable pointer after animation settles */
+  .cap-card.cap-in:not(.animating),
+  .metric-card.metric-in:not(.animating) {
+    pointer-events: auto;
+  }
+
+  /* ── FONT LOADING OPTIMISATION ── */
+  @font-face {
+    font-display: swap;
   }
 </style>
 
