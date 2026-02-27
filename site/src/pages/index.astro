@@ -1,4 +1,4 @@
----
+﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import { profile } from "../data/profile";
@@ -94,7 +94,7 @@ const personJsonLd = {
 
   <!-- STAGE: rings + portrait share same container so they stay aligned -->
   <div class="relative flex items-end justify-center mx-auto"
-    style="z-index: 1; width: 100%; height: clamp(340px, 44vh, 460px); margin-bottom: -175px;">
+    style="z-index: 1; width: 100%; height: clamp(340px, 44vh, 460px); margin-bottom: -155px;">
 
     <!-- ORBITAL RINGS: fixed 360x360, centered in stage -->
     <div class="absolute pointer-events-none"
@@ -117,22 +117,26 @@ const personJsonLd = {
 
     <!-- PORTRAIT: z-index 1, bottom aligned in stage, behind name -->
     <div class="pointer-events-none" style="position: relative; z-index: 1; width: clamp(300px, 38vw, 420px); height: 100%; flex-shrink: 0;">
-      <!-- Colour blend overlay — sits behind portrait via z-index -->
-      <div class="absolute inset-0 pointer-events-none" style="
-        z-index: 0;
-        background:
-          radial-gradient(ellipse 85% 60% at 50% 0%,
-            rgba(37,99,235,0.28) 0%,
-            rgba(96,165,250,0.12) 35%,
-            transparent 70%),
-          radial-gradient(ellipse 50% 40% at 30% 50%,
-            rgba(37,99,235,0.10) 0%,
-            transparent 65%),
-          radial-gradient(ellipse 50% 40% at 70% 50%,
-            rgba(59,130,246,0.08) 0%,
-            transparent 65%);
-        mix-blend-mode: screen;
-      "></div>
+      <img
+        src="/profile.png"
+        alt=""
+        aria-hidden="true"
+        class="absolute inset-0 w-full h-full"
+        style="
+          object-fit: contain;
+          object-position: bottom;
+          z-index: 0;
+          opacity: 0.55;
+          filter:
+            blur(22px)
+            brightness(0.7)
+            saturate(1.4)
+            hue-rotate(-15deg)
+            drop-shadow(0 0 30px rgba(37,99,235,0.8));
+          mix-blend-mode: screen;
+          pointer-events: none;
+        "
+      />
       <img
         src="/profile.png"
         alt="Muhammed Mubashir V"
@@ -140,27 +144,17 @@ const personJsonLd = {
         height="420"
         loading="eager"
         class="block w-full h-full"
-        style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; filter: drop-shadow(0 0 20px rgba(37,99,235,0.65)) drop-shadow(0 0 55px rgba(37,99,235,0.40)) drop-shadow(0 0 100px rgba(96,165,250,0.30)) brightness(1.06) contrast(1.04) saturate(0.88) hue-rotate(-8deg);"
+        style="object-fit: contain; object-position: bottom; mix-blend-mode: screen; z-index: 1; position: relative; filter:
+          drop-shadow(0 0 8px rgba(96,165,250,0.70))
+          drop-shadow(0 0 20px rgba(37,99,235,0.55))
+          drop-shadow(0 0 45px rgba(37,99,235,0.30))
+          drop-shadow(0 0 80px rgba(37,99,235,0.15))
+          brightness(1.05) contrast(1.03) saturate(0.90);"
       />
       <!-- Edge dissolve mask -->
       <div class="absolute inset-0" style="-webkit-mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); -webkit-mask-composite: source-in; mask-image: radial-gradient(ellipse 88% 90% at 50% 40%, black 20%, transparent 72%), linear-gradient(0deg, transparent 0%, black 28%, black 100%); mask-composite: intersect;"></div>
       <!-- Bottom ground fog: portrait feet melt into baseline -->
       <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="height: 38%; background: linear-gradient(0deg, #07090f 0%, #07090f 10%, rgba(7,9,15,0.88) 22%, rgba(7,9,15,0.55) 42%, transparent 100%);"></div>
-      <!-- Rim light — thin glowing edge around portrait sides -->
-      <div class="absolute inset-0 pointer-events-none" style="
-        z-index: 3;
-        background:
-          radial-gradient(ellipse 12% 70% at 2% 45%,
-            rgba(96,165,250,0.35) 0%,
-            transparent 100%),
-          radial-gradient(ellipse 12% 70% at 98% 45%,
-            rgba(96,165,250,0.25) 0%,
-            transparent 100%),
-          radial-gradient(ellipse 60% 15% at 50% 0%,
-            rgba(147,197,253,0.20) 0%,
-            transparent 100%);
-        mix-blend-mode: screen;
-      "></div>
     </div>
     <!-- Full-width ground shadow - extends portrait fade to screen edges -->
     <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="
@@ -214,18 +208,13 @@ const personJsonLd = {
     </div>
 
     <!-- ROLE -->
-    <div class="reveal mt-8" data-delay="0.20">
+    <div class="reveal mt-2" data-delay="0.20">
       <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide">{profile.roleTitle}</p>
     </div>
 
     <!-- DISCIPLINES -->
-    <div class="reveal mt-2" data-delay="0.24">
+    <div class="reveal mt-3" data-delay="0.24">
       <p class="text-xs font-mono tracking-[0.28em] uppercase" style="color: rgba(147,197,253,0.65);">{profile.headline}</p>
-    </div>
-
-    <!-- SUMMARY -->
-    <div class="reveal mt-3" data-delay="0.28">
-      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-lg mx-auto">{profile.summary}</p>
     </div>
 
     <!-- CTAs -->
@@ -265,7 +254,7 @@ const personJsonLd = {
 
 
 <!-- ----------------------------------------------
-     TICKER STRIP � 3 ROW LOOP
+     TICKER STRIP ï¿½ 3 ROW LOOP
 ----------------------------------------------- -->
 <div class="ticker-section relative border-y mt-10" style="border-color: rgba(255,255,255,0.06); overflow: hidden; padding: 8px 0;">
 
@@ -279,7 +268,7 @@ const personJsonLd = {
     style="width: 140px; background: linear-gradient(270deg, #07090f 0%, #07090f 25%, transparent 100%);">
   </div>
 
-  <!-- ROW 1 � Marketing skills, medium speed -->
+  <!-- ROW 1 ï¿½ Marketing skills, medium speed -->
   <div class="ticker-row-wrap" style="padding: 10px 0 6px;">
     <div class="ticker-row row-1">
       {[...tickerRow1, ...tickerRow1, ...tickerRow1, ...tickerRow1].map((item, i) => (
@@ -291,7 +280,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 2 � AI tools, slower -->
+  <!-- ROW 2 ï¿½ AI tools, slower -->
   <div class="ticker-row-wrap" style="padding: 6px 0;">
     <div class="ticker-row row-2">
       {[...tickerRow2, ...tickerRow2, ...tickerRow2, ...tickerRow2].map((item, i) => (
@@ -303,7 +292,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- ROW 3 � Web & design tools, faster -->
+  <!-- ROW 3 ï¿½ Web & design tools, faster -->
   <div class="ticker-row-wrap" style="padding: 6px 0 10px;">
     <div class="ticker-row row-3">
       {[...tickerRow3, ...tickerRow3, ...tickerRow3, ...tickerRow3].map((item, i) => (
@@ -412,7 +401,7 @@ const personJsonLd = {
 
 
 <!-- ----------------------------------------------
-     FEATURED WORK � ALEX MAREX LAYOUT
+     FEATURED WORK ï¿½ ALEX MAREX LAYOUT
 ----------------------------------------------- -->
 <section class="work-section py-24 px-6 section-border" id="work">
   <div class="mx-auto max-w-6xl">
@@ -464,14 +453,14 @@ const personJsonLd = {
       <!-- RIGHT: Two stacked glass cards -->
       <div class="flex flex-col gap-5">
 
-        <!-- Card 1 � 180 Degree -->
+        <!-- Card 1 ï¿½ 180 Degree -->
         <a href="/work/180-degree-meal-planner"
           class="work-card-right work-card-1 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
 
           <!-- Image area -->
           <div class="relative overflow-hidden" style="height: 180px; background: rgba(37,99,235,0.08);">
-            <!-- Placeholder � replace src with real screenshot -->
+            <!-- Placeholder ï¿½ replace src with real screenshot -->
             <div class="w-full h-full flex items-center justify-center"
               style="background: linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(7,9,15,0.8) 100%);">
               <div class="text-center">
@@ -519,7 +508,7 @@ const personJsonLd = {
           </div>
         </a>
 
-        <!-- Card 2 � bluemark -->
+        <!-- Card 2 ï¿½ bluemark -->
         <a href="/work/bluemark-real-estate-leadgen"
           class="work-card-right work-card-2 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
           style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px);">
@@ -579,7 +568,7 @@ const personJsonLd = {
     <!-- --- ROW 2: 3-column stagger (like reference "Features" block) --- -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
 
-      <!-- Left card � offset DOWN -->
+      <!-- Left card ï¿½ offset DOWN -->
       <a href="/work/raslan-bc-growth"
         class="work-card-bottom work-card-3 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-top: 60px;">
@@ -621,11 +610,11 @@ const personJsonLd = {
         </div>
       </a>
 
-      <!-- CENTER image card � tall, no offset -->
+      <!-- CENTER image card ï¿½ tall, no offset -->
       <div class="work-card-bottom work-card-center rounded-2xl overflow-hidden relative"
         style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px); min-height: 380px;">
 
-        <!-- Placeholder center image � replace with your brand/campaign photo -->
+        <!-- Placeholder center image ï¿½ replace with your brand/campaign photo -->
         <div class="w-full h-full absolute inset-0 flex items-center justify-center"
           style="background: linear-gradient(160deg, rgba(37,99,235,0.18) 0%, rgba(7,9,15,0.95) 100%);">
           <div class="text-center p-8">
@@ -664,7 +653,7 @@ const personJsonLd = {
         </div>
       </div>
 
-      <!-- Right card � offset UP -->
+      <!-- Right card ï¿½ offset UP -->
       <a href="/work/raslan-media-content-performance"
         class="work-card-bottom work-card-4 group block rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1"
         style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); backdrop-filter: blur(20px); margin-bottom: 60px;">
@@ -734,7 +723,7 @@ const personJsonLd = {
     </div>
   </div>
 
-  <!-- Marquee track — full bleed -->
+  <!-- Marquee track â€” full bleed -->
   <div class="relative" style="mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%); -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);">
     <div id="testi-track" class="testi-track flex gap-5" style="width: max-content;">
       <!-- Cards injected by JS -->
@@ -767,7 +756,7 @@ const personJsonLd = {
         </div>
         <div>
           <label class="block text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">Your role &amp; company</label>
-          <input id="testi-role" type="text" placeholder="e.g. Marketing Director · XYZ Group"
+          <input id="testi-role" type="text" placeholder="e.g. Marketing Director Â· XYZ Group"
             class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none"
             style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); transition: border-color 0.2s ease;"
           />
@@ -809,7 +798,7 @@ const personJsonLd = {
 <section class="py-20 px-4 section-border">
   <div class="mx-auto max-w-6xl">
     <div class="reveal glass-panel-ultra rounded-3xl relative overflow-hidden" data-delay="0.05"
-      style="min-height: 280px;">
+      style="min-height: 240px;">
 
       <!-- Background glow -->
       <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full pointer-events-none"
@@ -820,8 +809,26 @@ const personJsonLd = {
         style="background: radial-gradient(ellipse 80% 100% at 100% 60%, rgba(37,99,235,0.18) 0%, transparent 65%); filter: blur(20px);">
       </div>
 
+      <!-- Dark shade: full on mobile, left-fade on desktop -->
+      <div class="absolute inset-0 pointer-events-none" style="
+        z-index: 1;
+        background:
+          linear-gradient(90deg,
+            rgba(7,9,15,0.92) 0%,
+            rgba(7,9,15,0.85) 35%,
+            rgba(7,9,15,0.70) 55%,
+            rgba(7,9,15,0.10) 75%,
+            transparent 100%);
+      "></div>
+
+      <!-- Mobile-only: extra full-cover shade so text is readable -->
+      <div class="absolute inset-0 pointer-events-none md:hidden" style="
+        z-index: 1;
+        background: rgba(7,9,15,0.70);
+      "></div>
+
       <!-- Left: text content -->
-      <div class="relative z-10 px-8 py-14 md:px-16 md:py-16 max-w-lg">
+      <div class="relative px-8 py-12 md:px-12 md:py-12 max-w-md" style="z-index: 2;">
         <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-5">Start a Conversation</p>
         <h2 class="font-display font-bold text-white mb-4 text-balance"
           style="font-size: clamp(1.8rem, 3.5vw, 2.8rem); letter-spacing: -0.035em;">
@@ -830,19 +837,19 @@ const personJsonLd = {
         <p class="text-base text-slate-400 leading-relaxed mb-8 max-w-md">
           {profile.finalCta.description}
         </p>
-        <div class="flex flex-wrap gap-4">
+        <div class="flex flex-row flex-wrap gap-3 items-center">
           <a
             href={profile.links.whatsapp}
             target="_blank"
             rel="noreferrer"
-            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.03]"
             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.45), inset 0 1px 0 rgba(255,255,255,0.15);"
           >
             &#8599; Message on WhatsApp
           </a>
           <a
             href="/contact"
-            class="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium text-slate-300 glass-panel ring-hover transition-all duration-300 hover:text-white"
           >
             Open Contact Page &#8594;
           </a>
@@ -851,7 +858,7 @@ const personJsonLd = {
 
       <!-- Right: animated trading graph -->
       <div class="absolute right-0 top-0 bottom-0 pointer-events-none"
-        style="width: 50%; min-width: 280px;
+        style="width: 100%; min-width: 220px;
           mask-image: linear-gradient(90deg, transparent 0%, black 30%, black 100%),
                       linear-gradient(0deg, black 0%, black 80%, transparent 100%);
           -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 30%, black 100%),
@@ -880,7 +887,7 @@ const personJsonLd = {
 
   const ctx = canvas.getContext('2d');
 
-  // Bar data — heights as fractions 0..1, will animate upward
+  // Bar data â€” heights as fractions 0..1, will animate upward
   const BARS = [
     { target: 0.22, delay: 0    },
     { target: 0.30, delay: 0.08 },
@@ -896,7 +903,7 @@ const personJsonLd = {
     { target: 0.92, delay: 0.88 },
   ];
 
-  const TOTAL_DURATION = 3800; // ms — slow rise
+  const TOTAL_DURATION = 3800; // ms â€” slow rise
   const LOOP_PAUSE     = 1800; // ms pause at top before resetting
   let startTime = null;
   let phase = 'rise'; // rise | pause | reset
@@ -939,10 +946,10 @@ const personJsonLd = {
 
     // Layout
     const barCount  = BARS.length;
-    const gap       = W * 0.018;
+    const gap       = W * 0.022;
     const barW      = (W - gap * (barCount + 1)) / barCount;
-    const floorY    = H * 0.88;
-    const maxBarH   = H * 0.80;
+    const floorY    = H * 0.90;
+    const maxBarH   = H * 0.68;
 
     // Draw bars
     BARS.forEach((bar, i) => {
@@ -950,7 +957,7 @@ const personJsonLd = {
       const barH = current[i] * maxBarH;
       const y    = floorY - barH;
 
-      // Bar gradient — dark blue at bottom, bright blue-white at top
+      // Bar gradient â€” dark blue at bottom, bright blue-white at top
       const grad = ctx.createLinearGradient(x, y, x, floorY);
       grad.addColorStop(0,   'rgba(147,197,253,0.95)');
       grad.addColorStop(0.3, 'rgba(59,130,246,0.85)');
@@ -958,7 +965,7 @@ const personJsonLd = {
 
       ctx.save();
       ctx.shadowColor = 'rgba(96,165,250,0.70)';
-      ctx.shadowBlur  = 14 * window.devicePixelRatio;
+      ctx.shadowBlur  = 8 * window.devicePixelRatio;
 
       // Rounded top corners
       const r = Math.min(barW * 0.3, 5 * window.devicePixelRatio);
@@ -987,12 +994,12 @@ const personJsonLd = {
       ctx.restore();
     });
 
-    // Draw line chart over bars — connects bar tops
+    // Draw line chart over bars â€” connects bar tops
     ctx.save();
     ctx.shadowColor = 'rgba(200,230,255,0.90)';
     ctx.shadowBlur  = 10 * window.devicePixelRatio;
     ctx.strokeStyle = 'rgba(200,228,255,0.85)';
-    ctx.lineWidth   = 1.8 * window.devicePixelRatio;
+    ctx.lineWidth   = 1.4 * window.devicePixelRatio;
     ctx.lineJoin    = 'round';
     ctx.lineCap     = 'round';
 
@@ -1013,18 +1020,18 @@ const personJsonLd = {
     const dotY   = floorY - current[lastI] * maxBarH;
     if (current[lastI] > 0.01) {
       ctx.save();
-      const dotGrad = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 10 * window.devicePixelRatio);
+      const dotGrad = ctx.createRadialGradient(dotX, dotY, 0, dotX, dotY, 7 * window.devicePixelRatio);
       dotGrad.addColorStop(0, 'rgba(255,255,255,1)');
       dotGrad.addColorStop(0.3, 'rgba(147,197,253,0.9)');
       dotGrad.addColorStop(1, 'rgba(37,99,235,0)');
       ctx.fillStyle = dotGrad;
       ctx.beginPath();
-      ctx.arc(dotX, dotY, 10 * window.devicePixelRatio, 0, Math.PI * 2);
+      ctx.arc(dotX, dotY, 7 * window.devicePixelRatio, 0, Math.PI * 2);
       ctx.fill();
       // Inner solid dot
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(dotX, dotY, 3 * window.devicePixelRatio, 0, Math.PI * 2);
+      ctx.arc(dotX, dotY, 2 * window.devicePixelRatio, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -1274,7 +1281,7 @@ const personJsonLd = {
           return;
         }
 
-        const parts = role ? role.split('·') : ['', ''];
+        const parts = role ? role.split('Â·') : ['', ''];
         const t = {
           quote,
           name,
@@ -1286,7 +1293,7 @@ const personJsonLd = {
 
         const success = document.getElementById('testi-success');
         if (success) success.style.display = 'block';
-        submitBtn.textContent = '✓ Added';
+        submitBtn.textContent = 'âœ“ Added';
         submitBtn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
 
         setTimeout(() => {
@@ -1303,52 +1310,59 @@ const personJsonLd = {
 
 <script is:inline>
   (() => {
-    const section = document.getElementById('work');
-    if (!section) return;
+    const CARDS = [
+      '.work-left',
+      '.work-card-1',
+      '.work-card-2',
+      '.work-card-3',
+      '.work-card-center',
+      '.work-card-4'
+    ];
 
-    const animateIn = () => {
-      section.querySelectorAll('.work-left, .work-card-1, .work-card-2, .work-card-3, .work-card-center, .work-card-4').forEach(el => {
-        el.classList.remove('work-out');
-        el.classList.add('work-in');
-      });
-    };
+    // Observe EACH card individually so in/out fires per card
+    const allCards = document.querySelectorAll(
+      '.work-left, .work-card-1, .work-card-2, .work-card-3, .work-card-center, .work-card-4'
+    );
+    if (!allCards.length) return;
 
-    const animateOut = (direction) => {
-      section.querySelectorAll('.work-left, .work-card-1, .work-card-2, .work-card-3, .work-card-center, .work-card-4').forEach(el => {
-        el.classList.remove('work-in');
-        el.classList.add('work-out');
-      });
-    };
-
-    let lastY = window.scrollY;
-    let wasVisible = false;
+    // Track which cards have ever been seen
+    const seen = new Set();
 
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        const currentY = window.scrollY;
-        const scrollingDown = currentY > lastY;
-        lastY = currentY;
+        const el = entry.target;
 
         if (entry.isIntersecting) {
-          wasVisible = true;
-          // Slight delay so user sees the fly-in
-          setTimeout(animateIn, 80);
-        } else if (wasVisible) {
-          animateOut(scrollingDown ? 'down' : 'up');
+          seen.add(el);
+          // Small delay on first appearance so card is solidly in frame
+          const delay = seen.size === 1 ? 120 : 60;
+          setTimeout(() => {
+            el.classList.remove('work-out');
+            el.classList.add('work-in');
+          }, delay);
+        } else if (seen.has(el)) {
+          // Card has been seen before â€” trigger out animation
+          setTimeout(() => {
+            el.classList.remove('work-in');
+            el.classList.add('work-out');
+          }, 40);
         }
       });
     }, {
-      threshold: 0.15,
-      rootMargin: '0px 0px -120px 0px'
+      // Lower threshold so card must be well inside viewport before IN fires
+      threshold: [0, 0.25, 0.5],
+      // Negative bottom margin pushes trigger line UP â€” card must scroll
+      // further into view before animating in
+      rootMargin: '0px 0px -180px 0px'
     });
 
-    obs.observe(section);
+    allCards.forEach(card => obs.observe(card));
   })();
 </script></BaseLayout>
 <style>
 
   /* ------------------------------------------------
-     TICKER � 3 ROWS, EACH A CONTINUOUS LOOP
+     TICKER ï¿½ 3 ROWS, EACH A CONTINUOUS LOOP
   ------------------------------------------------ */
 
   /* Outer wrapper clips overflow */
@@ -1357,7 +1371,7 @@ const personJsonLd = {
     width: 100%;
   }
 
-  /* Row: single flex line, no wrapping � CRITICAL */
+  /* Row: single flex line, no wrapping ï¿½ CRITICAL */
   .ticker-row {
     display: flex;
     flex-direction: row;
@@ -1379,7 +1393,7 @@ const personJsonLd = {
 
   /* Seamless loop keyframe
      -25% = one copy of the list (4 copies total, so 1/4 = 25%)
-     When it snaps from -25% back to 0 the content is identical � invisible jump */
+     When it snaps from -25% back to 0 the content is identical ï¿½ invisible jump */
   @keyframes marqueeLeft {
     0%   { transform: translateX(0); }
     100% { transform: translateX(-25%); }
@@ -1391,7 +1405,7 @@ const personJsonLd = {
   ------------------------------------------------ */
 
   .ticker-item {
-    /* Stays on one line � CRITICAL */
+    /* Stays on one line ï¿½ CRITICAL */
     display: inline-flex;
     flex-shrink: 0;
     white-space: nowrap;
@@ -1405,7 +1419,7 @@ const personJsonLd = {
     text-transform: uppercase;
     color: rgba(92, 107, 128, 0.85);
 
-    /* Glow animation � delay set per item via CSS var */
+    /* Glow animation ï¿½ delay set per item via CSS var */
     animation: itemGlow 9s ease-in-out infinite;
     animation-delay: var(--glow-delay, 0s);
     animation-fill-mode: both;
@@ -1784,17 +1798,17 @@ const personJsonLd = {
 
   /* --- DOT ORBITS ---------------------------- */
 
-  /* Dot 1 � 170px radius */
+  /* Dot 1 ï¿½ 170px radius */
   
 
-  /* Dot 2 � 140px radius */
+  /* Dot 2 ï¿½ 140px radius */
   
 
-  /* Dot 3 � 110px radius */
+  /* Dot 3 ï¿½ 110px radius */
   
 
   /* ------------------------------------------------
-     HERO CENTERED � NEW STYLES
+     HERO CENTERED ï¿½ NEW STYLES
   ------------------------------------------------ */
 
   /* Scroll indicator pulse */
@@ -1836,12 +1850,12 @@ const personJsonLd = {
   }
 
   /* ------------------------------------------------ 
-     HERO VIEWPORT FIT � MOBILE OVERRIDES
+     HERO VIEWPORT FIT ï¿½ MOBILE OVERRIDES
   ------------------------------------------------ */
 
   /* Hide summary and CTAs on mobile to keep headline visible */
   @media (max-width: 639px) {
-    /* Summary stays � just tighter */
+    /* Summary stays ï¿½ just tighter */
     .hero-summary { margin-top: 8px; }
 
     /* CTA pill smaller on mobile */
@@ -1878,9 +1892,9 @@ const personJsonLd = {
     transform: translateX(0) rotateY(0deg);
     filter: blur(0);
     transition:
-      opacity 0.85s cubic-bezier(0.22,1,0.36,1),
-      transform 0.85s cubic-bezier(0.22,1,0.36,1),
-      filter 0.6s ease;
+      opacity 1.1s cubic-bezier(0.22,1,0.36,1),
+      transform 1.1s cubic-bezier(0.22,1,0.36,1),
+      filter 0.8s ease;
   }
 
   .work-card-1.work-in {
@@ -1888,9 +1902,9 @@ const personJsonLd = {
     transform: translateX(0) translateY(0) rotateX(0deg);
     filter: blur(0);
     transition:
-      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.08s,
-      transform 0.80s cubic-bezier(0.34,1.3,0.64,1) 0.08s,
-      filter 0.55s ease 0.08s;
+      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.10s,
+      transform 1.0s cubic-bezier(0.34,1.3,0.64,1) 0.10s,
+      filter 0.70s ease 0.10s;
   }
 
   .work-card-2.work-in {
@@ -1898,9 +1912,9 @@ const personJsonLd = {
     transform: translateX(0) translateY(0) rotateY(0deg);
     filter: blur(0);
     transition:
-      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.18s,
-      transform 0.80s cubic-bezier(0.22,1,0.36,1) 0.18s,
-      filter 0.55s ease 0.18s;
+      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.22s,
+      transform 1.0s cubic-bezier(0.22,1,0.36,1) 0.22s,
+      filter 0.70s ease 0.22s;
   }
 
   .work-card-3.work-in {
@@ -1908,9 +1922,9 @@ const personJsonLd = {
     transform: translateY(0) rotateX(0deg) scale(1);
     filter: blur(0);
     transition:
-      opacity 0.85s cubic-bezier(0.22,1,0.36,1) 0.10s,
-      transform 0.85s cubic-bezier(0.34,1.4,0.64,1) 0.10s,
-      filter 0.6s ease 0.10s;
+      opacity 1.1s cubic-bezier(0.22,1,0.36,1) 0.12s,
+      transform 1.1s cubic-bezier(0.34,1.4,0.64,1) 0.12s,
+      filter 0.75s ease 0.12s;
   }
 
   .work-card-center.work-in {
@@ -1918,9 +1932,9 @@ const personJsonLd = {
     transform: translateY(0) scale(1) rotate(0deg);
     filter: blur(0);
     transition:
-      opacity 0.90s cubic-bezier(0.22,1,0.36,1) 0.05s,
-      transform 0.90s cubic-bezier(0.34,1.25,0.64,1) 0.05s,
-      filter 0.65s ease 0.05s;
+      opacity 1.2s cubic-bezier(0.22,1,0.36,1) 0.06s,
+      transform 1.2s cubic-bezier(0.34,1.25,0.64,1) 0.06s,
+      filter 0.85s ease 0.06s;
   }
 
   .work-card-4.work-in {
@@ -1928,9 +1942,9 @@ const personJsonLd = {
     transform: translateY(0) rotateX(0deg) scale(1);
     filter: blur(0);
     transition:
-      opacity 0.80s cubic-bezier(0.22,1,0.36,1) 0.22s,
-      transform 0.80s cubic-bezier(0.34,1.3,0.64,1) 0.22s,
-      filter 0.55s ease 0.22s;
+      opacity 1.0s cubic-bezier(0.22,1,0.36,1) 0.28s,
+      transform 1.0s cubic-bezier(0.34,1.3,0.64,1) 0.28s,
+      filter 0.70s ease 0.28s;
   }
 
   .work-left.work-out {
@@ -1938,9 +1952,9 @@ const personJsonLd = {
     transform: translateX(-60px) rotateY(10deg);
     filter: blur(2px);
     transition:
-      opacity 0.45s ease,
-      transform 0.45s ease,
-      filter 0.35s ease;
+      opacity 0.65s ease,
+      transform 0.65s ease,
+      filter 0.50s ease;
   }
 
   .work-card-1.work-out {
@@ -1948,9 +1962,9 @@ const personJsonLd = {
     transform: translateX(50px) translateY(-25px) rotateX(8deg);
     filter: blur(2px);
     transition:
-      opacity 0.40s ease 0.04s,
-      transform 0.40s ease 0.04s,
-      filter 0.3s ease 0.04s;
+      opacity 0.60s ease 0.05s,
+      transform 0.60s ease 0.05s,
+      filter 0.45s ease 0.05s;
   }
 
   .work-card-2.work-out {
@@ -1958,9 +1972,9 @@ const personJsonLd = {
     transform: translateX(50px) rotateY(-12deg);
     filter: blur(2px);
     transition:
-      opacity 0.40s ease 0.08s,
-      transform 0.40s ease 0.08s,
-      filter 0.3s ease 0.08s;
+      opacity 0.60s ease 0.08s,
+      transform 0.60s ease 0.08s,
+      filter 0.45s ease 0.08s;
   }
 
   .work-card-3.work-out {
@@ -1968,9 +1982,9 @@ const personJsonLd = {
     transform: translateY(50px) rotateX(-10deg) scale(0.95);
     filter: blur(2px);
     transition:
-      opacity 0.40s ease 0.02s,
-      transform 0.40s ease 0.02s,
-      filter 0.3s ease 0.02s;
+      opacity 0.60s ease 0.03s,
+      transform 0.60s ease 0.03s,
+      filter 0.45s ease 0.03s;
   }
 
   .work-card-center.work-out {
@@ -1978,9 +1992,9 @@ const personJsonLd = {
     transform: translateY(40px) scale(0.92) rotate(1deg);
     filter: blur(3px);
     transition:
-      opacity 0.45s ease,
-      transform 0.45s ease,
-      filter 0.35s ease;
+      opacity 0.65s ease,
+      transform 0.65s ease,
+      filter 0.50s ease;
   }
 
   .work-card-4.work-out {
@@ -1988,9 +2002,9 @@ const personJsonLd = {
     transform: translateY(-50px) rotateX(14deg) scale(0.94);
     filter: blur(2px);
     transition:
-      opacity 0.40s ease 0.06s,
-      transform 0.40s ease 0.06s,
-      filter 0.3s ease 0.06s;
+      opacity 0.60s ease 0.08s,
+      transform 0.60s ease 0.08s,
+      filter 0.45s ease 0.08s;
   }
 
   /* Card hover glow */
@@ -2078,6 +2092,7 @@ const personJsonLd = {
     border-color: rgba(37,99,235,0.60) !important;
   }
 </style>
+
 
 
 
