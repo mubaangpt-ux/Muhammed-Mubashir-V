@@ -1,16 +1,11 @@
 ﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
+import CapabilityIcon from "../components/CapabilityIcon";
 import {
   ArrowUpRight,
   ArrowRight,
   MessageCircle,
-  TrendingUp,
-  BarChart3,
-  Globe,
-  Layers,
-  Cpu,
-  Code2,
   Zap,
   ChevronDown,
   ExternalLink,
@@ -24,6 +19,7 @@ import { projects } from "../data/projects";
 import { testimonials } from "../data/testimonials";
 
 const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
+const capabilityIconNames = ["growth", "analytics", "web", "content", "ops", "dev"] as const;
 
 const tickerRow1 = [
   "Meta Ads",
@@ -398,24 +394,27 @@ const personJsonLd = {
 
     <!-- Grid -->
     <div class="cap-bento-grid mt-12">
-      {profile.capabilities.map((cap, i) => (
-        <div
-          class={`cap-card cap-card-${i} glass-panel ring-hover rounded-2xl p-6 group cursor-default`}
-          data-cap-index={String(i)}
-          style={`grid-area: c${i}; transition: all 0.3s cubic-bezier(0.22,1,0.36,1);`}
-        >
-          <div class="flex items-start justify-between mb-4">
-            <div class="cap-icon text-2xl text-accent-soft/60 font-mono group-hover:text-accent-soft transition-colors" style="filter: drop-shadow(0 0 6px rgba(147,197,253,0.4));">
-              {cap.icon}
+      {profile.capabilities.map((cap, i) => {
+        const iconName = capabilityIconNames[i] ?? "growth";
+        return (
+          <div
+            class={`cap-card cap-card-${i} glass-panel ring-hover rounded-2xl p-6 group cursor-default`}
+            data-cap-index={String(i)}
+            style={`grid-area: c${i}; transition: all 0.3s cubic-bezier(0.22,1,0.36,1);`}
+          >
+            <div class="flex items-start justify-between mb-4">
+              <div class="cap-icon text-accent-soft/60 group-hover:text-accent-soft transition-colors" style="filter: drop-shadow(0 0 6px rgba(147,197,253,0.4));">
+                <CapabilityIcon client:visible name={iconName} />
+              </div>
+              <span class="text-xs font-mono text-slate-700 group-hover:text-slate-500 transition-colors">
+                0{i + 1}
+              </span>
             </div>
-            <span class="text-xs font-mono text-slate-700 group-hover:text-slate-500 transition-colors">
-              0{i + 1}
-            </span>
+            <h3 class="font-display font-semibold text-white text-base mb-2">{cap.title}</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">{cap.description}</p>
           </div>
-          <h3 class="font-display font-semibold text-white text-base mb-2">{cap.title}</h3>
-          <p class="text-sm text-slate-400 leading-relaxed">{cap.description}</p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </div>
 </section>

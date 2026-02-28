@@ -1,6 +1,16 @@
 ﻿---
+import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import { profile } from "../data/profile";
+import {
+  ArrowUpRight,
+  Copyright,
+  Instagram,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Sparkles,
+} from "lucide-react";
 
 type JsonLd = Record<string, unknown>;
 
@@ -168,16 +178,44 @@ const isActive = (href: string) =>
         100% { transform: scale(1) rotate(0deg); opacity: 1; }
       }
 
-      /* Arrow icons in buttons — slide on hover */
-      a:hover svg,
-      button:hover svg {
-        animation: iconSlideRight 0.3s cubic-bezier(0.34,1.5,0.64,1) forwards;
+      .lucide {
+        transition:
+          transform 0.28s cubic-bezier(0.34, 1.5, 0.64, 1),
+          filter 0.28s ease,
+          opacity 0.28s ease;
+        transform-origin: center;
       }
 
-      @keyframes iconSlideRight {
-        0%   { transform: translateX(0); }
-        50%  { transform: translateX(3px); }
-        100% { transform: translateX(0); }
+      a:hover .lucide-arrow-right,
+      button:hover .lucide-arrow-right {
+        transform: translateX(3px);
+      }
+
+      a:hover .lucide-arrow-up-right,
+      button:hover .lucide-arrow-up-right,
+      a:hover .lucide-external-link,
+      button:hover .lucide-external-link {
+        transform: translate(2px, -2px);
+      }
+
+      a:hover .lucide-chevron-down,
+      button:hover .lucide-chevron-down {
+        transform: translateY(2px);
+      }
+
+      a:hover .lucide-message-circle,
+      button:hover .lucide-message-circle,
+      a:hover .lucide-mail,
+      button:hover .lucide-mail,
+      a:hover .lucide-instagram,
+      button:hover .lucide-instagram,
+      a:hover .lucide-map-pin,
+      button:hover .lucide-map-pin,
+      a:hover .lucide-copyright,
+      button:hover .lucide-copyright,
+      a:hover .lucide-sparkles,
+      button:hover .lucide-sparkles {
+        transform: scale(1.08);
       }
 
       /* Icon glow on interactive elements */
@@ -186,11 +224,37 @@ const isActive = (href: string) =>
         filter: drop-shadow(0 0 4px rgba(147,197,253,0.6));
       }
 
+      a.inline-flex:hover,
+      button:hover {
+        box-shadow:
+          0 10px 28px rgba(2, 8, 23, 0.28),
+          0 0 0 1px rgba(147,197,253,0.08);
+      }
+
       /* Capability card icon glow */
+      .cap-icon-shell {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.26s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.26s ease;
+        transform-origin: center;
+      }
+
+      .cap-icon-motion {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        will-change: transform;
+      }
+
       .cap-card:hover .cap-icon {
         filter: drop-shadow(0 0 8px rgba(147,197,253,0.7));
-        transform: scale(1.1);
-        transition: filter 0.3s ease, transform 0.3s ease;
+        transition: filter 0.3s ease;
+      }
+
+      .cap-card:hover .cap-icon .cap-icon-shell {
+        transform: scale(1.12);
+        filter: drop-shadow(0 0 10px rgba(147,197,253,0.65));
       }
 
       /* Force GPU layer for animated elements — eliminates paint lag */
@@ -297,7 +361,32 @@ const isActive = (href: string) =>
       .hero-section {
         isolation: isolate;
       }
+
+      /* ── VIEW TRANSITIONS — instant page navigation ── */
+      ::view-transition-old(root) {
+        animation: pageExit 0.18s cubic-bezier(0.22,1,0.36,1) both;
+      }
+      ::view-transition-new(root) {
+        animation: pageEnter 0.22s cubic-bezier(0.22,1,0.36,1) both;
+      }
+
+      @keyframes pageExit {
+        from { opacity: 1; transform: translateY(0) translateZ(0); }
+        to   { opacity: 0; transform: translateY(-8px) translateZ(0); }
+      }
+      @keyframes pageEnter {
+        from { opacity: 0; transform: translateY(8px) translateZ(0); }
+        to   { opacity: 1; transform: translateY(0) translateZ(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none;
+        }
+      }
     </style>
+    <ViewTransitions fallback="none" />
   </head>
     <body class="antialiased">
 
@@ -479,9 +568,7 @@ const isActive = (href: string) =>
             style="color: rgba(147,197,253,0.30);"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
             onmouseout="this.style.color='rgba(147,197,253,0.30)'">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; animation: iconPop 0.4s ease; flex-shrink:0;">
-              <path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/>
-            </svg>
+            <Sparkles size={12} strokeWidth={1.8} className="inline-block shrink-0" />
           </span>
         </a>
 
@@ -510,9 +597,7 @@ const isActive = (href: string) =>
         class="hidden sm:inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-medium font-mono tracking-wider transition-all duration-200 hover:scale-[1.03] justify-self-end"
         style="background: rgba(37,99,235,0.20); border: 1px solid rgba(37,99,235,0.40); color: #93c5fd;"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; animation: iconPop 0.4s ease; flex-shrink:0;">
-            <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
-          </svg>
+          <ArrowUpRight size={13} strokeWidth={2.2} className="inline-block shrink-0" />
           WhatsApp
         </a>
       </div>
@@ -541,26 +626,17 @@ const isActive = (href: string) =>
             <p class="text-xs uppercase tracking-widest text-slate-600 mb-3">Connect</p>
             <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
-                <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
-              </svg>
+              <MessageCircle size={14} strokeWidth={2} className="inline-block shrink-0" />
               WhatsApp &middot; {profile.whatsappDisplay}
             </a>
             <a href={profile.links.email}
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
-                <rect x="3" y="5" width="18" height="14" rx="2"/>
-                <path d="m4 7 8 6 8-6"/>
-              </svg>
+              <Mail size={14} strokeWidth={2} className="inline-block shrink-0" />
               {profile.email}
             </a>
             <a href={profile.links.instagram} target="_blank" rel="noreferrer"
               class="flex items-center gap-2 text-sm text-slate-400 hover:text-accent-soft transition-colors">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; flex-shrink:0;">
-                <rect x="3" y="3" width="18" height="18" rx="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="1"/>
-              </svg>
+              <Instagram size={14} strokeWidth={2} className="inline-block shrink-0" />
               {profile.links.instagramHandle}
             </a>
           </div>
@@ -578,8 +654,14 @@ const isActive = (href: string) =>
         </div>
 
         <div class="mt-8 pt-6 border-t border-white/6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p class="text-xs text-slate-600">� {new Date().getFullYear()} {profile.name} � All rights reserved.</p>
-          <p class="text-xs text-slate-700 font-mono">Dubai, UAE � Available for new mandates</p>
+          <p class="text-xs text-slate-600 flex items-center gap-1.5">
+            <Copyright size={12} strokeWidth={1.8} className="inline-block shrink-0" />
+            <span>{new Date().getFullYear()} {profile.name} · All rights reserved.</span>
+          </p>
+          <p class="text-xs text-slate-700 font-mono flex items-center gap-1.5">
+            <MapPin size={12} strokeWidth={1.8} className="inline-block shrink-0" />
+            <span>Dubai, UAE · Available for new mandates</span>
+          </p>
         </div>
       </div>
     </footer>
@@ -953,6 +1035,17 @@ const isActive = (href: string) =>
       const tagEl  = document.getElementById('splash-tag');
       if (!splash || !nameEl) return;
 
+      // Only show splash ONCE per session
+      const splashShown = sessionStorage.getItem('splash_shown');
+      if (splashShown) {
+        // Already shown — hide immediately, no animation
+        splash.style.display = 'none';
+        document.body.classList.remove('splash-active');
+        return;
+      }
+      // Mark as shown for rest of session
+      sessionStorage.setItem('splash_shown', '1');
+
       // Block scroll during splash
       document.body.classList.add('splash-active');
 
@@ -1095,6 +1188,106 @@ const isActive = (href: string) =>
         setTimeout(exitSplash, remaining);
       });
 
+    })();
+    </script>
+
+    <script is:inline>
+    (() => {
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }, { once: true });
+    })();
+    </script>
+
+    <!-- Preload all pages after first paint — instant navigation -->
+    <script is:inline>
+    (() => {
+      function prefetchAll() {
+        const pages = ['/work', '/about', '/contact', '/resume'];
+        const assets = ['/profile.png', '/favicon.svg'];
+
+        const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 300));
+
+        schedule(() => {
+          pages.forEach(href => {
+            const existing = document.querySelector(`link[href="${href}"][rel="prefetch"]`);
+            if (existing) return;
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = href;
+            link.as = 'document';
+            document.head.appendChild(link);
+          });
+
+          assets.forEach(href => {
+            const existing = document.querySelector(`link[href="${href}"][rel="preload"]`);
+            if (existing) return;
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.href = href;
+            link.as = href.endsWith('.png') || href.endsWith('.jpg') ? 'image' : 'image';
+            document.head.appendChild(link);
+          });
+        }, { timeout: 2000 });
+
+        schedule(() => {
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            pages.forEach(page => {
+              fetch(page, { method: 'GET', mode: 'no-cors', cache: 'force-cache' })
+                .catch(() => {});
+            });
+          }
+        }, { timeout: 3000 });
+      }
+
+      if (document.readyState === 'complete') {
+        prefetchAll();
+      } else {
+        window.addEventListener('load', prefetchAll);
+      }
+    })();
+    </script>
+
+    <script is:inline>
+    (() => {
+      document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        const isInternal = href.startsWith('/') && !href.startsWith('//');
+        const isHash = href.startsWith('#');
+
+        if (!isInternal || isHash) return;
+        if (link.target === '_blank') return;
+
+        link.addEventListener('mouseover', () => {
+          const pl = document.createElement('link');
+          pl.rel = 'prefetch';
+          pl.href = href;
+          pl.as = 'document';
+          if (!document.querySelector(`link[href="${href}"][rel="prefetch"]`)) {
+            document.head.appendChild(pl);
+          }
+        }, { once: true });
+      }, { passive: true });
+
+      document.querySelectorAll('nav a[href]').forEach(link => {
+        link.addEventListener('mouseenter', () => {
+          const href = link.getAttribute('href');
+          if (!href || !href.startsWith('/')) return;
+          const existing = document.querySelector(`link[href="${href}"][rel="prefetch"]`);
+          if (existing) return;
+          const pl = document.createElement('link');
+          pl.rel = 'prefetch';
+          pl.href = href;
+          pl.as = 'document';
+          document.head.appendChild(pl);
+        }, { passive: true });
+      });
     })();
     </script>
   </body>
