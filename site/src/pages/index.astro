@@ -2473,7 +2473,7 @@ const personJsonLd = {
     overflow-x: hidden;
   }
 
-  /* Prevent paint during transform animations */
+  /* Prevent paint spill during transform animations without blocking interaction */
   .cap-card.cap-in,
   .cap-card.cap-out,
   .metric-card.metric-in,
@@ -2485,13 +2485,17 @@ const personJsonLd = {
   .work-card-3.work-in, .work-card-3.work-out,
   .work-card-center.work-in, .work-card-center.work-out,
   .work-card-4.work-in, .work-card-4.work-out {
-    pointer-events: none;
     contain: layout style paint;
   }
 
-  /* Re-enable pointer after animation settles */
   .cap-card.cap-in:not(.animating),
-  .metric-card.metric-in:not(.animating) {
+  .metric-card.metric-in:not(.animating),
+  .work-left.work-in,
+  .work-card-1.work-in,
+  .work-card-2.work-in,
+  .work-card-3.work-in,
+  .work-card-center.work-in,
+  .work-card-4.work-in {
     pointer-events: auto;
   }
 

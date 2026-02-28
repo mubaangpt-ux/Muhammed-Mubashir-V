@@ -396,7 +396,7 @@ const isActive = (href: string) =>
       inset: 0;
       z-index: 99999;
       background: #07090f;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -1035,14 +1035,17 @@ const isActive = (href: string) =>
       const tagEl  = document.getElementById('splash-tag');
       if (!splash || !nameEl) return;
 
+      const isHomePage = window.location.pathname === '/';
+
       // Only show splash ONCE per session
       const splashShown = sessionStorage.getItem('splash_shown');
-      if (splashShown) {
-        // Already shown — hide immediately, no animation
+      if (!isHomePage || splashShown) {
         splash.style.display = 'none';
         document.body.classList.remove('splash-active');
         return;
       }
+
+      splash.style.display = 'flex';
       // Mark as shown for rest of session
       sessionStorage.setItem('splash_shown', '1');
 
