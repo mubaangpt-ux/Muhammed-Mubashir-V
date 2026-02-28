@@ -913,10 +913,15 @@ const personJsonLd = {
 </section>
 
 
-<script is:inline>
+<script is:inline data-astro-rerun>
 (() => {
+  if (window.__ctaGraphCleanup) window.__ctaGraphCleanup();
+
   const canvas = document.getElementById('cta-graph-canvas');
   if (!canvas) return;
+
+  let rafId = null;
+  let observer = null;
 
   function resize() {
     canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
@@ -961,7 +966,7 @@ const personJsonLd = {
     if (!startTime) { startTime = now; phaseStart = now; }
     const ctaDelta = now - ctaLastFrame;
     if (ctaDelta < 14 && ctaLastFrame !== 0) {
-      requestAnimationFrame(drawFrame);
+      rafId = requestAnimationFrame(drawFrame);
       return;
     }
     ctaLastFrame = now;
@@ -1097,30 +1102,36 @@ const personJsonLd = {
     ctx.stroke();
     ctx.restore();
 
-    requestAnimationFrame(drawFrame);
+    rafId = requestAnimationFrame(drawFrame);
   }
 
   // Start when section enters viewport
   const ctaSection = canvas.closest('section');
-  const observer = new IntersectionObserver((entries) => {
+  observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         startTime = null;
         phaseStart = null;
         phase = 'rise';
         current.fill(0);
-        requestAnimationFrame(drawFrame);
+        rafId = requestAnimationFrame(drawFrame);
         observer.unobserve(ctaSection);
       }
     });
   }, { threshold: 0.3 });
   if (ctaSection) observer.observe(ctaSection);
-  else requestAnimationFrame(drawFrame);
+  else rafId = requestAnimationFrame(drawFrame);
+
+  window.__ctaGraphCleanup = () => {
+    if (observer) observer.disconnect();
+    if (rafId) cancelAnimationFrame(rafId);
+    window.removeEventListener('resize', resize);
+  };
 
 })();
 </script>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (() => {
     if (window.__scheduleWrite) return;
 
@@ -1145,7 +1156,7 @@ const personJsonLd = {
   })();
 </script>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (() => {
     const capCards = document.querySelectorAll('.cap-card');
     if (!capCards.length) return;
@@ -1184,7 +1195,7 @@ const personJsonLd = {
   })();
 </script>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (() => {
     // Metric cards with counter reset
     const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
@@ -1242,8 +1253,9 @@ const personJsonLd = {
   })();
 </script>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
 (() => {
+  if (window.__testiRowsCleanup) window.__testiRowsCleanup();
 
   /* ── Seed data ── */
   const SEED = [
@@ -1315,9 +1327,10 @@ const personJsonLd = {
   /* ── Parallax + auto-scroll ── */
   const rows = [];
   let lastScrollY = window.scrollY;
-  let animFrame;
+  let animFrame = null;
 
   function initRows() {
+    rows.length = 0;
     ['testi-row-1', 'testi-row-2', 'testi-row-3'].forEach((id, i) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1337,8 +1350,6 @@ const personJsonLd = {
     const section = document.getElementById('testi-section');
     if (section) {
       const rect = section.getBoundingClientRect();
-      const inView = rect.top < window.innerHeight && rect.bottom > 0;
-
       rows.forEach(row => {
         // Auto-scroll: slow constant drift
         row.x += row.direction * row.speed;
@@ -1432,10 +1443,10 @@ const personJsonLd = {
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initTestimonials() {
     populateRows();
     initRows();
-    requestAnimationFrame(tick);
+    animFrame = requestAnimationFrame(tick);
     initPhotoUpload();
 
     const openBtn   = document.getElementById('testi-open-btn');
@@ -1444,13 +1455,13 @@ const personJsonLd = {
     const submitBtn = document.getElementById('testi-submit-btn');
     const modal     = document.getElementById('testi-modal');
 
-    if (openBtn)   openBtn.addEventListener('click', openModal);
-    if (closeBtn)  closeBtn.addEventListener('click', closeModal);
-    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-    if (modal)     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    if (openBtn) openBtn.onclick = openModal;
+    if (closeBtn) closeBtn.onclick = closeModal;
+    if (cancelBtn) cancelBtn.onclick = closeModal;
+    if (modal) modal.onclick = (e) => { if (e.target === modal) closeModal(); };
 
     if (submitBtn) {
-      submitBtn.addEventListener('click', () => {
+      submitBtn.onclick = () => {
         const name  = document.getElementById('testi-name')?.value.trim();
         const role  = document.getElementById('testi-role')?.value.trim();
         const quote = document.getElementById('testi-quote')?.value.trim();
@@ -1477,14 +1488,20 @@ const personJsonLd = {
         submitBtn.textContent = '✓ Added';
         submitBtn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
         setTimeout(closeModal, 1800);
-      });
+      };
     }
-  });
+  }
+
+  initTestimonials();
+
+  window.__testiRowsCleanup = () => {
+    if (animFrame) cancelAnimationFrame(animFrame);
+  };
 
 })();
 </script>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   (() => {
     const CARDS = [
       '.work-left',

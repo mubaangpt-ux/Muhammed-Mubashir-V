@@ -754,189 +754,202 @@ const isActive = (href: string) =>
 
     <!-- Star Field -->
     <script is:inline>
-    (function () {
-
-      const canvas = document.getElementById('star-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-
-      // -- Config ----------------------------------------------
-      const CFG = {
-        starCount: 280,          // total stars
-        maxRadius: 1.1,          // biggest star radius (px) � keep tiny
-        minRadius: 0.15,         // smallest
-        twinkleSpeed: 0.008,     // how fast alpha oscillates
-        twinkleVariance: 0.018,  // randomness of twinkle speed per star
-        baseAlpha: 0.55,         // resting brightness
-        peakAlpha: 1.0,          // max brightness when glowing
-        shootingStarInterval: [60000, 75000], // ms between shooting stars
-        shootingDuration: 1400,  // ms for one shooting star
-        shootingTrailLength: 180,// px
-        topBias: 0.72,           // stars concentrate in top 72% of canvas
-        colorVariance: true,     // subtle blue/white colour variation
+    (() => {
+      const existing = window.__starFieldState || {
+        canvas: null,
+        ctx: null,
+        W: 0,
+        H: 0,
+        stars: [],
+        shootingStar: null,
+        shootingTimer: null,
+        animId: null,
+        lastTime: 0,
+        lastFrame: 0,
+        listenersBound: false,
       };
+      window.__starFieldState = existing;
 
-      // -- State ------------------------------------------------
-      let W, H;
-      let stars = [];
-      let shootingStar = null;
-      let shootingTimer = null;
-      let animId = null;
-      let scrollY = 0;
-
-      // -- Resize -----------------------------------------------
-      function resize() {
-        W = canvas.width  = window.innerWidth;
-        H = canvas.height = window.innerHeight * 0.55;
-        // Regenerate stars on resize
-        buildStars();
-      }
-
-      // -- Star colours -----------------------------------------
+      const state = existing;
+      const TARGET_FPS = 60;
+      const FRAME_INTERVAL = 1000 / TARGET_FPS;
       const STAR_COLOURS = [
-        [200, 220, 255],  // cool blue-white
-        [210, 228, 255],  // ice white
-        [180, 210, 255],  // blue
-        [230, 238, 255],  // near white
-        [200, 215, 255],  // pale blue
+        [214, 228, 255],
+        [200, 220, 255],
+        [185, 214, 255],
+        [230, 238, 255],
+        [162, 202, 255],
       ];
 
-      // -- Build star array -------------------------------------
+      const CFG = {
+        starCount: 340,
+        maxRadius: 1.5,
+        minRadius: 0.18,
+        twinkleSpeed: 0.008,
+        twinkleVariance: 0.018,
+        baseAlpha: 0.62,
+        shootingStarInterval: [16000, 26000],
+        shootingDuration: 1350,
+        shootingTrailLength: 190,
+        topBias: 0.8,
+      };
+
+      function bindCanvas() {
+        state.canvas = document.getElementById('star-canvas');
+        state.ctx = state.canvas ? state.canvas.getContext('2d') : null;
+        return !!(state.canvas && state.ctx);
+      }
+
       function buildStars() {
-        stars = [];
+        state.stars = [];
         for (let i = 0; i < CFG.starCount; i++) {
           const col = STAR_COLOURS[Math.floor(Math.random() * STAR_COLOURS.length)];
-          // Bias stars toward top � sqrt pushes distribution upward
-          const yFrac = Math.pow(Math.random(), 1.6) * CFG.topBias;
-          stars.push({
-            x: Math.random() * W,
-            y: yFrac * H,
+          const yFrac = Math.pow(Math.random(), 1.55) * CFG.topBias;
+          state.stars.push({
+            x: Math.random() * state.W,
+            y: yFrac * state.H,
             r: CFG.minRadius + Math.random() * (CFG.maxRadius - CFG.minRadius),
-            alpha: CFG.baseAlpha * (0.4 + Math.random() * 0.6),
-            alphaDir: Math.random() > 0.5 ? 1 : -1,
+            alpha: CFG.baseAlpha * (0.45 + Math.random() * 0.65),
             twinkleSpeed: CFG.twinkleSpeed + (Math.random() - 0.5) * CFG.twinkleVariance,
-            // Some stars twinkle frequently, most are near-static
-            twinkleActive: Math.random() < 0.45,
+            twinkleActive: Math.random() < 0.55,
             twinklePhase: Math.random() * Math.PI * 2,
-            col: col,
-            // Rare "bright" stars
-            bright: Math.random() < 0.06,
+            col,
+            bright: Math.random() < 0.09,
           });
         }
       }
 
-      // -- Schedule next shooting star --------------------------
-      function scheduleShootingStar() {
-        const [min, max] = CFG.shootingStarInterval;
-        const delay = min + Math.random() * (max - min);
-        shootingTimer = setTimeout(launchShootingStar, delay);
+      function resize() {
+        if (!bindCanvas()) return;
+        state.W = state.canvas.width = window.innerWidth;
+        state.H = state.canvas.height = window.innerHeight * 0.55;
+        buildStars();
       }
 
-      // -- Launch a shooting star -------------------------------
-      function launchShootingStar() {
-        // Start from top area, angle 20-40� below horizontal
-        const angle = (20 + Math.random() * 20) * Math.PI / 180;
-        const startX = W * (0.1 + Math.random() * 0.6);
-        const startY = H * (0.05 + Math.random() * 0.25);
-        const speed = 280 + Math.random() * 140; // px per second
+      function scheduleShootingStar(delayOverride) {
+        clearTimeout(state.shootingTimer);
+        const [min, max] = CFG.shootingStarInterval;
+        const delay = typeof delayOverride === 'number'
+          ? delayOverride
+          : min + Math.random() * (max - min);
+        state.shootingTimer = setTimeout(launchShootingStar, delay);
+      }
 
-        shootingStar = {
+      function launchShootingStar() {
+        if (!state.W || !state.H) return;
+        const angle = (16 + Math.random() * 18) * Math.PI / 180;
+        const startX = state.W * (0.12 + Math.random() * 0.5);
+        const startY = state.H * (0.05 + Math.random() * 0.22);
+        const speed = 300 + Math.random() * 140;
+
+        state.shootingStar = {
           x: startX,
           y: startY,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          alpha: 0,
-          phase: 'in',  // in ? hold ? out
           startTime: performance.now(),
-          trailLength: CFG.shootingTrailLength + Math.random() * 60,
-          width: 1.5 + Math.random() * 0.8,
+          trailLength: CFG.shootingTrailLength + Math.random() * 70,
+          width: 1.6 + Math.random() * 0.9,
         };
 
         scheduleShootingStar();
       }
 
-      // -- Draw background gradient -----------------------------
       function drawBackground() {
-        // Deep obsidian at bottom ? dark navy at top
-        const grad = ctx.createLinearGradient(0, 0, 0, H);
-        grad.addColorStop(0,   'rgba(6,10,26,0.0)');   // very top � transparent (let body show)
-        grad.addColorStop(0.3, 'rgba(7,11,28,0.0)');
-        grad.addColorStop(1,   'rgba(7,9,15,0.0)');    // seamless with body
-        ctx.clearRect(0, 0, W, H);
-        // Canvas is transparent � stars draw over the body gradient naturally
+        const ctx = state.ctx;
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, state.W, state.H);
+
+        const sky = ctx.createLinearGradient(0, 0, 0, state.H);
+        sky.addColorStop(0, 'rgba(18,42,102,0.34)');
+        sky.addColorStop(0.25, 'rgba(14,30,86,0.18)');
+        sky.addColorStop(0.6, 'rgba(7,12,28,0.04)');
+        sky.addColorStop(1, 'rgba(7,9,15,0)');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, state.W, state.H);
+
+        const horizonGlow = ctx.createRadialGradient(
+          state.W * 0.5,
+          state.H * 0.16,
+          0,
+          state.W * 0.5,
+          state.H * 0.16,
+          Math.max(state.W * 0.26, 220)
+        );
+        horizonGlow.addColorStop(0, 'rgba(96,165,250,0.16)');
+        horizonGlow.addColorStop(0.45, 'rgba(37,99,235,0.08)');
+        horizonGlow.addColorStop(1, 'rgba(37,99,235,0)');
+        ctx.fillStyle = horizonGlow;
+        ctx.fillRect(0, 0, state.W, state.H);
       }
 
-      // -- Draw all stars ---------------------------------------
       function drawStars(dt) {
-        stars.forEach(star => {
-          // Twinkle
+        const ctx = state.ctx;
+        if (!ctx) return;
+
+        state.stars.forEach((star) => {
           if (star.twinkleActive) {
             star.twinklePhase += star.twinkleSpeed * dt * 0.06;
-            // Sine wave gives smooth oscillation
-            const wave = (Math.sin(star.twinklePhase) + 1) / 2; // 0..1
-            star.alpha = 0.25 + wave * (star.bright ? 0.75 : 0.55);
+            const wave = (Math.sin(star.twinklePhase) + 1) / 2;
+            star.alpha = 0.28 + wave * (star.bright ? 0.82 : 0.58);
           }
 
           const [r, g, b] = star.col;
           ctx.save();
 
-          // Bright stars get a subtle glow
-          if (star.bright && star.alpha > 0.7) {
-            const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.r * 5);
-            glow.addColorStop(0, `rgba(${r},${g},${b},${(star.alpha * 0.35).toFixed(3)})`);
+          if (star.bright && star.alpha > 0.68) {
+            const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.r * 8);
+            glow.addColorStop(0, `rgba(${r},${g},${b},${(star.alpha * 0.44).toFixed(3)})`);
+            glow.addColorStop(0.45, `rgba(${r},${g},${b},${(star.alpha * 0.16).toFixed(3)})`);
             glow.addColorStop(1, 'rgba(0,0,0,0)');
             ctx.fillStyle = glow;
             ctx.beginPath();
-            ctx.arc(star.x, star.y, star.r * 5, 0, Math.PI * 2);
+            ctx.arc(star.x, star.y, star.r * 8, 0, Math.PI * 2);
             ctx.fill();
           }
 
-          // Core star dot
           ctx.globalAlpha = Math.min(star.alpha, 1);
           ctx.fillStyle = `rgb(${r},${g},${b})`;
           ctx.beginPath();
           ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
           ctx.fill();
-
           ctx.restore();
         });
       }
 
-      // -- Draw shooting star -----------------------------------
       function drawShootingStar(now) {
-        if (!shootingStar) return;
-        const ss = shootingStar;
-        const elapsed = (now - ss.startTime) / 1000; // seconds
+        const ctx = state.ctx;
+        const ss = state.shootingStar;
+        if (!ctx || !ss) return;
+
+        const elapsed = (now - ss.startTime) / 1000;
         const totalDur = CFG.shootingDuration / 1000;
-
-        // Fade in (first 15%), full (15-75%), fade out (last 25%)
-        let alpha;
         const t = elapsed / totalDur;
-        if (t < 0.15)      alpha = t / 0.15;
-        else if (t < 0.75) alpha = 1.0;
-        else               alpha = 1 - (t - 0.75) / 0.25;
 
-        if (t >= 1) { shootingStar = null; return; }
+        if (t >= 1) {
+          state.shootingStar = null;
+          return;
+        }
 
-        // Current head position
+        let alpha;
+        if (t < 0.12) alpha = t / 0.12;
+        else if (t < 0.76) alpha = 1;
+        else alpha = 1 - (t - 0.76) / 0.24;
+
         const hx = ss.x + ss.vx * elapsed;
         const hy = ss.y + ss.vy * elapsed;
-
-        // Tail end (behind the head)
-        const tailLen = ss.trailLength;
         const angle = Math.atan2(ss.vy, ss.vx);
-        const tx = hx - Math.cos(angle) * tailLen;
-        const ty = hy - Math.sin(angle) * tailLen;
+        const tx = hx - Math.cos(angle) * ss.trailLength;
+        const ty = hy - Math.sin(angle) * ss.trailLength;
 
         ctx.save();
-        ctx.globalAlpha = Math.min(alpha, 1) * 0.92;
-
-        // Gradient trail
+        ctx.globalAlpha = Math.min(alpha, 1) * 0.95;
         const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-        grad.addColorStop(0,   'rgba(200,220,255,0)');
-        grad.addColorStop(0.5, 'rgba(210,228,255,0.35)');
-        grad.addColorStop(0.85,'rgba(230,240,255,0.80)');
-        grad.addColorStop(1,   'rgba(255,255,255,1.0)');
+        grad.addColorStop(0, 'rgba(200,220,255,0)');
+        grad.addColorStop(0.35, 'rgba(184,214,255,0.18)');
+        grad.addColorStop(0.8, 'rgba(226,238,255,0.84)');
+        grad.addColorStop(1, 'rgba(255,255,255,1)');
 
         ctx.strokeStyle = grad;
         ctx.lineWidth = ss.width;
@@ -946,82 +959,100 @@ const isActive = (href: string) =>
         ctx.lineTo(hx, hy);
         ctx.stroke();
 
-        // Bright head point
-        const headGlow = ctx.createRadialGradient(hx, hy, 0, hx, hy, 4);
-        headGlow.addColorStop(0, 'rgba(255,255,255,0.95)');
-        headGlow.addColorStop(0.4, 'rgba(200,220,255,0.5)');
+        const headGlow = ctx.createRadialGradient(hx, hy, 0, hx, hy, 5);
+        headGlow.addColorStop(0, 'rgba(255,255,255,1)');
+        headGlow.addColorStop(0.35, 'rgba(214,228,255,0.72)');
         headGlow.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = headGlow;
         ctx.beginPath();
-        ctx.arc(hx, hy, 4, 0, Math.PI * 2);
+        ctx.arc(hx, hy, 5, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.restore();
       }
 
-      // -- Scroll fade ------------------------------------------
       function handleScroll() {
-        scrollY = window.scrollY;
-        // Fade out over the first 40vh of scroll
-        const fadeOver = window.innerHeight * 0.4;
-        const opacity = Math.max(0, 1 - scrollY / fadeOver);
-        canvas.style.opacity = opacity;
+        if (!state.canvas) return;
+        const fadeOver = window.innerHeight * 0.42;
+        const opacity = Math.max(0, 1 - window.scrollY / fadeOver);
+        state.canvas.style.opacity = opacity.toFixed(3);
       }
 
-      // -- Main loop --------------------------------------------
-      let lastTime = 0;
-      let lastFrame = 0;
-      const TARGET_FPS = 60;
-      const FRAME_INTERVAL = 1000 / TARGET_FPS;
       function loop(now = 0) {
-        const delta = now - lastFrame;
+        if (!bindCanvas()) return;
+
+        const delta = now - state.lastFrame;
         if (delta < FRAME_INTERVAL - 0.5) {
-          animId = requestAnimationFrame(loop);
+          state.animId = requestAnimationFrame(loop);
           return;
         }
-        lastFrame = now - (delta % FRAME_INTERVAL);
-        const dt = now - lastTime;
-        lastTime = now;
+
+        state.lastFrame = now - (delta % FRAME_INTERVAL);
+        const dt = now - state.lastTime;
+        state.lastTime = now;
 
         drawBackground();
         drawStars(dt);
         drawShootingStar(now);
-
-        animId = requestAnimationFrame(loop);
+        state.animId = requestAnimationFrame(loop);
       }
 
-      // -- Init -------------------------------------------------
-      function init() {
+      function refreshForNavigation() {
         resize();
-        window.addEventListener('resize', resize, { passive: true });
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        // First shooting star after 10-20s so user sees it relatively quickly
-        shootingTimer = setTimeout(launchShootingStar, 10000 + Math.random() * 10000);
-        requestAnimationFrame((t) => { lastTime = t; lastFrame = t; loop(t); });
+        handleScroll();
+
+        if (window.location.pathname === '/') {
+          if (!state.shootingStar) {
+            scheduleShootingStar(3200 + Math.random() * 2800);
+          }
+        }
       }
 
-      // Respect reduced motion
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        // Still show static stars, just no animation
+      function initStaticStars() {
         resize();
         drawBackground();
-        stars.forEach(s => {
-          const [r, g, b] = s.col;
-          ctx.globalAlpha = s.alpha * 0.7;
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fill();
+        state.stars.forEach((star) => {
+          const [r, g, b] = star.col;
+          state.ctx.globalAlpha = star.alpha * 0.78;
+          state.ctx.fillStyle = `rgb(${r},${g},${b})`;
+          state.ctx.beginPath();
+          state.ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+          state.ctx.fill();
         });
-        return;
+        handleScroll();
+      }
+
+      function init() {
+        if (!bindCanvas()) return;
+
+        if (!state.listenersBound) {
+          state.listenersBound = true;
+          window.addEventListener('resize', resize, { passive: true });
+          window.addEventListener('scroll', handleScroll, { passive: true });
+          window.addEventListener('pageshow', refreshForNavigation, { passive: true });
+          document.addEventListener('astro:page-load', refreshForNavigation);
+        }
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          initStaticStars();
+          return;
+        }
+
+        refreshForNavigation();
+
+        if (!state.animId) {
+          requestAnimationFrame((t) => {
+            state.lastTime = t;
+            state.lastFrame = t;
+            loop(t);
+          });
+        }
       }
 
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', init, { once: true });
       } else {
         init();
       }
-
     })();
     </script>
 
