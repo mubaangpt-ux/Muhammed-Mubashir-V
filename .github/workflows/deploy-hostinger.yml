@@ -32,7 +32,47 @@ jobs:
         working-directory: site
         run: npm run build
 
+      - name: Probe Hostinger FTP ports
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          python - <<'PY'
+          import os
+          import socket
+
+          host = os.environ.get("FTP_SERVER", "").strip()
+          if not host:
+              print("[probe] FTP_SERVER secret is empty")
+              raise SystemExit(1)
+
+          for port in (21, 990):
+              try:
+                  with socket.create_connection((host, port), timeout=20):
+                      print(f"[probe] port {port}: reachable")
+              except Exception as exc:
+                  print(f"[probe] port {port}: {exc.__class__.__name__}")
+          PY
+
       - name: Deploy dist to Hostinger via FTP
+        id: deploy_ftp
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          timeout: 300000
+          local-dir: site/dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          log-level: standard
+
+      - name: Deploy dist to Hostinger via explicit FTPS fallback
+        id: deploy_ftps
+        if: steps.deploy_ftp.outcome == 'failure'
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -46,3 +86,28 @@ jobs:
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
           dangerous-clean-slate: false
           log-level: standard
+
+      - name: Deploy dist to Hostinger via implicit FTPS fallback
+        id: deploy_ftps_legacy
+        if: steps.deploy_ftp.outcome == 'failure' && steps.deploy_ftps.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps-legacy
+          port: 990
+          security: loose
+          timeout: 300000
+          local-dir: site/dist/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          log-level: standard
+
+      - name: Fail if every deploy mode failed
+        if: steps.deploy_ftp.outcome == 'failure' && steps.deploy_ftps.outcome == 'failure' && steps.deploy_ftps_legacy.outcome == 'failure'
+        run: |
+          echo "FTP, explicit FTPS, and implicit FTPS all failed."
+          echo "Verify FTP_SERVER is the Hostinger FTP hostname from hPanel and that the account allows remote FTP access."
+          exit 1
