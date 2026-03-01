@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'site-static-v1';
-const DYNAMIC_CACHE = 'site-dynamic-v1';
+const STATIC_CACHE = 'site-static-v2';
+const DYNAMIC_CACHE = 'site-dynamic-v2';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -48,19 +48,20 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match(request).then(cached => {
-        const fetchPromise = fetch(request)
-          .then(response => {
-            if (response.ok) {
-              const clone = response.clone();
-              caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
-            }
-            return response;
+      fetch(request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(request).then(cached => {
+            if (cached) return cached;
+            return caches.match('/');
           })
-          .catch(() => cached || caches.match('/'));
-
-        return cached || fetchPromise;
-      })
+        )
     );
     return;
   }
