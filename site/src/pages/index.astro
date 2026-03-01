@@ -21,9 +21,9 @@ import { testimonials } from "../data/testimonials";
 const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
 const capabilityIconNames = ["growth", "analytics", "web", "content", "ops", "dev"] as const;
 const capabilityMedia = {
-  0: { src: "/capabilities/cap-growth.jpg", position: "top" },
-  2: { src: "/capabilities/cap-web.jpg", position: "top" },
-  4: { src: "/capabilities/cap-ops.jpg", position: "bottom" },
+  0: { src: "/capabilities/cap-growth.webm", position: "top" },
+  2: { src: "/capabilities/cap-web.webm", position: "top" },
+  4: { src: "/capabilities/cap-ops.webm", position: "bottom" },
 } as const;
 
 const tickerRow1 = [
@@ -411,13 +411,17 @@ const personJsonLd = {
             {media?.position === "top" && (
               <div class="cap-media-shell cap-media-top">
                 <div class="cap-media-frame">
-                  <img
-                    src={media.src}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
+                  <video
                     class="cap-media-image"
-                  />
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-hidden="true"
+                  >
+                    <source src={media.src} type="video/webm" />
+                  </video>
                   <div class="cap-media-overlay" aria-hidden="true"></div>
                 </div>
               </div>
@@ -435,13 +439,17 @@ const personJsonLd = {
             {media?.position === "bottom" && (
               <div class="cap-media-shell cap-media-bottom">
                 <div class="cap-media-frame">
-                  <img
-                    src={media.src}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
+                  <video
                     class="cap-media-image"
-                  />
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="metadata"
+                    aria-hidden="true"
+                  >
+                    <source src={media.src} type="video/webm" />
+                  </video>
                   <div class="cap-media-overlay" aria-hidden="true"></div>
                 </div>
               </div>
