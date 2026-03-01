@@ -6,11 +6,11 @@ import {
   ArrowUpRight,
   Copyright,
   Diamond,
+  Compass,
   Instagram,
   Mail,
   MapPin,
   MessageCircle,
-  Sparkles,
 } from "lucide-react";
 
 type JsonLd = Record<string, unknown>;
@@ -214,8 +214,8 @@ const isActive = (href: string) =>
       button:hover .lucide-map-pin,
       a:hover .lucide-copyright,
       button:hover .lucide-copyright,
-      a:hover .lucide-sparkles,
-      button:hover .lucide-sparkles {
+      a:hover .lucide-compass,
+      button:hover .lucide-compass {
         transform: scale(1.08);
       }
 
@@ -567,11 +567,11 @@ const isActive = (href: string) =>
 
         <!-- Left: subtle home link only -->
         <a href="/" class="flex items-center group justify-self-start">
-          <span class="text-xs font-mono tracking-[0.3em] uppercase transition-colors duration-200 hidden lg:block"
-            style="color: rgba(147,197,253,0.30);"
+          <span class="items-center justify-center transition-colors duration-200 hidden lg:inline-flex"
+            style="color: rgba(147,197,253,0.34); width: 18px; height: 18px;"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
-            onmouseout="this.style.color='rgba(147,197,253,0.30)'">
-            <Sparkles size={12} strokeWidth={1.8} className="inline-block shrink-0" />
+            onmouseout="this.style.color='rgba(147,197,253,0.34)'">
+            <Compass size={14} strokeWidth={1.9} className="inline-block shrink-0" />
           </span>
         </a>
 
