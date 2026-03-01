@@ -21,9 +21,9 @@ import { testimonials } from "../data/testimonials";
 const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
 const capabilityIconNames = ["growth", "analytics", "web", "content", "ops", "dev"] as const;
 const capabilityMedia = {
-  0: { src: "/capabilities/cap-growth.webm", position: "top" },
-  2: { src: "/capabilities/cap-web.webm", position: "top" },
-  4: { src: "/capabilities/cap-ops.webm", position: "bottom" },
+  0: { src: "/capabilities/cap-growth.webm", poster: "/capabilities/cap-growth.jpg", position: "top" },
+  2: { src: "/capabilities/cap-web.webm", poster: "/capabilities/cap-web.jpg", position: "top" },
+  4: { src: "/capabilities/cap-ops.webm", poster: "/capabilities/cap-ops.jpg", position: "bottom" },
 } as const;
 
 const tickerRow1 = [
@@ -412,15 +412,16 @@ const personJsonLd = {
               <div class="cap-media-shell cap-media-top">
                 <div class="cap-media-frame">
                   <video
-                    class="cap-media-image"
+                    class="cap-media-image cap-media-video"
                     autoplay
                     muted
                     loop
                     playsinline
-                    preload="metadata"
+                    preload="none"
+                    poster={media.poster}
+                    data-src={media.src}
                     aria-hidden="true"
                   >
-                    <source src={media.src} type="video/webm" />
                   </video>
                   <div class="cap-media-overlay" aria-hidden="true"></div>
                 </div>
@@ -440,15 +441,16 @@ const personJsonLd = {
               <div class="cap-media-shell cap-media-bottom">
                 <div class="cap-media-frame">
                   <video
-                    class="cap-media-image"
+                    class="cap-media-image cap-media-video"
                     autoplay
                     muted
                     loop
                     playsinline
-                    preload="metadata"
+                    preload="none"
+                    poster={media.poster}
+                    data-src={media.src}
                     aria-hidden="true"
                   >
-                    <source src={media.src} type="video/webm" />
                   </video>
                   <div class="cap-media-overlay" aria-hidden="true"></div>
                 </div>
@@ -1234,6 +1236,113 @@ const personJsonLd = {
     });
 
     capCards.forEach(card => obs.observe(card));
+  })();
+</script>
+
+<script is:inline data-astro-rerun>
+  (() => {
+    if (window.__capMediaCleanup) window.__capMediaCleanup();
+
+    const videos = Array.from(document.querySelectorAll('.cap-media-video'));
+    if (!videos.length) return;
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ratios = new Map();
+
+    videos.forEach((video) => {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.preload = 'none';
+      ratios.set(video, 0);
+    });
+
+    if (prefersReducedMotion) {
+      videos.forEach((video) => video.pause());
+      return;
+    }
+
+    function loadVideo(video) {
+      if (video.dataset.loaded === 'true') return;
+      const src = video.dataset.src;
+      if (!src) return;
+      video.src = src;
+      video.dataset.loaded = 'true';
+      video.load();
+    }
+
+    function unloadVideo(video) {
+      if (video.dataset.loaded !== 'true') return;
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      delete video.dataset.loaded;
+    }
+
+    function tryPlay(video) {
+      loadVideo(video);
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
+    }
+
+    function syncPlayback() {
+      if (isMobile) {
+        let activeVideo = null;
+        let bestRatio = 0;
+
+        videos.forEach((video) => {
+          const ratio = ratios.get(video) || 0;
+          if (ratio > 0.18 && ratio >= bestRatio) {
+            bestRatio = ratio;
+            activeVideo = video;
+          }
+        });
+
+        videos.forEach((video) => {
+          if (video === activeVideo) {
+            tryPlay(video);
+          } else {
+            unloadVideo(video);
+          }
+        });
+        return;
+      }
+
+      videos.forEach((video) => {
+        const ratio = ratios.get(video) || 0;
+        if (ratio > 0.18) {
+          tryPlay(video);
+        } else {
+          video.pause();
+        }
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        ratios.set(video, entry.isIntersecting ? entry.intersectionRatio : 0);
+      });
+      syncPlayback();
+    }, {
+      threshold: [0, 0.18, 0.35, 0.6, 0.85],
+      rootMargin: '0px 0px 80px 0px'
+    });
+
+    videos.forEach((video) => {
+      observer.observe(video);
+    });
+
+    window.__capMediaCleanup = () => {
+      observer.disconnect();
+      videos.forEach((video) => {
+        video.pause();
+        if (isMobile) unloadVideo(video);
+      });
+    };
   })();
 </script>
 
