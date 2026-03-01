@@ -5,6 +5,7 @@ import { profile } from "../data/profile";
 import {
   ArrowUpRight,
   Copyright,
+  Diamond,
   Instagram,
   Mail,
   MapPin,
@@ -531,10 +532,12 @@ const isActive = (href: string) =>
     <!-- NAV -->
     <header class="fixed inset-x-0 top-0 z-50" style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); background: rgba(7,9,15,0.28); border-bottom: 1px solid rgba(255,255,255,0.04);">
 
-      <!-- Top micro-bar: location left � name center � status right -->
+      <!-- Top micro-bar: location left, name center, status right -->
       <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-9 border-b" style="border-color: rgba(255,255,255,0.04);">
         <span class="text-xs font-mono tracking-widest uppercase hidden sm:block justify-self-start" style="color: rgba(147,197,253,0.45);">
-          {profile.location} &nbsp;�&nbsp; Available for mandates
+          {profile.location}
+          <Diamond size={9} strokeWidth={1.8} className="inline-block mx-2 align-[-1px]" />
+          Available for mandates
         </span>
         <a href="/" class="justify-self-center" style="padding-left: 4px;">
           <div class="flex items-center gap-2 sm:hidden">
