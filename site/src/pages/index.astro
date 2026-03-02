@@ -1249,11 +1249,23 @@ const personJsonLd = {
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ratios = new Map();
+    const targets = videos.map((video) => ({
+      video,
+      target: video.closest('.cap-card') || video,
+    }));
+    const targetToVideo = new Map(targets.map(({ target, video }) => [target, video]));
 
     videos.forEach((video) => {
+      video.autoplay = true;
       video.muted = true;
       video.defaultMuted = true;
       video.playsInline = true;
+      video.preload = 'metadata';
+      video.setAttribute('autoplay', '');
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.setAttribute('disablePictureInPicture', '');
       video.preload = 'none';
       ratios.set(video, 0);
     });
@@ -1267,6 +1279,7 @@ const personJsonLd = {
       if (video.dataset.loaded === 'true') return;
       const src = video.dataset.src;
       if (!src) return;
+      video.preload = 'auto';
       video.src = src;
       video.dataset.loaded = 'true';
       video.load();
@@ -1282,10 +1295,24 @@ const personJsonLd = {
 
     function tryPlay(video) {
       loadVideo(video);
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(() => {});
+      const attempt = () => {
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {});
+        }
+      };
+
+      if (video.readyState >= 2) {
+        attempt();
+        return;
       }
+
+      const onReady = () => {
+        attempt();
+      };
+
+      video.addEventListener('loadeddata', onReady, { once: true });
+      video.addEventListener('canplay', onReady, { once: true });
     }
 
     function syncPlayback() {
@@ -1295,7 +1322,7 @@ const personJsonLd = {
 
         videos.forEach((video) => {
           const ratio = ratios.get(video) || 0;
-          if (ratio > 0.18 && ratio >= bestRatio) {
+          if (ratio > 0.08 && ratio >= bestRatio) {
             bestRatio = ratio;
             activeVideo = video;
           }
@@ -1313,7 +1340,7 @@ const personJsonLd = {
 
       videos.forEach((video) => {
         const ratio = ratios.get(video) || 0;
-        if (ratio > 0.18) {
+        if (ratio > 0.12) {
           tryPlay(video);
         } else {
           video.pause();
@@ -1323,17 +1350,18 @@ const personJsonLd = {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        const video = entry.target;
+        const video = targetToVideo.get(entry.target);
+        if (!video) return;
         ratios.set(video, entry.isIntersecting ? entry.intersectionRatio : 0);
       });
       syncPlayback();
     }, {
-      threshold: [0, 0.18, 0.35, 0.6, 0.85],
-      rootMargin: '0px 0px 80px 0px'
+      threshold: [0, 0.08, 0.18, 0.35, 0.6, 0.85],
+      rootMargin: '120px 0px 120px 0px'
     });
 
-    videos.forEach((video) => {
-      observer.observe(video);
+    targets.forEach(({ target }) => {
+      observer.observe(target);
     });
 
     window.__capMediaCleanup = () => {
