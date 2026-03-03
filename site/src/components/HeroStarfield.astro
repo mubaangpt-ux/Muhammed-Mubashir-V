@@ -1,0 +1,128 @@
+---
+// HeroStarfield.astro
+// Static star background with cursor-wave interaction.
+// Lives inside the hero section (absolute positioned).
+// No React, no dependencies — pure canvas + vanilla JS.
+---
+
+<canvas
+  id="hero-sf"
+  aria-hidden="true"
+  style="
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  "
+></canvas>
+
+<script is:inline>
+(function () {
+  'use strict';
+
+  const canvas = document.getElementById('hero-sf');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+
+  /* ── Config ──────────────────────────────────────────────────────────── */
+  const STAR_COUNT   = 5500;   // density
+  const RIPPLE_RADIUS = 0.28;  // fraction of screen width
+  const RIPPLE_STR   = 18;     // max pixel displacement
+  const RETURN_SPEED = 0.06;   // spring back speed
+
+  // subtle blue-tinted star palette
+  const COLORS = [
+    [210, 230, 255, 0.65],
+    [190, 215, 255, 0.55],
+    [235, 243, 255, 0.80],
+    [160, 195, 255, 0.50],
+    [248, 250, 255, 0.90],
+  ];
+
+  let W, H, stars = [];
+  let mouseX = -9999, mouseY = -9999;
+  let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function makeStar() {
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const r = 0.35 + Math.random() * 1.1;
+    return { ox: x, oy: y, x, y, r, c, vx: 0, vy: 0 };
+  }
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    stars = Array.from({ length: STAR_COUNT }, makeStar);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    const rippleR = RIPPLE_RADIUS * Math.min(W, H);
+
+    for (const s of stars) {
+      if (!reducedMotion) {
+        const dx   = s.x - mouseX;
+        const dy   = s.y - mouseY;
+        const dist2 = dx * dx + dy * dy;
+        const r2   = rippleR * rippleR;
+
+        if (dist2 < r2 && dist2 > 0.01) {
+          const t   = 1 - dist2 / r2;          // 1 near cursor, 0 at edge
+          const inv = 1 / Math.sqrt(dist2);
+          const force = t * t * RIPPLE_STR;
+          s.vx += dx * inv * force * 0.05;
+          s.vy += dy * inv * force * 0.05;
+        }
+
+        // Spring back to origin
+        s.vx += (s.ox - s.x) * RETURN_SPEED;
+        s.vy += (s.oy - s.y) * RETURN_SPEED;
+        s.vx *= 0.78;
+        s.vy *= 0.78;
+        s.x += s.vx;
+        s.y += s.vy;
+      }
+
+      const [r, g, b, a] = s.c;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  // Wait until intro fires before we spin up (avoids competing canvases)
+  function init() {
+    resize();
+    window.addEventListener('resize', resize);
+
+    if (!reducedMotion) {
+      window.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      });
+      window.addEventListener('mouseleave', () => {
+        mouseX = -9999; mouseY = -9999;
+      });
+    }
+
+    draw();
+  }
+
+  document.addEventListener('hyperjump-complete', init, { once: true });
+  // Fallback: if event never fires (e.g. reduced motion path) init anyway
+  setTimeout(() => {
+    if (!canvas.dataset.started) init();
+  }, 5000);
+
+})();
+</script>

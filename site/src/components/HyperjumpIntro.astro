@@ -1,0 +1,309 @@
+---
+// HyperjumpIntro.astro
+// Pure Canvas 2D galaxy hyperjump intro. No heavy dependencies.
+// Plays on every page load. Dispatches 'hyperjump-complete' when done.
+---
+
+<!-- Intro canvas overlay -->
+<canvas
+  id="hj-canvas"
+  aria-hidden="true"
+  style="
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+    background: #07090f;
+  "
+></canvas>
+
+<!-- Replay button — shown after intro -->
+<button
+  id="hj-replay"
+  aria-label="Replay intro"
+  style="
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 200;
+    opacity: 0.35;
+    background: rgba(37,99,235,0.12);
+    border: 1px solid rgba(147,197,253,0.22);
+    color: #93c5fd;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s;
+  "
+  onmouseover="this.style.opacity='1'"
+  onmouseout="this.style.opacity='0.35'"
+>⟳ Replay intro</button>
+
+<script is:inline>
+(function () {
+  'use strict';
+
+  /* ─── Tuning knobs ────────────────────────────────────────────────────── */
+  const CFG = {
+    STAR_COUNT:      4500,   // total points. raise for denser sky (perf cost)
+    IDLE_MS:          800,   // ms of calm drift before acceleration
+    ACCEL_MS:        900,    // ms of acceleration ramp-up
+    HYPER_MS:       1100,   // ms of full-speed hyperjump
+    DECEL_MS:        700,   // ms of deceleration
+    FADE_OUT_MS:     800,   // ms canvas fades to transparent
+
+    BASE_SPEED:      0.4,   // slow drift speed (no units, world-space per frame@60)
+    HYPER_SPEED:    70,     // full hyperjump speed
+    STAR_SPREAD:    1.5,    // how wide the star cone spreads (multiplier of screen diagonal)
+
+    // Colors (blue-tinted white for subtle look)
+    STAR_COLORS: [
+      [210, 230, 255, 0.85],
+      [190, 220, 255, 0.75],
+      [230, 240, 255, 0.90],
+      [160, 200, 255, 0.65],
+      [245, 248, 255, 0.95],
+    ],
+    BG_COLOR: '#07090f',
+  };
+  /* ─────────────────────────────────────────────────────────────────────── */
+
+  const canvas  = document.getElementById('hj-canvas');
+  const replay  = document.getElementById('hj-replay');
+  if (!canvas) return;
+
+  // Reduced motion — skip everything, instant fire
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    canvas.style.display = 'none';
+    replay.style.display = 'none';
+    document.body.classList.remove('hyperjump-active');
+    document.dispatchEvent(new CustomEvent('hyperjump-complete'));
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+  let W, H, cx, cy, diag;
+  let stars = [];
+  let phase  = 'idle';   // idle | accel | hyper | decel | done
+  let phaseStart = 0;
+  let speed  = CFG.BASE_SPEED;
+  let rafId  = null;
+  let introStart = 0;
+
+  /* ── Star factory ────────────────────────────────────────────────────── */
+  function makeStar() {
+    const angle  = Math.random() * Math.PI * 2;
+    // place stars at varying depths — most far away (z near 1 = far, z near 0 = close)
+    const depth  = Math.random();          // 0 = camera, 1 = far
+    const dist   = (0.05 + Math.random() * 0.95) * diag * CFG.STAR_SPREAD;
+    const col    = CFG.STAR_COLORS[Math.floor(Math.random() * CFG.STAR_COLORS.length)];
+    return {
+      ox: cx + Math.cos(angle) * dist,    // original X
+      oy: cy + Math.sin(angle) * dist,    // original Y
+      x:  cx + Math.cos(angle) * dist,
+      y:  cy + Math.sin(angle) * dist,
+      angle,
+      dist,
+      depth,
+      baseSize: 0.6 + depth * 1.4,
+      col,      // [r,g,b,a]
+      speed: CFG.BASE_SPEED * (0.5 + depth),   // farther = slightly faster apparent motion
+    };
+  }
+
+  function resize() {
+    W  = canvas.width  = window.innerWidth;
+    H  = canvas.height = window.innerHeight;
+    cx = W / 2;
+    cy = H / 2;
+    diag = Math.sqrt(W * W + H * H) * 0.5;
+    stars = Array.from({ length: CFG.STAR_COUNT }, makeStar);
+  }
+
+  /* ── Easing helpers ──────────────────────────────────────────────────── */
+  const easeInCubic  = t => t * t * t;
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  const lerp         = (a, b, t) => a + (b - a) * t;
+
+  /* ── Draw one frame ──────────────────────────────────────────────────── */
+  function draw(ts) {
+    const elapsed = ts - phaseStart;
+    const total   = ts - introStart;
+
+    /* Phase transitions */
+    if (phase === 'idle' && elapsed > CFG.IDLE_MS) {
+      phase = 'accel'; phaseStart = ts;
+    } else if (phase === 'accel' && elapsed > CFG.ACCEL_MS) {
+      phase = 'hyper'; phaseStart = ts;
+    } else if (phase === 'hyper' && elapsed > CFG.HYPER_MS) {
+      phase = 'decel'; phaseStart = ts;
+    } else if (phase === 'decel' && elapsed > CFG.DECEL_MS) {
+      phase = 'done';  phaseStart = ts;
+    }
+
+    /* Current speed */
+    let spd = CFG.BASE_SPEED;
+    if (phase === 'idle')  spd = CFG.BASE_SPEED;
+    if (phase === 'accel') spd = lerp(CFG.BASE_SPEED, CFG.HYPER_SPEED, easeInCubic(Math.min(elapsed / CFG.ACCEL_MS, 1)));
+    if (phase === 'hyper') spd = CFG.HYPER_SPEED;
+    if (phase === 'decel') spd = lerp(CFG.HYPER_SPEED, CFG.BASE_SPEED, easeOutCubic(Math.min(elapsed / CFG.DECEL_MS, 1)));
+
+    /* Stretch factor — longer streaks at high speed */
+    const stretch = Math.max(0, (spd - CFG.BASE_SPEED) / (CFG.HYPER_SPEED - CFG.BASE_SPEED));
+
+    /* Background */
+    ctx.fillStyle = CFG.BG_COLOR;
+    ctx.fillRect(0, 0, W, H);
+
+    /* Draw stars */
+    ctx.save();
+    for (const s of stars) {
+      /* Move star toward camera (reduce dist) */
+      const vel = spd * (0.7 + s.depth * 0.6);
+      s.dist = Math.max(1, s.dist - vel);
+
+      /* Recycle if too close */
+      if (s.dist < 2) {
+        s.dist   = diag * CFG.STAR_SPREAD * (0.5 + Math.random() * 0.5);
+        s.angle  = Math.random() * Math.PI * 2;
+        s.depth  = Math.random();
+        s.baseSize = 0.6 + s.depth * 1.4;
+        s.speed  = CFG.BASE_SPEED * (0.5 + s.depth);
+      }
+
+      s.x = cx + Math.cos(s.angle) * s.dist;
+      s.y = cy + Math.sin(s.angle) * s.dist;
+
+      /* Size grows as star approaches */
+      const proximity = 1 - (s.dist / (diag * CFG.STAR_SPREAD));
+      const size = s.baseSize + proximity * 2.5;
+
+      /* Streak tail length */
+      const tailLen = stretch * vel * 6 * (0.5 + proximity);
+
+      const [r, g, b, a] = s.col;
+      const alpha = Math.min(1, a * (0.3 + proximity * 0.8));
+
+      if (tailLen > 0.5) {
+        /* draw as a line streak */
+        const tx = cx + Math.cos(s.angle) * (s.dist + tailLen);
+        const ty = cy + Math.sin(s.angle) * (s.dist + tailLen);
+
+        const grad = ctx.createLinearGradient(tx, ty, s.x, s.y);
+        grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
+        grad.addColorStop(1, `rgba(${r},${g},${b},${alpha})`);
+
+        ctx.beginPath();
+        ctx.strokeStyle = grad;
+        ctx.lineWidth   = Math.max(0.5, size * 0.6);
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(s.x, s.y);
+        ctx.stroke();
+      } else {
+        /* draw as a round dot */
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.arc(s.x, s.y, Math.max(0.4, size * 0.55), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+
+    /* Blue radial glow at centre during hyper */
+    if (stretch > 0.1) {
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.45 * stretch);
+      glow.addColorStop(0,   `rgba(37,99,235,${0.28 * stretch})`);
+      glow.addColorStop(0.4, `rgba(37,99,235,${0.10 * stretch})`);
+      glow.addColorStop(1,   'rgba(37,99,235,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    /* --- Done: fade canvas out, reveal hero --- */
+    if (phase === 'done') {
+      const fadeT = Math.min(elapsed / CFG.FADE_OUT_MS, 1);
+      canvas.style.opacity = (1 - fadeT).toString();
+
+      if (fadeT >= 1) {
+        canvas.style.display = 'none';
+        document.body.classList.remove('hyperjump-active');
+        document.dispatchEvent(new CustomEvent('hyperjump-complete'));
+        replay.style.display = 'block';
+
+        // Stagger-reveal elements with class .reveal
+        const items = document.querySelectorAll('.reveal');
+        items.forEach((el, i) => {
+          setTimeout(() => el.classList.add('revealed'), 80 * i);
+        });
+
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        return;
+      }
+    }
+
+    rafId = requestAnimationFrame(draw);
+  }
+
+  /* ── Boot / Replay ───────────────────────────────────────────────────── */
+  function startIntro() {
+    canvas.style.display = 'block';
+    canvas.style.opacity = '1';
+    replay.style.display = 'none';
+    document.body.classList.add('hyperjump-active');
+
+    resize();
+    phase      = 'idle';
+    introStart = performance.now();
+    phaseStart = introStart;
+
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  replay.addEventListener('click', startIntro);
+
+  /* Start immediately on page load */
+  startIntro();
+})();
+</script>
+
+<style is:global>
+  /* Lock body scroll during intro */
+  body.hyperjump-active {
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* Hero + layout elements hidden until intro fires */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal.revealed {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

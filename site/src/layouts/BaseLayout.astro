@@ -2,6 +2,7 @@
 import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import { profile } from "../data/profile";
+import HyperjumpIntro from "../components/HyperjumpIntro.astro";
 import {
   ArrowUpRight,
   Copyright,
@@ -391,14 +392,8 @@ const isActive = (href: string) =>
     <ViewTransitions fallback="none" />
   </head>
     <body class="antialiased">
-    <!-- Intro Preflight -->
-    <script is:inline>
-      (() => {
-        if (!localStorage.getItem('hyperjump_played') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          document.body.classList.add('hyperjump-active');
-        }
-      })();
-    </script>
+    <!-- Galaxy Hyperjump Intro overlay -->
+    <HyperjumpIntro />
 
     <!-- Noise overlay -->
     <div class="noise-overlay" aria-hidden="true"></div>
