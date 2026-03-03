@@ -116,6 +116,7 @@
   const z   = new Float32Array(C.N);
   const ci  = new Uint8Array(C.N);      // colour index
   const bsz = new Float32Array(C.N);    // base size
+  const stp = new Uint8Array(C.N);      // star type: 0=tunnel, 1=environment
 
   // Screen-space positions (for trails + cursor interaction)
   const sx  = new Float32Array(C.N);
@@ -130,13 +131,31 @@
   const vy  = new Float32Array(C.N);    // velocity y
 
   function initStar(i, randZ) {
+    const isTunnel = Math.random() < 0.75; // 75% stars form the tunnel
+    stp[i] = isTunnel ? 0 : 1;
+
     const ang = Math.random() * 6.2832;
-    const rr  = C.R_INNER + Math.sqrt(Math.random()) * (C.R_OUTER - C.R_INNER);
+    let rr;
+
+    if (isTunnel) {
+      // Tunnel stars: concentrated ring to form a sharper circular void
+      // Bias them towards R_INNER to make the "mouth" distinct
+      const bias = Math.pow(Math.random(), 1.5);
+      rr = C.R_INNER + bias * (C.R_OUTER * 0.8 - C.R_INNER);
+    } else {
+      // Environment stars: fill the sides of the screen (wide distribution)
+      rr = C.R_INNER + Math.random() * (C.R_OUTER * 4);
+    }
+
     x3[i]  = Math.cos(ang) * rr;
     y3[i]  = Math.sin(ang) * rr;
-    z[i]   = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.7 + Math.random() * 0.3);
+    z[i]   = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
     ci[i]  = Math.random() * C.COLS.length | 0;
-    bsz[i] = Math.random() < 0.88 ? 0.35 + Math.random() * 0.65 : 0.9 + Math.random() * 1.4;
+
+    // Environment stars are slightly smaller/dimmer to stay in the background
+    const scale = isTunnel ? 1 : 0.7;
+    bsz[i] = (Math.random() < 0.88 ? 0.35 + Math.random() * 0.65 : 0.9 + Math.random() * 1.4) * scale;
+    
     const sc = C.FOCAL / z[i];
     psx[i] = sx[i] = cx + x3[i] * sc;
     psy[i] = sy[i] = cy + y3[i] * sc;
@@ -160,8 +179,8 @@
   const clamp= (v,lo,hi) => v < lo ? lo : v > hi ? hi : v;
 
   /* ── State ─── */
-  let mode       = 'intro';   // intro | settling | background
-  let phase      = 'idle';    // idle | accel | hyper | decel | done
+  let mode       = 'intro';
+  let phase      = 'idle';
   let phaseStart = 0;
   let lastTs     = 0;
   let rafId      = null;
@@ -180,6 +199,7 @@
      INTRO RENDER LOOP
      ════════════════════════════════════════════════════════════════ */
   function introFrame(ts) {
+    if (!lastTs) lastTs = ts;
     const dt = Math.min((ts - lastTs) / 1000, 0.05);
     lastTs   = ts;
     const elapsed = ts - phaseStart;
@@ -200,11 +220,11 @@
 
     // Blue glow during warp
     if (t01 > 0.08) {
-      const gA  = t01 * 0.20;
-      const gR  = Math.min(W, H) * 0.5 * t01;
+      const gA  = t01 * 0.18;
+      const gR  = Math.min(W, H) * 0.6 * t01;
       const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
       g.addColorStop(0,    `rgba(37,99,235,${gA})`);
-      g.addColorStop(0.45, `rgba(20,55,180,${gA * 0.35})`);
+      g.addColorStop(0.5,  `rgba(20,55,180,${gA * 0.3})`);
       g.addColorStop(1,    'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
@@ -224,7 +244,7 @@
       const a   = clamp(ma * (0.12 + prox * 0.92), 0, 1);
       const ps  = bsz[i] * (0.45 + prox * 2.2);
 
-      // Warp mode: draw line (motion blur overlay creates the streak trail)
+      // Warp mode: draw line
       if (t01 > 0.04) {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
@@ -243,7 +263,7 @@
       psy[i] = sy[i] = y2;
     }
 
-    // ── DONE: transition to settling mode (no flash!) ───
+    // ── DONE: transition to background mode (no flash!) ───
     if (phase === 'done') {
       const fadeT = clamp(elapsed / C.T_FADE, 0, 1);
 
@@ -252,37 +272,30 @@
         return;
       }
 
-      // Transition: lock canvas to hero section bg
-      mode = 'settling';
+      // Handover: lock canvas to hero section
+      mode = 'background';
       canvas.style.position  = 'absolute';
       canvas.style.zIndex    = '0';
       canvas.style.pointerEvents = 'none';
 
-      // Move canvas into the hero section DOM
       const heroSection = document.querySelector('.hero-section');
       if (heroSection) {
         heroSection.style.position = 'relative';
         heroSection.insertBefore(canvas, heroSection.firstChild);
       }
 
-      // Record current screen positions as "home" for cursor interaction
       for (let i = 0; i < C.N; i++) {
         hx[i] = sx[i]; hy[i] = sy[i];
         vx[i] = 0;     vy[i] = 0;
       }
 
-      // Remove body lock, show replay
       document.body.classList.remove('hyperjump-active');
       replay.style.display = 'block';
-
-      // Start cinematic reveal
       revealHero(false);
 
-      // Enable cursor tracking
       window.addEventListener('mousemove', onMouse, { passive: true });
       window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
 
-      // Switch to background render loop
       rafId = requestAnimationFrame(bgFrame);
       return;
     }
@@ -291,10 +304,12 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-     BACKGROUND RENDER LOOP (post-intro — same canvas, same stars)
-     Stars frozen at final positions with subtle cursor ripple.
+     BACKGROUND RENDER LOOP
      ════════════════════════════════════════════════════════════════ */
   function bgFrame(ts) {
+    if (!lastTs) lastTs = ts;
+    lastTs = ts;
+
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     ctx.fillRect(0, 0, W, H);
 
@@ -305,7 +320,6 @@
     const r2 = rippleR * rippleR;
 
     for (let i = 0; i < C.N; i++) {
-      // Cursor ripple force
       const dx = sx[i] - mxLocal;
       const dy = sy[i] - myLocal;
       const d2 = dx * dx + dy * dy;
@@ -318,7 +332,6 @@
         vy[i] += dy * inv * f * 0.04;
       }
 
-      // Spring back to home
       vx[i] += (hx[i] - sx[i]) * C.SPRING;
       vy[i] += (hy[i] - sy[i]) * C.SPRING;
       vx[i] *= 0.80;
@@ -329,7 +342,9 @@
       const [r, g, b, ma] = C.COLS[ci[i]];
       const s = bsz[i] * 0.6;
       ctx.beginPath();
-      ctx.fillStyle = `rgba(${r},${g},${b},${ma * 0.75})`;
+      // Environment stars are slightly dimmer in background mode
+      const opacity = stp[i] === 1 ? ma * 0.55 : ma * 0.85;
+      ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
       ctx.arc(sx[i], sy[i], Math.max(0.25, s), 0, 6.2832);
       ctx.fill();
     }
@@ -343,28 +358,25 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-     CINEMATIC STAGGERED REVEAL — each part appears separately
+     CINEMATIC STAGGERED REVEAL
      ════════════════════════════════════════════════════════════════ */
   function revealHero(instant) {
-    // 1) Header — slides down first
     const header = document.querySelector('header');
     if (header) {
       if (instant) { header.classList.add('revealed'); }
-      else { setTimeout(() => header.classList.add('revealed'), 100); }
+      else { setTimeout(() => header.classList.add('revealed'), 150); }
     }
 
-    // 2) All .reveal elements — staggered by data-delay or index
     const items = Array.from(document.querySelectorAll('.reveal'));
     items.forEach((el, i) => {
       if (instant) {
         el.classList.add('revealed');
         return;
       }
-      // Use data-delay (seconds) if specified, else index * 120ms
       const delayMs = el.dataset.delay
         ? parseFloat(el.dataset.delay) * 1000
-        : i * 120;
-      setTimeout(() => el.classList.add('revealed'), 350 + delayMs);
+        : i * 130;
+      setTimeout(() => el.classList.add('revealed'), 450 + delayMs);
     });
   }
 
@@ -372,7 +384,6 @@
      BOOT / REPLAY
      ════════════════════════════════════════════════════════════════ */
   function start() {
-    // Reset canvas to fixed overlay
     canvas.style.position  = 'fixed';
     canvas.style.inset     = '0';
     canvas.style.zIndex    = '9999';
@@ -380,14 +391,12 @@
     canvas.style.opacity   = '1';
     replay.style.display   = 'none';
 
-    // Move canvas back to body if it was moved into hero
     if (canvas.parentElement !== document.body) {
       document.body.insertBefore(canvas, document.body.firstChild);
     }
 
     document.body.classList.add('hyperjump-active');
 
-    // Reset reveal state
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     const header = document.querySelector('header');
     if (header) header.classList.remove('revealed');
