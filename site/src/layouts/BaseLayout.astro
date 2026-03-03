@@ -488,7 +488,7 @@ const isActive = (href: string) =>
     </main>
 
     <!-- FOOTER -->
-    <footer class="mt-16 px-4 pb-10">
+    <footer class="container-shell mt-16 px-4 pb-10">
       <div class="mx-auto max-w-6xl glass-panel rounded-3xl px-8 py-8">
         <div class="grid gap-8 md:grid-cols-3 md:items-start">
 
@@ -616,10 +616,10 @@ const isActive = (href: string) =>
           // If hyperjump is active, wait for it to complete
           if (document.body.classList.contains('hyperjump-active')) {
             document.addEventListener('hyperjump-complete', () => {
-              setTimeout(() => el.classList.add('visible'), delay);
+              setTimeout(() => el.classList.add('revealed'), delay);
             }, { once: true });
           } else {
-            setTimeout(() => el.classList.add('visible'), delay);
+            setTimeout(() => el.classList.add('revealed'), delay);
           }
         }
       }
@@ -747,7 +747,6 @@ const isActive = (href: string) =>
     </script>
   </body>
 </html>
-
 
 
 

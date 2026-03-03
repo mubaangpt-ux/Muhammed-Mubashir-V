@@ -63,7 +63,7 @@ h5 {
   pointer-events: none;
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   opacity: 0.045;
   background-image:
     radial-gradient(rgba(255, 255, 255, 0.25) 0.6px, transparent 0.6px),

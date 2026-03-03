@@ -67,6 +67,8 @@
     RIPPLE_R:    0.28,
     RIPPLE_F:     18,
     SPRING:     0.05,
+    BG_EXPAND:   6.85,
+    BG_SEED:  0x4d554241,
     COLS: [
       [255, 255, 255, 1.0], [147, 197, 253, 0.9],
       [59, 130, 246, 0.8], [219, 234, 254, 0.95]
@@ -80,20 +82,30 @@
   let phase = 'idle', mode = 'intro', curSpd = C.V_SLOW, expFactor = 1.0;
   let mouseX = -9999, mouseY = -9999;
   let initialized = false;
+  let backgroundPrepared = false;
+  let bgEventsBound = false;
 
   const x3 = new Float32Array(C.N), y3 = new Float32Array(C.N), z3 = new Float32Array(C.N);
   const ci = new Uint8Array(C.N), bsz = new Float32Array(C.N);
   const sx = new Float32Array(C.N), sy = new Float32Array(C.N), psx = new Float32Array(C.N), psy = new Float32Array(C.N);
   const hx = new Float32Array(C.N), hy = new Float32Array(C.N), vx = new Float32Array(C.N), vy = new Float32Array(C.N);
 
-  function initStar(i, randZ) {
-    const tunnel = Math.random() < 0.75;
-    const a = Math.random() * 6.2831;
-    const r = tunnel ? C.R_INNER + Math.random() * (C.R_OUTER - C.R_INNER) : Math.random() * (C.R_OUTER * 15);
+  function createSeededRandom(seed) {
+    let state = seed >>> 0;
+    return () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+  }
+
+  function initStar(i, randZ, random = Math.random) {
+    const tunnel = random() < 0.75;
+    const a = random() * 6.2831;
+    const r = tunnel ? C.R_INNER + random() * (C.R_OUTER - C.R_INNER) : random() * (C.R_OUTER * 15);
     x3[i] = Math.cos(a) * r; y3[i] = Math.sin(a) * r;
-    z3[i] = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
-    ci[i] = Math.random() * C.COLS.length | 0;
-    bsz[i] = (Math.random() < 0.9 ? 0.4 + Math.random() * 0.6 : 1.0 + Math.random() * 1.5) * (tunnel ? 1 : 0.65);
+    z3[i] = randZ ? random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + random() * 0.2);
+    ci[i] = random() * C.COLS.length | 0;
+    bsz[i] = (random() < 0.9 ? 0.4 + random() * 0.6 : 1.0 + random() * 1.5) * (tunnel ? 1 : 0.65);
     vx[i] = vy[i] = 0;
     const psc = C.FOCAL / z3[i]; 
     const px = x3[i] * psc + (W / 2);
@@ -102,10 +114,57 @@
     psy[i] = sy[i] = hy[i] = py;
   }
 
+  function resetIntroScene() {
+    for (let i = 0; i < C.N; i++) initStar(i, true);
+    backgroundPrepared = false;
+  }
+
+  function prepareBackgroundScene() {
+    const random = createSeededRandom(C.BG_SEED);
+    for (let i = 0; i < C.N; i++) {
+      initStar(i, false, random);
+      const sc = C.FOCAL / z3[i];
+      const px = cx + x3[i] * sc * C.BG_EXPAND;
+      const py = cy + y3[i] * sc * C.BG_EXPAND;
+      psx[i] = sx[i] = hx[i] = px;
+      psy[i] = sy[i] = hy[i] = py;
+      vx[i] = vy[i] = 0;
+    }
+    backgroundPrepared = true;
+  }
+
+  function mountBackgroundCanvas() {
+    canvas.style.position = 'fixed';
+    canvas.style.inset = '0';
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.zIndex = '0';
+    if (canvas.parentElement !== document.body) {
+      document.body.insertBefore(canvas, document.body.firstChild);
+    }
+  }
+
+  function onMouseLeave() {
+    mouseX = -9999;
+    mouseY = -9999;
+  }
+
+  function bindBackgroundEvents() {
+    if (bgEventsBound) return;
+    window.addEventListener('mousemove', onMouse, { passive: true });
+    window.addEventListener('mouseleave', onMouseLeave, { passive: true });
+    bgEventsBound = true;
+  }
+
   function resize() {
     W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
     cx = W * 0.5; cy = H * 0.5;
-    if (!initialized) { for (let i = 0; i < C.N; i++) initStar(i, true); initialized = true; }
+    if (!initialized) {
+      resetIntroScene();
+      initialized = true;
+    } else if (mode === 'background' && backgroundPrepared) {
+      prepareBackgroundScene();
+    }
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
   }
 
@@ -165,30 +224,17 @@
   function finishIntro(wasSkipped) {
     if (!canvas) return;
     mode = 'background';
-    const hero = document.querySelector('.hero-section');
-    
-    if (hero) {
-      canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
-      hero.style.position = 'relative';
-      if (canvas.parentElement !== hero) hero.insertBefore(canvas, hero.firstChild);
-    } else {
-      // Sub-pages: use fixed background but stay behind site noise/vignette
-      canvas.style.position = 'fixed'; canvas.style.zIndex = '-1';
-      if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
-    }
-    
+    mountBackgroundCanvas();
+    prepareBackgroundScene();
     canvas.style.display = 'block'; 
     canvas.style.opacity = '1';
     canvas.style.pointerEvents = 'none';
     document.body.classList.remove('hyperjump-active');
     if (replay) replay.style.display = 'block';
-
-    for (let i = 0; i < C.N; i++) { hx[i] = sx[i]; hy[i] = sy[i]; vx[i] = 0; vy[i] = 0; }
     
     revealHero(wasSkipped);
-    
-    window.addEventListener('mousemove', onMouse, { passive: true });
-    window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
+    bindBackgroundEvents();
+    document.dispatchEvent(new CustomEvent('hyperjump-complete'));
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(bgLoop);
   }
@@ -249,6 +295,7 @@
     document.body.classList.add('hyperjump-active');
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     
+    resetIntroScene();
     mode = 'intro'; phase = 'idle'; phaseStart = lastTs = performance.now(); curSpd = C.V_SLOW;
     if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame);
   }
