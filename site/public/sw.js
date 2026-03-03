@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'site-static-v2';
-const DYNAMIC_CACHE = 'site-dynamic-v2';
+const STATIC_CACHE = 'site-static-v3';
+const DYNAMIC_CACHE = 'site-dynamic-v3';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -66,7 +66,27 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (request.destination === 'image' || request.destination === 'style' || request.destination === 'script' || request.destination === 'font') {
+  if (request.destination === 'image') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(request).then(cached => {
+            if (cached) return cached;
+            return Response.error();
+          })
+        )
+    );
+    return;
+  }
+
+  if (request.destination === 'style' || request.destination === 'script' || request.destination === 'font') {
     event.respondWith(
       caches.match(request).then(cached => {
         if (cached) return cached;
