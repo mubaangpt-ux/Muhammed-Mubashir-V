@@ -95,11 +95,7 @@
     ci[i] = Math.random() * C.COLS.length | 0;
     bsz[i] = (Math.random() < 0.9 ? 0.4 + Math.random() * 0.6 : 1.0 + Math.random() * 1.5) * (tunnel ? 1 : 0.65);
     vx[i] = vy[i] = 0;
-    const psc = C.FOCAL / z3[i]; 
-    const px = x3[i] * psc + (W / 2);
-    const py = y3[i] * psc + (H / 2);
-    psx[i] = sx[i] = hx[i] = px; 
-    psy[i] = sy[i] = hy[i] = py;
+    const psc = C.FOCAL / z3[i]; psx[i] = x3[i] * psc + (W / 2); psy[i] = y3[i] * psc + (H / 2);
   }
 
   function resize() {
@@ -163,24 +159,21 @@
   }
 
   function finishIntro(wasSkipped) {
-    if (!canvas) return;
     mode = 'background';
     const hero = document.querySelector('.hero-section');
     
     if (hero) {
-      // Home page: Inject into hero but stay behind content and gradients
-      canvas.style.position = 'absolute'; canvas.style.zIndex = '-1';
+      canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
       hero.style.position = 'relative';
       if (canvas.parentElement !== hero) hero.insertBefore(canvas, hero.firstChild);
     } else {
-      // Sub-pages: Fixed global background, just above body bg
-      canvas.style.position = 'fixed'; canvas.style.zIndex = '-10';
+      // Sub-pages or pages without hero: use fixed global background
+      canvas.style.position = 'fixed'; canvas.style.zIndex = '-1';
       if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     }
     
     canvas.style.display = 'block'; 
     canvas.style.opacity = '1';
-    canvas.style.pointerEvents = 'none'; // Ensure clicks pass through
     document.body.classList.remove('hyperjump-active');
     if (replay) replay.style.display = 'block';
 
@@ -240,10 +233,7 @@
 
   function start() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
-    if (!canvas) return; 
-    ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) return;
-    resize();
+    if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
     
     const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
     if (played || !isHome) { finishIntro(true); return; }
