@@ -591,11 +591,9 @@ const isActive = (href: string) =>
     <!-- Reveal observer -->
     <script is:inline>
     (() => {
-      // Skip on index — handled by unified observer there. Actually wait, let's keep it here for simplicity
-      // and update it to handle the hyperjump sequence.
-      if (document.querySelector('.hero-section')) return;
-
-      const els = document.querySelectorAll('.reveal');
+      const els = Array.from(document.querySelectorAll('.reveal')).filter(
+        (el) => !el.closest('.hero-section')
+      );
       if (!els.length) return;
 
       // Batch all DOM reads first, then writes — prevents layout thrashing
@@ -747,6 +745,5 @@ const isActive = (href: string) =>
     </script>
   </body>
 </html>
-
 
 
