@@ -7,7 +7,7 @@ interface HyperjumpProps {
     staticMode?: boolean;
 }
 
-const STAR_COUNT = 3000;
+const STAR_COUNT = 6000;
 const DURATION_IDLE = 1000; // ms
 const DURATION_ACCEL = 1000;
 const DURATION_HYPER = 1500;

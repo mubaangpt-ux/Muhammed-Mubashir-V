@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import Hyperjump from "./Hyperjump";
+import GalaxyBackground from "./GalaxyBackground";
 import { RefreshCcw } from "lucide-react";
 
 interface StarfieldContainerProps {
@@ -58,10 +59,12 @@ export default function StarfieldContainer({ reducedMotion }: StarfieldContainer
                     dpr={[1, 2]}
                     gl={{ antialias: false, alpha: true }}
                 >
+                    {/* Galaxy background — always visible, slowly rotating */}
+                    <GalaxyBackground />
+
                     {introState === "playing" ? (
                         <Hyperjump key="playing" onIntroComplete={handleIntroComplete} />
                     ) : (
-                        // Just import Hyperjump as a static drift if we are in complete state
                         <Hyperjump key="static" staticMode onIntroComplete={() => { }} />
                     )}
                 </Canvas>
