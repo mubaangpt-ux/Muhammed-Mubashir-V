@@ -67,7 +67,6 @@
     RIPPLE_R:    0.28,
     RIPPLE_F:     18,
     SPRING:     0.05,
-    BG_EXPAND:   6.85,
     BG_SEED:  0x4d554241,
     COLS: [
       [255, 255, 255, 1.0], [147, 197, 253, 0.9],
@@ -121,16 +120,77 @@
 
   function prepareBackgroundScene() {
     const random = createSeededRandom(C.BG_SEED);
+    const wideX = W * 0.94;
+    const wideY = H * 0.78;
+    const orbitRadius = Math.min(W, H) * 0.46;
+
     for (let i = 0; i < C.N; i++) {
-      initStar(i, false, random);
-      const sc = C.FOCAL / z3[i];
-      const px = cx + x3[i] * sc * C.BG_EXPAND;
-      const py = cy + y3[i] * sc * C.BG_EXPAND;
-      psx[i] = sx[i] = hx[i] = px;
-      psy[i] = sy[i] = hy[i] = py;
+      const layer = random();
+      let px;
+      let py;
+
+      if (layer < 0.58) {
+        px = random() * W;
+        py = random() * H;
+      } else if (layer < 0.88) {
+        px = cx + (random() - 0.5) * wideX;
+        py = cy + (random() - 0.5) * wideY;
+      } else {
+        const angle = random() * 6.2831;
+        const radius = Math.pow(random(), 0.72) * orbitRadius;
+        px = cx + Math.cos(angle) * radius * 1.28;
+        py = cy + Math.sin(angle) * radius * 0.92;
+      }
+
+      const baseX = Math.min(Math.max(px, -W * 0.08), W * 1.08);
+      const baseY = Math.min(Math.max(py, -H * 0.08), H * 1.08);
+      hx[i] = sx[i] = psx[i] = baseX;
+      hy[i] = sy[i] = psy[i] = baseY;
+      x3[i] = hx[i] - cx;
+      y3[i] = hy[i] - cy;
+      z3[i] = C.Z_FAR * (0.78 + random() * 0.18);
+      ci[i] = random() * C.COLS.length | 0;
+      bsz[i] = layer < 0.2
+        ? 0.35 + random() * 0.65
+        : layer < 0.82
+          ? 0.25 + random() * 0.55
+          : 0.6 + random() * 1.2;
       vx[i] = vy[i] = 0;
     }
     backgroundPrepared = true;
+  }
+
+  function drawBackgroundBackdrop() {
+    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
+    ctx.fillRect(0, 0, W, H);
+
+    const topLeft = ctx.createRadialGradient(W * 0.10, -H * 0.08, 0, W * 0.10, -H * 0.08, Math.max(W * 0.7, H * 0.75));
+    topLeft.addColorStop(0, 'rgba(59,130,246,0.22)');
+    topLeft.addColorStop(0.55, 'rgba(59,130,246,0.10)');
+    topLeft.addColorStop(1, 'rgba(59,130,246,0)');
+    ctx.fillStyle = topLeft;
+    ctx.fillRect(0, 0, W, H);
+
+    const topRight = ctx.createRadialGradient(W * 0.90, 0, 0, W * 0.90, 0, Math.max(W * 0.55, H * 0.58));
+    topRight.addColorStop(0, 'rgba(56,189,248,0.14)');
+    topRight.addColorStop(0.5, 'rgba(56,189,248,0.08)');
+    topRight.addColorStop(1, 'rgba(56,189,248,0)');
+    ctx.fillStyle = topRight;
+    ctx.fillRect(0, 0, W, H);
+
+    const hyper = ctx.createRadialGradient(cx, H * 0.08, 0, cx, H * 0.08, W * 0.72);
+    hyper.addColorStop(0, 'rgba(37,99,235,0.30)');
+    hyper.addColorStop(0.38, 'rgba(37,99,235,0.14)');
+    hyper.addColorStop(1, 'rgba(37,99,235,0)');
+    ctx.fillStyle = hyper;
+    ctx.fillRect(0, 0, W, H);
+
+    const bottomDepth = ctx.createRadialGradient(cx, H, 0, cx, H, Math.max(W * 0.62, H * 0.48));
+    bottomDepth.addColorStop(0, 'rgba(15,23,42,0.54)');
+    bottomDepth.addColorStop(0.7, 'rgba(15,23,42,0.22)');
+    bottomDepth.addColorStop(1, 'rgba(15,23,42,0)');
+    ctx.fillStyle = bottomDepth;
+    ctx.fillRect(0, 0, W, H);
   }
 
   function mountBackgroundCanvas() {
@@ -240,10 +300,7 @@
   }
 
   function bgLoop(ts) {
-    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
-    const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
-    g.addColorStop(0, `rgba(37,99,235,0.35)`); g.addColorStop(0.4, `rgba(37,99,235,0.12)`); g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+    drawBackgroundBackdrop();
 
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;

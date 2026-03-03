@@ -144,6 +144,9 @@ const personJsonLd = {
         alt=""
         aria-hidden="true"
         class="absolute inset-0 w-full h-full"
+        draggable="false"
+        ondragstart="return false;"
+        oncontextmenu="return false;"
         style="
           object-fit: contain;
           object-position: bottom;
@@ -166,6 +169,9 @@ const personJsonLd = {
         alt="Muhammed Mubashir V"
         width="270"
         height="420"
+        draggable="false"
+        ondragstart="return false;"
+        oncontextmenu="return false;"
         loading="eager"
         fetchpriority="high"
         decoding="async"
@@ -2488,6 +2494,11 @@ const personJsonLd = {
 
   .hero-portrait-layer img {
     will-change: transform, filter;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
   }
 
   #cta-graph-canvas,
@@ -2763,7 +2774,6 @@ const personJsonLd = {
     font-display: swap;
   }
 </style>
-
 
 
 
