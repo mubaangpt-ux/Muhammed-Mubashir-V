@@ -44,267 +44,130 @@
   onmouseout="this.style.opacity='0.3'"
 >⟳ Replay</button>
 
-<script is:inline>
-(function () {
-  'use strict';
-
+<script>
   /* ═══════════════════════════════════════════════════════════════
-     CONFIG
+     CONFIG & PERSISTENT STATE
      ═══════════════════════════════════════════════════════════════ */
   const C = {
-    N:          3501,     // Denser stars
-
-    // 3D projection
+    N:          3500,
     FOCAL:       380,
     Z_FAR:      1600,
     Z_NEAR:        3,
-
-    // Tuning the "Loop"
     R_INNER:      22,     // sharper hole
     R_OUTER:     180,     
-
-    // timings
     T_IDLE:     1000,
     T_ACCEL:    2000,
     T_HYPER:    1000,
     T_DECEL:    2200,
     T_FADE:     1200,
-
-    // speeds
     V_SLOW:       15,
     V_FAST:     1650,
-
-    // persistence
     BLUR_LO:    0.06,
     BLUR_HI:    0.90,
-
-    // background interaction
     RIPPLE_R:    0.28,
     RIPPLE_F:     18,
     SPRING:     0.05,
-
     COLS: [
-      [255, 255, 255, 1.0],  // White
-      [147, 197, 253, 0.9],  // --accent-soft
-      [59, 130, 246, 0.8],   // --accent
-      [219, 234, 254, 0.95], // ultra soft blue
+      [255, 255, 255, 1.0], [147, 197, 253, 0.9],
+      [59, 130, 246, 0.8], [219, 234, 254, 0.95]
     ],
-
-    BG: [7, 9, 15], // Match --bg-primary (#07090f)
+    BG: [7, 9, 15]
   };
-  /* ═══════════════════════════════════════════════════════════════ */
 
-  const canvas = document.getElementById('hj-canvas');
-  const replay = document.getElementById('hj-replay');
-  if (!canvas) return;
+  // Persistent engine state (survives client-side navigation)
+  let canvas, ctx, replay, W, H, cx, cy;
+  let rafId = null, lastTs = 0, phaseStart = 0;
+  let phase = 'idle', mode = 'intro', curSpd = C.V_SLOW, expFactor = 1.0;
+  let mouseX = -9999, mouseY = -9999;
+  let initialized = false;
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    canvas.style.display = 'none';
-    document.body.classList.remove('hyperjump-active');
-    revealHero(true);
-    return;
-  }
-
-  const ctx = canvas.getContext('2d', { alpha: false });
-  let W, H, cx, cy;
-
-  /* ── Pre-allocated arrays ─── */
-  const x3  = new Float32Array(C.N);
-  const y3  = new Float32Array(C.N);
-  const z3  = new Float32Array(C.N);
-  const ci  = new Uint8Array(C.N);
-  const bsz = new Float32Array(C.N);
-
-  const sx  = new Float32Array(C.N);
-  const sy  = new Float32Array(C.N);
-  const psx = new Float32Array(C.N);
-  const psy = new Float32Array(C.N);
-
-  const hx  = new Float32Array(C.N);
-  const hy  = new Float32Array(C.N);
-  const vx  = new Float32Array(C.N);
-  const vy  = new Float32Array(C.N);
+  const x3 = new Float32Array(C.N), y3 = new Float32Array(C.N), z3 = new Float32Array(C.N);
+  const ci = new Uint8Array(C.N), bsz = new Float32Array(C.N);
+  const sx = new Float32Array(C.N), sy = new Float32Array(C.N), psx = new Float32Array(C.N), psy = new Float32Array(C.N);
+  const hx = new Float32Array(C.N), hy = new Float32Array(C.N), vx = new Float32Array(C.N), vy = new Float32Array(C.N);
 
   function initStar(i, randZ) {
-    const isTunnel = Math.random() < 0.75;
+    const tunnel = Math.random() < 0.75;
     const a = Math.random() * 6.2831;
-    let r;
-
-    if (isTunnel) {
-      r = C.R_INNER + Math.random() * (C.R_OUTER - C.R_INNER);
-    } else {
-      r = Math.random() * (C.R_OUTER * 15);
-    }
-
-    x3[i]  = Math.cos(a) * r;
-    y3[i]  = Math.sin(a) * r;
-    z3[i]  = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
-    ci[i]  = Math.random() * C.COLS.length | 0;
-    
-    const sc = isTunnel ? 1 : 0.65;
-    bsz[i] = (Math.random() < 0.9 ? 0.4 + Math.random() * 0.6 : 1.0 + Math.random() * 1.5) * sc;
-    
+    const r = tunnel ? C.R_INNER + Math.random() * (C.R_OUTER - C.R_INNER) : Math.random() * (C.R_OUTER * 15);
+    x3[i] = Math.cos(a) * r; y3[i] = Math.sin(a) * r;
+    z3[i] = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
+    ci[i] = Math.random() * C.COLS.length | 0;
+    bsz[i] = (Math.random() < 0.9 ? 0.4 + Math.random() * 0.6 : 1.0 + Math.random() * 1.5) * (tunnel ? 1 : 0.65);
     vx[i] = vy[i] = 0;
-    
-    const psc = C.FOCAL / z3[i];
-    psx[i] = x3[i] * psc + (W / 2);
-    psy[i] = y3[i] * psc + (H / 2);
+    const psc = C.FOCAL / z3[i]; psx[i] = x3[i] * psc + (W / 2); psy[i] = y3[i] * psc + (H / 2);
   }
 
   function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    cx = W * 0.5;
-    cy = H * 0.5;
-    for (let i = 0; i < C.N; i++) initStar(i, true);
-    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
-    ctx.fillRect(0, 0, W, H);
+    W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
+    cx = W * 0.5; cy = H * 0.5;
+    if (!initialized) { for (let i = 0; i < C.N; i++) initStar(i, true); initialized = true; }
+    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
   }
 
-  const eIn  = t => t * t * t * t * t;
-  const eOut = t => 1 - Math.pow(1 - t, 5);
-  const lerp = (a, b, t) => a + (b - a) * t;
-  const clamp= (v,lo,hi) => v < lo ? lo : v > hi ? hi : v;
+  const eIn = t => t * t * t * t * t, eOut = t => 1 - Math.pow(1 - t, 5);
+  const lerp = (a, b, t) => a + (b - a) * t, clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
 
-  let phase      = 'idle';
-  let phaseStart = 0;
-  let lastTs     = 0;
-  let rafId      = null;
-  let mode       = 'intro';
-  let mouseX     = -9999, mouseY = -9999;
-  let curSpd     = C.V_SLOW;
-  let expFactor  = 1.0;
-
-  function getTargetSpd(ts) {
-    const e = ts - phaseStart;
-    if (phase === 'idle')  return C.V_SLOW;
-    if (phase === 'accel') return lerp(C.V_SLOW, C.V_FAST, eIn(clamp(e / C.T_ACCEL, 0, 1)));
-    if (phase === 'hyper') return C.V_FAST;
-    if (phase === 'decel') return lerp(C.V_FAST, C.V_SLOW, eOut(clamp(e / C.T_DECEL, 0, 1)));
-    return 0;
-  }
-
-  /* ════════════════════════════════════════════════════════════════
-     UNIFIED FRAME LOOP
-     ════════════════════════════════════════════════════════════════ */
   function frame(ts) {
     if (!lastTs) lastTs = ts;
-    const dt = Math.min((ts - lastTs) / 1000, 0.05);
-    lastTs = ts;
-
+    const dt = Math.min((ts - lastTs) / 1000, 0.05); lastTs = ts;
     const el = ts - phaseStart;
 
-    if      (phase === 'idle'  && el > C.T_IDLE)  { phase = 'accel'; phaseStart = ts; }
+    if (phase === 'idle' && el > C.T_IDLE) { phase = 'accel'; phaseStart = ts; }
     else if (phase === 'accel' && el > C.T_ACCEL) { phase = 'hyper'; phaseStart = ts; }
     else if (phase === 'hyper' && el > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
-    else if (phase === 'decel' && el > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
+    else if (phase === 'decel' && el > C.T_DECEL) { phase = 'done'; phaseStart = ts; }
 
-    const target = getTargetSpd(ts);
+    const target = (phase === 'idle') ? C.V_SLOW : (phase === 'accel') ? lerp(C.V_SLOW, C.V_FAST, eIn(clamp(el/C.T_ACCEL,0,1))) : (phase === 'hyper') ? C.V_FAST : (phase === 'decel') ? lerp(C.V_FAST, C.V_SLOW, eOut(clamp(el/C.T_DECEL,0,1))) : 0;
     curSpd = lerp(curSpd, target, 0.15);
     const t01 = clamp((curSpd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
 
-    // Fade to home background color
-    const trailA = lerp(C.BLUR_LO, C.BLUR_HI, t01);
-    ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailA})`;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - lerp(C.BLUR_LO, C.BLUR_HI, t01)})`; ctx.fillRect(0, 0, W, H);
 
-    // � Match Home Page Gradients during Decel/Done 🎨
     if (phase === 'decel' || phase === 'done') {
-      const gT = clamp(el / (phase === 'decel' ? C.T_DECEL : C.T_FADE), 0, 1);
-      const alpha = gT * 0.45;
-      
-      // Blue top glow (Matches index.astro:110)
+      const alpha = clamp(el / (phase === 'decel' ? C.T_DECEL : C.T_FADE), 0, 1) * 0.45;
       const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
-      g.addColorStop(0, `rgba(37,99,235,${alpha * 0.8})`);
-      g.addColorStop(0.4, `rgba(37,99,235,${alpha * 0.3})`);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      
-      ctx.globalCompositeOperation = 'screen';
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-      ctx.globalCompositeOperation = 'source-over';
+      g.addColorStop(0, `rgba(37,99,235,${alpha * 0.8})`); g.addColorStop(0.4, `rgba(37,99,235,${alpha * 0.3})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
     }
 
-    // Expansion logic
-    expFactor = (phase === 'decel' || phase === 'done')
-      ? 1.0 + eOut(el / C.T_DECEL) * 6.0
-      : 1.0;
-
+    expFactor = (phase === 'decel' || phase === 'done') ? 1.0 + eOut(el / C.T_DECEL) * 6.0 : 1.0;
     const dz = curSpd * dt;
 
     for (let i = 0; i < C.N; i++) {
       if (phase !== 'done') {
-        z3[i] -= dz;
-        if (z3[i] < C.Z_NEAR) {
-          initStar(i, false);
-          // Zero-out psx/psy to prevent "scribble" when star re-wraps
-          const sc2 = C.FOCAL / z3[i];
-          psx[i] = cx + x3[i] * sc2 * expFactor;
-          psy[i] = cy + y3[i] * sc2 * expFactor;
+        z3[i] -= dz; if (z3[i] < C.Z_NEAR) { 
+          initStar(i, false); const sc2 = C.FOCAL / z3[i]; psx[i] = cx + x3[i]*sc2*expFactor; psy[i] = cy + y3[i]*sc2*expFactor; 
         }
       }
-
-      const sc = C.FOCAL / z3[i];
-      const x  = cx + x3[i] * sc * expFactor;
-      const y  = cy + y3[i] * sc * expFactor;
-
-      const p = 1 - z3[i] / C.Z_FAR;
-      const [r, g, b, ma] = C.COLS[ci[i]];
-      const a = clamp(ma * (0.15 + p * 0.85), 0, 1);
-      const s = bsz[i] * (0.6 + p * 1.8);
-
+      const sc = C.FOCAL / z3[i], x = cx + x3[i]*sc*expFactor, y = cy + y3[i]*sc*expFactor;
+      const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], a = clamp(ma*(0.15+p*0.85),0,1), s = bsz[i]*(0.6+p*1.8);
       if (t01 > 0.05 && phase !== 'done') {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-        ctx.lineWidth   = Math.max(0.6, s * 0.5);
-        // Streak from psx/psy to ensure fluid lines
-        ctx.moveTo(psx[i], psy[i]);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+        ctx.beginPath(); ctx.strokeStyle = `rgba(${r},${g},${b},${a})`; ctx.lineWidth = Math.max(0.6, s*0.5);
+        ctx.moveTo(psx[i], psy[i]); ctx.lineTo(x, y); ctx.stroke();
       } else {
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(${r},${g},${b},${a * (mode === 'background' ? 0.7 : 1)})`;
-        ctx.arc(x, y, Math.max(0.35, s * 0.45), 0, 6.2831);
-        ctx.fill();
+        ctx.beginPath(); ctx.fillStyle = `rgba(${r},${g},${b},${a * (mode==='background'?0.7:1)})`;
+        ctx.arc(x, y, Math.max(0.35, s*0.45), 0, 6.2831); ctx.fill();
       }
-
-      psx[i] = x;
-      psy[i] = y;
-      sx[i]  = x;
-      sy[i]  = y;
+      psx[i] = x; psy[i] = y; sx[i] = x; sy[i] = y;
     }
 
-    if (phase === 'done') {
-      if (clamp(el / C.T_FADE, 0, 1) >= 1 && mode === 'intro') {
-        sessionStorage.setItem('hj_intro_played', 'true');
-        finishIntro();
-        return;
-      }
+    if (phase === 'done' && clamp(el / C.T_FADE, 0, 1) >= 1 && mode === 'intro') {
+      sessionStorage.setItem('hj_intro_played', 'true'); finishIntro(); return;
     }
-
     rafId = requestAnimationFrame(frame);
   }
 
   function finishIntro() {
     mode = 'background';
-    canvas.style.position = 'absolute';
-    canvas.style.zIndex   = '0';
+    canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
     const hero = document.querySelector('.hero-section');
-    if (hero) {
-      hero.style.position = 'relative';
-      hero.insertBefore(canvas, hero.firstChild);
-    }
+    if (hero) { hero.style.position = 'relative'; hero.insertBefore(canvas, hero.firstChild); }
     document.body.classList.remove('hyperjump-active');
-    replay.style.display = 'block';
+    if (replay) replay.style.display = 'block';
 
-    for (let i = 0; i < C.N; i++) {
-      hx[i] = sx[i]; hy[i] = sy[i];
-      vx[i] = 0;     vy[i] = 0;
-    }
-
-    const alreadyPlayed = sessionStorage.getItem('hj_intro_played');
-    revealHero(!!alreadyPlayed);
-    
+    for (let i = 0; i < C.N; i++) { hx[i] = sx[i]; hy[i] = sy[i]; vx[i] = 0; vy[i] = 0; }
+    revealHero(!!sessionStorage.getItem('hj_intro_played'));
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
     if (rafId) cancelAnimationFrame(rafId);
@@ -312,50 +175,24 @@
   }
 
   function bgLoop(ts) {
-    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
-    ctx.fillRect(0, 0, W, H);
-
-    // Render hero gradients in background too for blending
+    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
     const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
-    g.addColorStop(0, `rgba(37,99,235,0.35)`);
-    g.addColorStop(0.4, `rgba(37,99,235,0.12)`);
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'source-over';
+    g.addColorStop(0, `rgba(37,99,235,0.35)`); g.addColorStop(0.4, `rgba(37,99,235,0.12)`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
 
     const r = canvas.getBoundingClientRect();
-    const mxL = mouseX - r.left;
-    const myL = mouseY - r.top;
-    const rr  = C.RIPPLE_R * Math.min(W, H);
-    const r2  = rr * rr;
-
+    const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
     for (let i = 0; i < C.N; i++) {
-        const dx = sx[i] - mxL;
-        const dy = sy[i] - myL;
-        const d2 = dx * dx + dy * dy;
-
+        const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
         if (d2 < r2 && d2 > 0.1) {
-            const t = 1 - d2 / r2;
-            const f = t * t * C.RIPPLE_F;
-            const inv = 1 / Math.sqrt(d2);
-            vx[i] += dx * inv * f * 0.05;
-            vy[i] += dy * inv * f * 0.05;
+            const t = 1 - d2/r2, f = t*t*C.RIPPLE_F, inv = 1/Math.sqrt(d2);
+            vx[i] += dx*inv*f*0.05; vy[i] += dy*inv*f*0.05;
         }
-
-        vx[i] += (hx[i] - sx[i]) * C.SPRING;
-        vy[i] += (hy[i] - sy[i]) * C.SPRING;
-        vx[i] *= 0.8;
-        vy[i] *= 0.8;
-        sx[i] += vx[i];
-        sy[i] += vy[i];
-
+        vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
+        vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
         const [rc, gc, bc, ma] = C.COLS[ci[i]];
-        ctx.beginPath();
-        ctx.fillStyle = `rgba(${rc},${gc},${bc},${ma * 0.7})`;
-        ctx.arc(sx[i], sy[i], Math.max(0.35, bsz[i] * 0.6), 0, 6.2831);
-        ctx.fill();
+        ctx.beginPath(); ctx.fillStyle = `rgba(${rc},${gc},${bc},${ma*0.7})`;
+        ctx.arc(sx[i], sy[i], Math.max(0.35, bsz[i]*0.6), 0, 6.2831); ctx.fill();
     }
     rafId = requestAnimationFrame(bgLoop);
   }
@@ -364,86 +201,47 @@
 
   function revealHero(instant) {
     const header = document.querySelector('header');
-    if (header) {
-      header.classList.add('revealed');
-      if (instant) header.style.transition = 'none';
-    }
-    const items = Array.from(document.querySelectorAll('.reveal'));
-    items.forEach((el, i) => {
-      if (instant) { 
-        el.classList.add('revealed'); 
-        el.style.transition = 'none';
-        return; 
-      }
-      const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 120;
+    if (header) { header.classList.add('revealed'); if (instant) header.style.transition='none'; }
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      if (instant) { el.classList.add('revealed'); el.style.transition='none'; return; }
+      const d = el.dataset.delay ? parseFloat(el.dataset.delay)*1000 : i*120;
       setTimeout(() => el.classList.add('revealed'), 450 + d);
     });
   }
 
   function start() {
-    resize();
-    const alreadyPlayed = sessionStorage.getItem('hj_intro_played');
-    const isHome = window.location.pathname === '/' || window.location.pathname === '/index.html';
+    canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
+    if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
+    const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+    if (played || !isHome) { finishIntro(); return; }
 
-    if (alreadyPlayed || !isHome) {
-      finishIntro();
-      return;
-    }
-
-    canvas.style.position = 'fixed';
-    canvas.style.zIndex   = '9999';
-    canvas.style.display  = 'block';
-    canvas.style.opacity  = '1';
-    replay.style.display  = 'none';
+    canvas.style.position = 'fixed'; canvas.style.zIndex = '9999'; canvas.style.display = 'block'; canvas.style.opacity = '1';
     if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     document.body.classList.add('hyperjump-active');
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     
-    mode       = 'intro';
-    phase      = 'idle';
-    phaseStart = lastTs = performance.now();
-    curSpd     = C.V_SLOW;
-    window.removeEventListener('mousemove', onMouse);
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(frame);
+    mode = 'intro'; phase = 'idle'; phaseStart = lastTs = performance.now(); curSpd = C.V_SLOW;
+    if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame);
   }
 
-  window.addEventListener('resize', () => {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    cx = W * 0.5; cy = H * 0.5;
-  }, { passive: true });
-
-  // Astro ViewTransitions support
-  document.addEventListener('astro:after-swap', () => {
-    const newCanvas = document.getElementById('hj-canvas');
-    if (newCanvas) start();
-  });
-
-  replay.addEventListener('click', () => {
-    sessionStorage.removeItem('hj_intro_played');
+  document.addEventListener('astro:page-load', () => {
+    if (!window.hj_ev) { window.addEventListener('resize', () => { if(canvas) resize(); }, { passive: true }); window.hj_ev = true; }
     start();
   });
-
-  start();
-})();
+  document.addEventListener('astro:after-swap', () => { if (rafId) cancelAnimationFrame(rafId); });
+  document.addEventListener('click', (e) => { if (e.target.id === 'hj-replay') { sessionStorage.removeItem('hj_intro_played'); start(); } });
 </script>
 
 <style is:global>
-  body.hyperjump-active { overflow: hidden; }
-  header { opacity: 0; transform: translateY(-16px); transition: all 1.1s cubic-bezier(0.25, 1, 0.4, 1); }
+  body.hyperjump-active { overflow: hidden; height: 100vh; }
+  header { opacity: 0; transform: translateY(-12px); transition: all 1s var(--ease-out-expo); }
   header.revealed { opacity: 1; transform: none; }
-  .reveal { opacity: 0; transform: translateY(32px); transition: all 0.9s cubic-bezier(0.25, 1, 0.4, 1); will-change: opacity, transform; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: all 0.85s var(--ease-out-expo); will-change: transform, opacity; }
   .reveal.revealed { opacity: 1; transform: none; }
-  
   .glass-panel.reveal, .glass-card.reveal, [class*="cap-card"].reveal, .metric-card.reveal {
-     transform: translateY(32px) scale(0.97); transition: all 1.2s cubic-bezier(0.25, 1, 0.4, 1);
+     transform: translateY(24px) scale(0.98); transition: all 1s var(--ease-out-expo);
   }
   .glass-panel.reveal.revealed, .glass-card.reveal.revealed, [class*="cap-card"].reveal.revealed, .metric-card.reveal.revealed {
      transform: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    header, .reveal, .reveal.revealed { opacity: 1 !important; transform: none !important; transition: none !important; }
   }
 </style>
