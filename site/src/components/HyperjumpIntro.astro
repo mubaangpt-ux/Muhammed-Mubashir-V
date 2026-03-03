@@ -160,37 +160,56 @@
     backgroundPrepared = true;
   }
 
-  function drawBackgroundBackdrop() {
+  function drawBackgroundBackdrop(alpha = 1) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     ctx.fillRect(0, 0, W, H);
 
-    const topLeft = ctx.createRadialGradient(W * 0.10, -H * 0.08, 0, W * 0.10, -H * 0.08, Math.max(W * 0.7, H * 0.75));
-    topLeft.addColorStop(0, 'rgba(59,130,246,0.22)');
-    topLeft.addColorStop(0.55, 'rgba(59,130,246,0.10)');
-    topLeft.addColorStop(1, 'rgba(59,130,246,0)');
-    ctx.fillStyle = topLeft;
+    const centerField = ctx.createRadialGradient(cx, H * 0.42, 0, cx, H * 0.42, Math.max(W * 0.54, H * 0.84));
+    centerField.addColorStop(0, 'rgba(16,54,138,0.52)');
+    centerField.addColorStop(0.42, 'rgba(10,38,104,0.34)');
+    centerField.addColorStop(0.72, 'rgba(6,20,64,0.18)');
+    centerField.addColorStop(1, 'rgba(6,20,64,0)');
+    ctx.fillStyle = centerField;
     ctx.fillRect(0, 0, W, H);
 
-    const topRight = ctx.createRadialGradient(W * 0.90, 0, 0, W * 0.90, 0, Math.max(W * 0.55, H * 0.58));
-    topRight.addColorStop(0, 'rgba(56,189,248,0.14)');
-    topRight.addColorStop(0.5, 'rgba(56,189,248,0.08)');
-    topRight.addColorStop(1, 'rgba(56,189,248,0)');
-    ctx.fillStyle = topRight;
+    const upperHalo = ctx.createRadialGradient(cx, H * 0.12, 0, cx, H * 0.18, Math.max(W * 0.38, H * 0.42));
+    upperHalo.addColorStop(0, 'rgba(37,99,235,0.22)');
+    upperHalo.addColorStop(0.45, 'rgba(37,99,235,0.12)');
+    upperHalo.addColorStop(1, 'rgba(37,99,235,0)');
+    ctx.fillStyle = upperHalo;
     ctx.fillRect(0, 0, W, H);
 
-    const hyper = ctx.createRadialGradient(cx, H * 0.08, 0, cx, H * 0.08, W * 0.72);
-    hyper.addColorStop(0, 'rgba(37,99,235,0.30)');
-    hyper.addColorStop(0.38, 'rgba(37,99,235,0.14)');
-    hyper.addColorStop(1, 'rgba(37,99,235,0)');
-    ctx.fillStyle = hyper;
+    const leftVignette = ctx.createLinearGradient(0, 0, W * 0.24, 0);
+    leftVignette.addColorStop(0, 'rgba(0,0,0,0.96)');
+    leftVignette.addColorStop(0.28, 'rgba(1,4,14,0.82)');
+    leftVignette.addColorStop(1, 'rgba(1,4,14,0)');
+    ctx.fillStyle = leftVignette;
     ctx.fillRect(0, 0, W, H);
 
-    const bottomDepth = ctx.createRadialGradient(cx, H, 0, cx, H, Math.max(W * 0.62, H * 0.48));
-    bottomDepth.addColorStop(0, 'rgba(15,23,42,0.54)');
-    bottomDepth.addColorStop(0.7, 'rgba(15,23,42,0.22)');
-    bottomDepth.addColorStop(1, 'rgba(15,23,42,0)');
+    const rightVignette = ctx.createLinearGradient(W, 0, W * 0.76, 0);
+    rightVignette.addColorStop(0, 'rgba(0,0,0,0.96)');
+    rightVignette.addColorStop(0.28, 'rgba(1,4,14,0.82)');
+    rightVignette.addColorStop(1, 'rgba(1,4,14,0)');
+    ctx.fillStyle = rightVignette;
+    ctx.fillRect(0, 0, W, H);
+
+    const verticalVignette = ctx.createLinearGradient(0, 0, 0, H);
+    verticalVignette.addColorStop(0, 'rgba(1,6,18,0.44)');
+    verticalVignette.addColorStop(0.18, 'rgba(1,6,18,0.16)');
+    verticalVignette.addColorStop(0.65, 'rgba(1,6,18,0)');
+    verticalVignette.addColorStop(1, 'rgba(0,0,0,0.44)');
+    ctx.fillStyle = verticalVignette;
+    ctx.fillRect(0, 0, W, H);
+
+    const bottomDepth = ctx.createRadialGradient(cx, H * 1.02, 0, cx, H * 1.02, Math.max(W * 0.66, H * 0.56));
+    bottomDepth.addColorStop(0, 'rgba(2,8,23,0.60)');
+    bottomDepth.addColorStop(0.7, 'rgba(2,8,23,0.22)');
+    bottomDepth.addColorStop(1, 'rgba(2,8,23,0)');
     ctx.fillStyle = bottomDepth;
     ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   }
 
   function mountBackgroundCanvas() {
@@ -248,10 +267,8 @@
     ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - lerp(C.BLUR_LO, C.BLUR_HI, t01)})`; ctx.fillRect(0, 0, W, H);
 
     if (phase === 'decel' || phase === 'done') {
-      const alpha = clamp(el / (phase === 'decel' ? C.T_DECEL : C.T_FADE), 0, 1) * 0.45;
-      const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
-      g.addColorStop(0, `rgba(37,99,235,${alpha * 0.8})`); g.addColorStop(0.4, `rgba(37,99,235,${alpha * 0.3})`); g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over';
+      const alpha = clamp(el / (phase === 'decel' ? C.T_DECEL : C.T_FADE), 0, 1);
+      drawBackgroundBackdrop(alpha);
     }
 
     expFactor = (phase === 'decel' || phase === 'done') ? 1.0 + eOut(el / C.T_DECEL) * 6.0 : 1.0;
