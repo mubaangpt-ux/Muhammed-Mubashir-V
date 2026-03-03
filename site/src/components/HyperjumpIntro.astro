@@ -158,16 +158,29 @@
     rafId = requestAnimationFrame(frame);
   }
 
-  function finishIntro() {
+  function finishIntro(wasSkipped) {
     mode = 'background';
-    canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
     const hero = document.querySelector('.hero-section');
-    if (hero) { hero.style.position = 'relative'; hero.insertBefore(canvas, hero.firstChild); }
+    
+    if (hero) {
+      canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
+      hero.style.position = 'relative';
+      if (canvas.parentElement !== hero) hero.insertBefore(canvas, hero.firstChild);
+    } else {
+      // Sub-pages or pages without hero: use fixed global background
+      canvas.style.position = 'fixed'; canvas.style.zIndex = '-1';
+      if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
+    }
+    
+    canvas.style.display = 'block'; 
+    canvas.style.opacity = '1';
     document.body.classList.remove('hyperjump-active');
     if (replay) replay.style.display = 'block';
 
     for (let i = 0; i < C.N; i++) { hx[i] = sx[i]; hy[i] = sy[i]; vx[i] = 0; vy[i] = 0; }
-    revealHero(!!sessionStorage.getItem('hj_intro_played'));
+    
+    revealHero(wasSkipped);
+    
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
     if (rafId) cancelAnimationFrame(rafId);
@@ -201,19 +214,29 @@
 
   function revealHero(instant) {
     const header = document.querySelector('header');
-    if (header) { header.classList.add('revealed'); if (instant) header.style.transition='none'; }
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-      if (instant) { el.classList.add('revealed'); el.style.transition='none'; return; }
-      const d = el.dataset.delay ? parseFloat(el.dataset.delay)*1000 : i*120;
-      setTimeout(() => el.classList.add('revealed'), 450 + d);
+    if (header) { 
+      header.classList.add('revealed'); 
+      if (instant) header.style.transition = 'none'; 
+    }
+    const reveals = document.querySelectorAll('.reveal');
+    reveals.forEach((el, i) => {
+      if (instant) { 
+        el.classList.add('revealed'); 
+        el.style.transition = 'none'; 
+        return; 
+      }
+      // Group-based delays for cinematic effect
+      const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 150;
+      setTimeout(() => el.classList.add('revealed'), 400 + d);
     });
   }
 
   function start() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
     if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
+    
     const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
-    if (played || !isHome) { finishIntro(); return; }
+    if (played || !isHome) { finishIntro(true); return; }
 
     canvas.style.position = 'fixed'; canvas.style.zIndex = '9999'; canvas.style.display = 'block'; canvas.style.opacity = '1';
     if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
@@ -234,12 +257,12 @@
 
 <style is:global>
   body.hyperjump-active { overflow: hidden; height: 100vh; }
-  header { opacity: 0; transform: translateY(-12px); transition: all 1s var(--ease-out-expo); }
+  header { opacity: 0; transform: translateY(-12px); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
   header.revealed { opacity: 1; transform: none; }
-  .reveal { opacity: 0; transform: translateY(24px); transition: all 0.85s var(--ease-out-expo); will-change: transform, opacity; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform, opacity; }
   .reveal.revealed { opacity: 1; transform: none; }
   .glass-panel.reveal, .glass-card.reveal, [class*="cap-card"].reveal, .metric-card.reveal {
-     transform: translateY(24px) scale(0.98); transition: all 1s var(--ease-out-expo);
+     transform: translateY(24px) scale(0.985); transition: all 1.3s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .glass-panel.reveal.revealed, .glass-card.reveal.revealed, [class*="cap-card"].reveal.revealed, .metric-card.reveal.revealed {
      transform: none;
