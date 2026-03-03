@@ -116,49 +116,31 @@
   const z   = new Float32Array(C.N);
   const ci  = new Uint8Array(C.N);      // colour index
   const bsz = new Float32Array(C.N);    // base size
-  const stp = new Uint8Array(C.N);      // star type: 0=tunnel, 1=environment
-
-  // Screen-space positions (for trails + cursor interaction)
+  
+  // Screen-space positions
   const sx  = new Float32Array(C.N);
   const sy  = new Float32Array(C.N);
-  const psx = new Float32Array(C.N);    // prev screen x
-  const psy = new Float32Array(C.N);    // prev screen y
+  const psx = new Float32Array(C.N);
+  const psy = new Float32Array(C.N);
 
-  // Post-intro: home positions + velocity for cursor ripple
-  const hx  = new Float32Array(C.N);    // home x
-  const hy  = new Float32Array(C.N);    // home y
-  const vx  = new Float32Array(C.N);    // velocity x
-  const vy  = new Float32Array(C.N);    // velocity y
+  // Velocity for mouse interaction
+  const vx  = new Float32Array(C.N);
+  const vy  = new Float32Array(C.N);
+
+  // Original target positions for background mode
+  const tx  = new Float32Array(C.N);
+  const ty  = new Float32Array(C.N);
 
   function initStar(i, randZ) {
-    const isTunnel = Math.random() < 0.75; // 75% stars form the tunnel
-    stp[i] = isTunnel ? 0 : 1;
-
     const ang = Math.random() * 6.2832;
-    let rr;
-
-    if (isTunnel) {
-      // Tunnel stars: concentrated ring to form a sharper circular void
-      // Bias them towards R_INNER to make the "mouth" distinct
-      const bias = Math.pow(Math.random(), 1.5);
-      rr = C.R_INNER + bias * (C.R_OUTER * 0.8 - C.R_INNER);
-    } else {
-      // Environment stars: fill the sides of the screen (wide distribution)
-      rr = C.R_INNER + Math.random() * (C.R_OUTER * 4);
-    }
-
-    x3[i]  = Math.cos(ang) * rr;
-    y3[i]  = Math.sin(ang) * rr;
-    z[i]   = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
-    ci[i]  = Math.random() * C.COLS.length | 0;
-
-    // Environment stars are slightly smaller/dimmer to stay in the background
-    const scale = isTunnel ? 1 : 0.7;
-    bsz[i] = (Math.random() < 0.88 ? 0.35 + Math.random() * 0.65 : 0.9 + Math.random() * 1.4) * scale;
+    // Radial distribution: starts wide, but we'll tunnelize it via projection/bias
+    const r   = 10 + Math.random() * 2000; 
+    x3[i]     = Math.cos(ang) * r;
+    y3[i]     = Math.sin(ang) * r;
+    z[i]      = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR;
+    ci[i]     = Math.random() * C.COLS.length | 0;
+    bsz[i]    = Math.random() < 0.9 ? 0.4 + Math.random() * 0.7 : 0.9 + Math.random() * 1.5;
     
-    const sc = C.FOCAL / z[i];
-    psx[i] = sx[i] = cx + x3[i] * sc;
-    psy[i] = sy[i] = cy + y3[i] * sc;
     vx[i] = vy[i] = 0;
   }
 
@@ -173,20 +155,28 @@
   }
 
   /* ── Easing ─── */
-  const eIn  = t => t * t * t * t;
-  const eOut = t => 1 - (1-t)*(1-t)*(1-t)*(1-t);
+  const eIn  = t => t * t * t * t * t;
+  const eOut = t => 1 - Math.pow(1 - t, 5);
   const lerp = (a, b, t) => a + (b - a) * t;
   const clamp= (v,lo,hi) => v < lo ? lo : v > hi ? hi : v;
 
   /* ── State ─── */
-  let mode       = 'intro';
-  let phase      = 'idle';
+  let phase      = 'idle';    // idle | accel | hyper | decel | done
   let phaseStart = 0;
   let lastTs     = 0;
   let rafId      = null;
   let mouseX     = -9999, mouseY = -9999;
+  let currentSpd = C.V_SLOW;
 
-  function getSpeed(ts) {
+  function updatePhase(ts) {
+    const elapsed = ts - phaseStart;
+    if      (phase === 'idle'  && elapsed > C.T_IDLE)  { phase = 'accel'; phaseStart = ts; }
+    else if (phase === 'accel' && elapsed > C.T_ACCEL) { phase = 'hyper'; phaseStart = ts; }
+    else if (phase === 'hyper' && elapsed > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
+    else if (phase === 'decel' && elapsed > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
+  }
+
+  function getTargetSpeed(ts) {
     const e = ts - phaseStart;
     if (phase === 'idle')  return C.V_SLOW;
     if (phase === 'accel') return lerp(C.V_SLOW, C.V_FAST, eIn(clamp(e / C.T_ACCEL, 0, 1)));
@@ -196,66 +186,75 @@
   }
 
   /* ════════════════════════════════════════════════════════════════
-     INTRO RENDER LOOP
+     MAIN RENDER LOOP — UNIFIED
      ════════════════════════════════════════════════════════════════ */
-  function introFrame(ts) {
+  function frame(ts) {
     if (!lastTs) lastTs = ts;
     const dt = Math.min((ts - lastTs) / 1000, 0.05);
-    lastTs   = ts;
-    const elapsed = ts - phaseStart;
+    lastTs = ts;
 
-    // Phase transitions
-    if      (phase === 'idle'  && elapsed > C.T_IDLE)  { phase = 'accel'; phaseStart = ts; }
-    else if (phase === 'accel' && elapsed > C.T_ACCEL) { phase = 'hyper'; phaseStart = ts; }
-    else if (phase === 'hyper' && elapsed > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
-    else if (phase === 'decel' && elapsed > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
+    updatePhase(ts);
+    const targetSpd = getTargetSpeed(ts);
+    currentSpd = lerp(currentSpd, targetSpd, 0.1); // smoothing speed transition
 
-    const spd = getSpeed(ts);
-    const t01 = clamp((spd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
+    const t01 = clamp((currentSpd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
 
-    // Motion blur overlay
-    const trailA = lerp(C.BLUR_LO, C.BLUR_HI, t01 * t01);
+    // ── Motion Blur ──
+    const trailA = lerp(C.BLUR_LO, C.BLUR_HI, t01);
     ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailA})`;
     ctx.fillRect(0, 0, W, H);
 
-    // Blue glow during warp
-    if (t01 > 0.08) {
-      const gA  = t01 * 0.18;
-      const gR  = Math.min(W, H) * 0.6 * t01;
-      const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
-      g.addColorStop(0,    `rgba(37,99,235,${gA})`);
-      g.addColorStop(0.5,  `rgba(20,55,180,${gA * 0.3})`);
-      g.addColorStop(1,    'rgba(0,0,0,0)');
+    // ── Warp Glow ──
+    if (t01 > 0.05) {
+      const gA = t01 * 0.15;
+      const gR = Math.min(W, H) * 0.6 * t01;
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
+      g.addColorStop(0,   `rgba(37,99,235,${gA})`);
+      g.addColorStop(0.5, `rgba(20,55,180,${gA * 0.3})`);
+      g.addColorStop(1,   'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
     }
 
-    // Move & draw stars
-    const dz = spd * dt;
-    for (let i = 0; i < C.N; i++) {
-      z[i] -= dz;
-      if (z[i] < C.Z_NEAR) { initStar(i, false); continue; }
+    // ── Projection Tuning ──
+    // During warp, we narrow the "focal tunnel"
+    const tunnelFactor = lerp(1.0, 0.15, eIn(t01));
+    const dz = currentSpd * dt;
 
-      const sc  = C.FOCAL / z[i];
-      const x2  = cx + x3[i] * sc;
-      const y2  = cy + y3[i] * sc;
+    for (let i = 0; i < C.N; i++) {
+      if (phase !== 'done') {
+        z[i] -= dz;
+        if (z[i] < C.Z_NEAR) {
+          initStar(i, false);
+          continue;
+        }
+      }
+
+      // 3D Projection with tunneling bias
+      // In hyper mode, we push x/y toward the edges if they are too close to center
+      const radialDist = Math.sqrt(x3[i] * x3[i] + y3[i] * y3[i]);
+      const tunnelEffect = 1.0 + (t01 * 120.0 / Math.max(1, radialDist * 0.1));
+      
+      const sc  = (C.FOCAL / z[i]) * (1 + t01 * 2); 
+      const x2  = cx + x3[i] * sc * (phase === 'done' ? 1 : tunnelEffect);
+      const y2  = cy + y3[i] * sc * (phase === 'done' ? 1 : tunnelEffect);
+
       const prox = 1 - z[i] / C.Z_FAR;
       const [r, g, b, ma] = C.COLS[ci[i]];
-      const a   = clamp(ma * (0.12 + prox * 0.92), 0, 1);
-      const ps  = bsz[i] * (0.45 + prox * 2.2);
+      const a = clamp(ma * (0.1 + prox * 0.9), 0, 1);
+      const s = bsz[i] * (0.5 + prox * 2.0);
 
-      // Warp mode: draw line
-      if (t01 > 0.04) {
+      if (t01 > 0.05 && phase !== 'done') {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-        ctx.lineWidth   = Math.max(0.4, ps * 0.5);
+        ctx.lineWidth   = Math.max(0.4, s * 0.5);
         ctx.moveTo(psx[i], psy[i]);
         ctx.lineTo(x2, y2);
         ctx.stroke();
       } else {
         ctx.beginPath();
         ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-        ctx.arc(x2, y2, Math.max(0.25, ps * 0.4), 0, 6.2832);
+        ctx.arc(x2, y2, Math.max(0.3, s * 0.45), 0, 6.2832);
         ctx.fill();
       }
 
@@ -263,152 +262,121 @@
       psy[i] = sy[i] = y2;
     }
 
-    // ── DONE: transition to background mode (no flash!) ───
     if (phase === 'done') {
-      const fadeT = clamp(elapsed / C.T_FADE, 0, 1);
+      const e = ts - phaseStart;
+      const fadeT = clamp(e / C.T_FADE, 0, 1);
 
-      if (fadeT < 1) {
-        rafId = requestAnimationFrame(introFrame);
+      if (fadeT >= 1) {
+        // Handover to background interaction
+        finishIntro();
         return;
       }
-
-      // Handover: lock canvas to hero section
-      mode = 'background';
-      canvas.style.position  = 'absolute';
-      canvas.style.zIndex    = '0';
-      canvas.style.pointerEvents = 'none';
-
-      const heroSection = document.querySelector('.hero-section');
-      if (heroSection) {
-        heroSection.style.position = 'relative';
-        heroSection.insertBefore(canvas, heroSection.firstChild);
-      }
-
-      for (let i = 0; i < C.N; i++) {
-        hx[i] = sx[i]; hy[i] = sy[i];
-        vx[i] = 0;     vy[i] = 0;
-      }
-
-      document.body.classList.remove('hyperjump-active');
-      replay.style.display = 'block';
-      revealHero(false);
-
-      window.addEventListener('mousemove', onMouse, { passive: true });
-      window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
-
-      rafId = requestAnimationFrame(bgFrame);
-      return;
     }
 
-    rafId = requestAnimationFrame(introFrame);
+    rafId = requestAnimationFrame(frame);
   }
 
-  /* ════════════════════════════════════════════════════════════════
-     BACKGROUND RENDER LOOP
-     ════════════════════════════════════════════════════════════════ */
-  function bgFrame(ts) {
-    if (!lastTs) lastTs = ts;
-    lastTs = ts;
+  function finishIntro() {
+    canvas.style.position = 'absolute';
+    canvas.style.zIndex   = '0';
+    const hero = document.querySelector('.hero-section');
+    if (hero) {
+      hero.style.position = 'relative';
+      hero.insertBefore(canvas, hero.firstChild);
+    }
+    document.body.classList.remove('hyperjump-active');
+    replay.style.display = 'block';
 
+    // Record home for ripple
+    for (let i = 0; i < C.N; i++) {
+      tx[i] = sx[i]; ty[i] = sy[i];
+    }
+    
+    revealHero(false);
+    window.addEventListener('mousemove', onMouse, { passive: true });
+    window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
+    
+    rafId = requestAnimationFrame(bgLoop);
+  }
+
+  function bgLoop(ts) {
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     ctx.fillRect(0, 0, W, H);
 
     const rect = canvas.getBoundingClientRect();
-    const mxLocal = mouseX - rect.left;
-    const myLocal = mouseY - rect.top;
-    const rippleR = C.RIPPLE_R * Math.min(W, H);
-    const r2 = rippleR * rippleR;
+    const mxL = mouseX - rect.left;
+    const myL = mouseY - rect.top;
+    const ripR = C.RIPPLE_R * Math.min(W, H);
+    const r2   = ripR * ripR;
 
     for (let i = 0; i < C.N; i++) {
-      const dx = sx[i] - mxLocal;
-      const dy = sy[i] - myLocal;
+      const dx = sx[i] - mxL;
+      const dy = sy[i] - myL;
       const d2 = dx * dx + dy * dy;
 
       if (d2 < r2 && d2 > 1) {
-        const t  = 1 - d2 / r2;
+        const t = 1 - d2 / r2;
         const inv = 1 / Math.sqrt(d2);
-        const f  = t * t * C.RIPPLE_F;
-        vx[i] += dx * inv * f * 0.04;
-        vy[i] += dy * inv * f * 0.04;
+        const f = t * t * C.RIPPLE_F;
+        vx[i] += dx * inv * f * 0.05;
+        vy[i] += dy * inv * f * 0.05;
       }
 
-      vx[i] += (hx[i] - sx[i]) * C.SPRING;
-      vy[i] += (hy[i] - sy[i]) * C.SPRING;
-      vx[i] *= 0.80;
-      vy[i] *= 0.80;
+      vx[i] += (tx[i] - sx[i]) * C.SPRING;
+      vy[i] += (ty[i] - sy[i]) * C.SPRING;
+      vx[i] *= 0.8; 
+      vy[i] *= 0.8;
       sx[i] += vx[i];
       sy[i] += vy[i];
 
       const [r, g, b, ma] = C.COLS[ci[i]];
-      const s = bsz[i] * 0.6;
       ctx.beginPath();
-      // Environment stars are slightly dimmer in background mode
-      const opacity = stp[i] === 1 ? ma * 0.55 : ma * 0.85;
-      ctx.fillStyle = `rgba(${r},${g},${b},${opacity})`;
-      ctx.arc(sx[i], sy[i], Math.max(0.25, s), 0, 6.2832);
+      ctx.fillStyle = `rgba(${r},${g},${b},${ma * 0.7})`;
+      ctx.arc(sx[i], sy[i], Math.max(0.3, bsz[i] * 0.6), 0, 6.2832);
       ctx.fill();
     }
-
-    rafId = requestAnimationFrame(bgFrame);
+    rafId = requestAnimationFrame(bgLoop);
   }
 
-  function onMouse(e) {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  }
+  function onMouse(e) { mouseX = e.clientX; mouseY = e.clientY; }
 
-  /* ════════════════════════════════════════════════════════════════
-     CINEMATIC STAGGERED REVEAL
-     ════════════════════════════════════════════════════════════════ */
   function revealHero(instant) {
     const header = document.querySelector('header');
     if (header) {
-      if (instant) { header.classList.add('revealed'); }
-      else { setTimeout(() => header.classList.add('revealed'), 150); }
+      if (instant) header.classList.add('revealed');
+      else setTimeout(() => header.classList.add('revealed'), 100);
     }
 
     const items = Array.from(document.querySelectorAll('.reveal'));
     items.forEach((el, i) => {
-      if (instant) {
-        el.classList.add('revealed');
-        return;
-      }
-      const delayMs = el.dataset.delay
-        ? parseFloat(el.dataset.delay) * 1000
-        : i * 130;
-      setTimeout(() => el.classList.add('revealed'), 450 + delayMs);
+      if (instant) { el.classList.add('revealed'); return; }
+      const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 110;
+      setTimeout(() => el.classList.add('revealed'), 400 + d);
     });
   }
 
-  /* ════════════════════════════════════════════════════════════════
-     BOOT / REPLAY
-     ════════════════════════════════════════════════════════════════ */
   function start() {
-    canvas.style.position  = 'fixed';
-    canvas.style.inset     = '0';
-    canvas.style.zIndex    = '9999';
-    canvas.style.display   = 'block';
-    canvas.style.opacity   = '1';
-    replay.style.display   = 'none';
+    canvas.style.position = 'fixed';
+    canvas.style.zIndex   = '9999';
+    canvas.style.display  = 'block';
+    canvas.style.opacity  = '1';
+    replay.style.display  = 'none';
 
     if (canvas.parentElement !== document.body) {
       document.body.insertBefore(canvas, document.body.firstChild);
     }
 
     document.body.classList.add('hyperjump-active');
-
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
-    const header = document.querySelector('header');
-    if (header) header.classList.remove('revealed');
-
+    
     resize();
-    mode       = 'intro';
-    phase      = 'idle';
+    phase = 'idle';
     phaseStart = lastTs = performance.now();
+    currentSpd = C.V_SLOW;
 
     window.removeEventListener('mousemove', onMouse);
     if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(introFrame);
+    rafId = requestAnimationFrame(frame);
   }
 
   window.addEventListener('resize', () => {
@@ -424,61 +392,20 @@
 </script>
 
 <style is:global>
-  body.hyperjump-active {
-    overflow: hidden;
+  body.hyperjump-active { overflow: hidden; }
+  header { opacity: 0; transform: translateY(-20px); transition: all 0.9s cubic-bezier(0.2, 1, 0.3, 1); }
+  header.revealed { opacity: 1; transform: none; }
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1); will-change: opacity, transform; }
+  .reveal.revealed { opacity: 1; transform: none; }
+  
+  .glass-panel.reveal, .glass-card.reveal, [class*="cap-card"].reveal, .metric-card.reveal {
+     transform: translateY(40px) scale(0.95); transition: all 1s cubic-bezier(0.2, 1, 0.3, 1);
   }
-
-  /* Header reveal — slides down */
-  header {
-    opacity: 0;
-    transform: translateY(-16px);
-    transition:
-      opacity   0.85s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  header.revealed {
-    opacity: 1;
-    transform: none;
-  }
-
-  /* Hero element reveal — slides up + fades in */
-  .reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition:
-      opacity   0.80s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.80s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: opacity, transform;
-  }
-  .reveal.revealed {
-    opacity: 1;
-    transform: none;
-  }
-
-  /* Glass / metric cards — scale-in effect */
-  .glass-panel.reveal,
-  .glass-card.reveal,
-  [class*="cap-card"].reveal,
-  .metric-card.reveal {
-    transform: translateY(36px) scale(0.96);
-    transition:
-      opacity   0.90s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.90s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .glass-panel.reveal.revealed,
-  .glass-card.reveal.revealed,
-  [class*="cap-card"].reveal.revealed,
-  .metric-card.reveal.revealed {
-    transform: none;
+  .glass-panel.reveal.revealed, .glass-card.reveal.revealed, [class*="cap-card"].reveal.revealed, .metric-card.reveal.revealed {
+     transform: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    header,
-    .reveal,
-    .reveal.revealed {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: none !important;
-    }
+    header, .reveal, .reveal.revealed { opacity: 1 !important; transform: none !important; transition: none !important; }
   }
 </style>
