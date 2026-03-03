@@ -167,7 +167,7 @@ export default function Hyperjump({ onIntroComplete, staticMode = false }: Hyper
             let currentStretch = 0.0; // 0 = dots, 1 = streaks
 
             if (staticMode) {
-                currentSpeed = 1.0;
+                currentSpeed = 0.0;
                 currentStretch = 0.0;
             } else {
                 if (phase === "idle") {
@@ -203,7 +203,7 @@ export default function Hyperjump({ onIntroComplete, staticMode = false }: Hyper
                         onIntroComplete();
                     }
                 } else if (phase === "done") {
-                    currentSpeed = 1.0;
+                    currentSpeed = 0.0;
                     currentStretch = 0.0;
                 }
             } // end if !staticMode
