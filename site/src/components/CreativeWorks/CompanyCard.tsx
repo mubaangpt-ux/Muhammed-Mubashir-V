@@ -105,10 +105,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </div>
       </div>
 
-      <div className="absolute inset-x-6 bottom-6">
-        <div className="pointer-events-none absolute inset-x-[-22px] bottom-[-28px] top-[-116px] rounded-[42px] bg-[radial-gradient(circle_at_center,rgba(7,9,15,0.56),rgba(7,9,15,0.28)_48%,transparent_82%)] blur-2xl" />
+      <div className="absolute inset-x-6 bottom-6 top-[56%]">
+        <div className="pointer-events-none absolute inset-x-[-22px] inset-y-[-18px] rounded-[42px] bg-[radial-gradient(circle_at_center,rgba(7,9,15,0.58),rgba(7,9,15,0.30)_48%,transparent_82%)] blur-2xl" />
         <div
-          className="pointer-events-none absolute inset-x-[-14px] bottom-[-18px] top-[-96px] rounded-[38px]"
+          className="pointer-events-none absolute inset-x-[-14px] inset-y-[-8px] rounded-[38px]"
           style={{
             backdropFilter: "blur(18px) brightness(0.92)",
             WebkitBackdropFilter: "blur(18px) brightness(0.92)",
@@ -119,28 +119,28 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
           }}
         />
 
-        <div className="relative flex min-h-[248px] flex-col justify-end">
+        <div className="relative flex h-full flex-col justify-end">
           <div className="mb-3">
             <h3
-              className="max-w-[8ch] text-[1.9rem] font-semibold leading-none text-white"
+              className="max-w-[10ch] text-[1.7rem] font-semibold leading-none text-white"
               style={{ fontFamily: "Orbitron, sans-serif", letterSpacing: "-0.04em" }}
             >
               {company.name}
             </h3>
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.28em] text-white/62">
+            <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.26em] text-white/62">
               {company.industry}
             </p>
           </div>
 
-          <p className="mb-4 max-w-[22ch] text-sm leading-relaxed text-white/78 [text-shadow:0_2px_18px_rgba(2,6,23,0.55)]">
+          <p className="mb-4 max-w-[24ch] text-[0.95rem] leading-[1.55] text-white/78 [text-shadow:0_2px_18px_rgba(2,6,23,0.55)]">
             {getCardSummary(company)}
           </p>
 
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 flex flex-nowrap items-center gap-2 overflow-hidden">
             {company.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full px-3 py-1.5 font-mono text-[11px] text-white/82"
+                className="shrink-0 rounded-full px-2.5 py-1 font-mono text-[10px] whitespace-nowrap text-white/82"
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   border: "1px solid rgba(255,255,255,0.14)",
@@ -157,7 +157,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
           <button
             type="button"
             onClick={onToggle}
-            className={`inline-flex min-w-[136px] items-center justify-center self-start rounded-full border px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 ${
+            className={`inline-flex min-w-[124px] items-center justify-center self-start rounded-full border px-4 py-2 text-[0.95rem] font-semibold text-white transition-all duration-300 ${
               isExpanded
                 ? "border-[#93c5fd]/35 bg-[#2563eb]/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_12px_28px_rgba(37,99,235,0.18)]"
                 : "border-white/18 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_14px_30px_rgba(2,8,23,0.18)] hover:bg-white/14"
