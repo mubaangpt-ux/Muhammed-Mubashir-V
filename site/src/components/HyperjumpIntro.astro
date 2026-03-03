@@ -1,8 +1,9 @@
 ---
-// HyperjumpIntro.astro — 3D Warp Tunnel Edition
-// Stars fly outward FROM a circular ring in the center, never from a point.
-// All rendering is Canvas 2D with 3D perspective projection.
-// Plays on every page load. Fires 'hyperjump-complete' when done.
+// HyperjumpIntro.astro — Cinematic Warp Tunnel (Zero-GC Edition)
+// Motion-blur technique: instead of per-star gradients (GC killer),
+// we paint a semi-transparent black overlay each frame — creates natural
+// fading trails (persistence of vision) with ZERO garbage allocation.
+// Stars use 3D cylinder projection: fly out from a ring, dark void at center.
 ---
 
 <canvas
@@ -15,6 +16,7 @@
     height: 100vh;
     z-index: 9999;
     pointer-events: none;
+    will-change: opacity;
   "
 ></canvas>
 
@@ -38,7 +40,7 @@
     border-radius: 999px;
     cursor: pointer;
     backdrop-filter: blur(8px);
-    transition: opacity 0.3s;
+    transition: opacity 0.3s ease;
   "
   onmouseover="this.style.opacity='1'"
   onmouseout="this.style.opacity='0.3'"
@@ -48,225 +50,211 @@
 (function () {
   'use strict';
 
-  /* ════════════════════════════════════════════════════════════════
-     TUNING KNOBS  — edit these values to adjust the effect
-     ════════════════════════════════════════════════════════════════ */
-  const CFG = {
-    // ── Star count ─────────────────────────────────────────────────
-    STAR_COUNT: 2200,       // realistic density; raise to ~3000 for denser
+  /* ═══════════════════════════════════════════════════════════════
+     TUNING KNOBS — all safe to adjust
+     ═══════════════════════════════════════════════════════════════ */
+  const C = {
+    // Stars
+    N:         1800,   // star count (keep under 3000 for 60fps on mid hardware)
+    FOCAL:      380,   // perspective focal length (larger = tighter zoom)
+    Z_FAR:     1500,   // spawn depth
+    Z_NEAR:       3,   // recycle when this close
 
-    // ── Phase timings (milliseconds) ───────────────────────────────
-    IDLE_MS:      1200,     // calm slow-drift before any acceleration
-    ACCEL_MS:     1400,     // gradual ramp-up phase
-    HYPER_MS:     1200,     // full-speed tunnel
-    DECEL_MS:     1100,     // ease back to slow
-    FADE_MS:       900,     // canvas fade-out before hero reveal
+    // Tunnel ring (3D radius of the cylinder stars orbit)
+    R_INNER:      2,   // dark core radius (keep small — creates the void)
+    R_OUTER:    140,   // outer ring radius
 
-    // ── Speed ──────────────────────────────────────────────────────
-    IDLE_SPD:      0.35,    // slow drift (world units / frame @ 60 fps)
-    HYPER_SPD:    28,       // full warp speed — lower = gentler tunnel
+    // Phase durations in ms
+    T_IDLE:    1400,   // calm drift
+    T_ACCEL:   1600,   // ramp-up
+    T_HYPER:   1100,   // full warp
+    T_DECEL:   1400,   // ease back
+    T_FADE:     900,   // canvas fade-out
 
-    // ── 3-D projection ─────────────────────────────────────────────
-    FOCAL:        420,      // perspective focal length
-    Z_MAX:       1500,      // how far stars spawn (depth)
-    Z_NEAR:         4,      // recycle stars closer than this
+    // Speed (world-units per second at 60fps — normalized by dt)
+    V_SLOW:     22,    // idle drift speed
+    V_FAST:   1600,    // peak hyperjump speed
 
-    // ── Tunnel ring radius (3D) ─────────────────────────────────────
-    // Stars orbit this cylinder; controls the "ring" in the center
-    R_MIN:         0,       // innermost ring (dark core)
-    R_MAX:        160,      // outermost ring radius in 3D units
+    // Motion blur persistence (key to GC-free smooth trails)
+    // 0.0 = no trail | 1.0 = persistent ghost
+    BLUR_SLOW:  0.10,  // trail alpha at idle speed
+    BLUR_FAST:  0.88,  // trail alpha at peak speed (long streaks)
 
-    // ── Colour palette ─────────────────────────────────────────────
-    // [R, G, B, maxAlpha] – blue-white "realistic" palette
+    // Star colour palette [R, G, B, baseAlpha]
     COLORS: [
-      [245, 248, 255, 0.95],  // near-white
-      [210, 228, 255, 0.80],  // ice blue
-      [175, 210, 255, 0.70],  // electric blue
-      [240, 244, 255, 0.88],  // warm white
-      [155, 195, 255, 0.60],  // deep blue
+      [245, 248, 255, 0.92],   // near-white
+      [210, 228, 255, 0.80],   // ice blue
+      [180, 210, 255, 0.72],   // electric blue
+      [240, 245, 255, 0.88],   // warm white
+      [150, 190, 255, 0.62],   // deep blue
     ],
 
-    // ── Background ─────────────────────────────────────────────────
-    BG: '#07090f',
+    BG: [7, 9, 15],            // #07090f as RGB for overlay
   };
-  /* ════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════ */
 
-  const canvas = document.getElementById('hj-canvas');
-  const replay = document.getElementById('hj-replay');
+  const canvas  = document.getElementById('hj-canvas');
+  const replay  = document.getElementById('hj-replay');
   if (!canvas) return;
 
-  // Reduced-motion: skip immediately
+  // Reduced motion — skip intro
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     canvas.style.display = 'none';
-    replay.style.display = 'none';
     document.body.classList.remove('hyperjump-active');
     document.dispatchEvent(new CustomEvent('hyperjump-complete'));
+    revealHero(true);
     return;
   }
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: false });
   let W, H, cx, cy;
-  let stars = [];
-  let phase = 'idle';
-  let phaseStart = 0;
-  let totalStart = 0;
-  let rafId = null;
 
-  /* ── Easing ───────────────────────────────────────────────────── */
-  const easeIn5  = t => t * t * t * t * t;
-  const easeOut5 = t => 1 - Math.pow(1 - t, 5);
-  const lerp     = (a, b, t) => a + (b - a) * t;
-  const clamp    = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  /* Pre-allocate star arrays (avoid object churn) */
+  const sx3  = new Float32Array(C.N);   // 3D x
+  const sy3  = new Float32Array(C.N);   // 3D y
+  const sz   = new Float32Array(C.N);   // depth z
+  const srnd = new Uint8Array(C.N);     // color index
+  const ssz  = new Float32Array(C.N);   // base size
+  const spx  = new Float32Array(C.N);   // prev screen x (for trails)
+  const spy  = new Float32Array(C.N);   // prev screen y
 
-  /* ── Star factory ─────────────────────────────────────────────── */
-  function makeStar(z) {
-    const angle = Math.random() * Math.PI * 2;
-    // Radial position in the 3D cylinder — weighted toward outer ring
-    // so the center stays as a dark void (tunnel mouth)
-    const rFrac = Math.sqrt(Math.random());          // sqrt = uniform disk area
-    const r3d   = CFG.R_MIN + rFrac * (CFG.R_MAX - CFG.R_MIN);
-    const x3d   = Math.cos(angle) * r3d;
-    const y3d   = Math.sin(angle) * r3d;
-    const depth = (z !== undefined) ? z : Math.random() * CFG.Z_MAX + CFG.Z_NEAR;
-    const col   = CFG.COLORS[Math.floor(Math.random() * CFG.COLORS.length)];
-    // Realistic size distribution: most very small, few larger
-    const size  = Math.random() < 0.92
-      ? 0.3 + Math.random() * 0.7   // dim tiny star
-      : 0.8 + Math.random() * 1.4;  // occasional brighter star
-    return { x3d, y3d, angle, r3d, z: depth, col, size };
+  function initStar(i, spread) {
+    const ang = Math.random() * 6.2832;
+    const r   = C.R_INNER + Math.sqrt(Math.random()) * (C.R_OUTER - C.R_INNER);
+    sx3[i] = Math.cos(ang) * r;
+    sy3[i] = Math.sin(ang) * r;
+    sz[i]  = spread
+      ? Math.random() * C.Z_FAR + C.Z_NEAR
+      : C.Z_FAR * (0.7 + Math.random() * 0.3);
+    srnd[i]= Math.random() * C.COLORS.length | 0;
+    ssz[i] = Math.random() < 0.88 ? 0.4 + Math.random() * 0.7 : 1.0 + Math.random() * 1.5;
+    // seed prev positions to current to avoid first-frame streak
+    const sc = C.FOCAL / sz[i];
+    spx[i] = cx + sx3[i] * sc;
+    spy[i] = cy + sy3[i] * sc;
   }
 
   function resize() {
-    W  = canvas.width  = window.innerWidth;
-    H  = canvas.height = window.innerHeight;
-    cx = W / 2;
-    cy = H / 2;
-    stars = Array.from({ length: CFG.STAR_COUNT }, () => makeStar());
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cx = W * 0.5;
+    cy = H * 0.5;
+    for (let i = 0; i < C.N; i++) initStar(i, true);
+    // Clear to bg
+    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
+    ctx.fillRect(0, 0, W, H);
   }
 
-  /* ── Project a 3-D star onto 2-D screen ──────────────────────── */
-  function project(star) {
-    const sc = CFG.FOCAL / star.z;
-    return {
-      sx: cx + star.x3d * sc,
-      sy: cy + star.y3d * sc,
-      sc,
-    };
+  /* ── Easing functions ─────────────────────────────────────────── */
+  const eIn  = t => t * t * t * t;       // quartic ease-in
+  const eOut = t => 1 - (1-t)*(1-t)*(1-t)*(1-t);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp= (v,lo,hi) => v < lo ? lo : v > hi ? hi : v;
+
+  /* ── Phase state ──────────────────────────────────────────────── */
+  let phase      = 'idle';
+  let phaseStart = 0;
+  let lastTs     = 0;
+  let rafId      = null;
+
+  function getSpeed(ts) {
+    const e = ts - phaseStart;
+    if (phase === 'idle')  return C.V_SLOW;
+    if (phase === 'accel') return lerp(C.V_SLOW, C.V_FAST, eIn(clamp(e / C.T_ACCEL, 0, 1)));
+    if (phase === 'hyper') return C.V_FAST;
+    if (phase === 'decel') return lerp(C.V_FAST, C.V_SLOW, eOut(clamp(e / C.T_DECEL, 0, 1)));
+    return C.V_SLOW; // done
   }
 
-  /* ── Draw one frame ───────────────────────────────────────────── */
+  /* ── Main render loop ─────────────────────────────────────────── */
   function frame(ts) {
+    const dt = Math.min((ts - lastTs) / 1000, 0.05); // cap at 50ms (20fps min)
+    lastTs   = ts;
     const elapsed = ts - phaseStart;
 
-    /* ── Phase state machine ─── */
-    if      (phase === 'idle'  && elapsed > CFG.IDLE_MS)  { phase = 'accel'; phaseStart = ts; }
-    else if (phase === 'accel' && elapsed > CFG.ACCEL_MS) { phase = 'hyper'; phaseStart = ts; }
-    else if (phase === 'hyper' && elapsed > CFG.HYPER_MS) { phase = 'decel'; phaseStart = ts; }
-    else if (phase === 'decel' && elapsed > CFG.DECEL_MS) { phase = 'done';  phaseStart = ts; }
+    /* Phase transitions */
+    if      (phase === 'idle'  && elapsed > C.T_IDLE)  { phase = 'accel'; phaseStart = ts; }
+    else if (phase === 'accel' && elapsed > C.T_ACCEL) { phase = 'hyper'; phaseStart = ts; }
+    else if (phase === 'hyper' && elapsed > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
+    else if (phase === 'decel' && elapsed > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
 
-    /* ── Current speed for this frame ─── */
-    let spd = CFG.IDLE_SPD;
-    if (phase === 'accel') {
-      const t = clamp(elapsed / CFG.ACCEL_MS, 0, 1);
-      spd = lerp(CFG.IDLE_SPD, CFG.HYPER_SPD, easeIn5(t));
-    } else if (phase === 'hyper') {
-      spd = CFG.HYPER_SPD;
-    } else if (phase === 'decel') {
-      const t = clamp(elapsed / CFG.DECEL_MS, 0, 1);
-      spd = lerp(CFG.HYPER_SPD, CFG.IDLE_SPD, easeOut5(t));
-    }
+    const spd = getSpeed(ts);
+    const t01 = clamp((spd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1); // 0=idle, 1=full warp
 
-    /* ── Stretch factor (0 = dots, 1 = full streaks) ─── */
-    const stretch = clamp((spd - CFG.IDLE_SPD) / (CFG.HYPER_SPD - CFG.IDLE_SPD), 0, 1);
-
-    /* ── Clear canvas to deep obsidian ─── */
-    ctx.fillStyle = CFG.BG;
+    /* ── Motion blur overlay (GC-FREE trail technique) ──
+       Instead of per-star gradients, we simply paint a semi-transparent
+       bg rectangle each frame. Stars leave "afterimage" trails naturally.
+       The trail alpha scales from short (idle) to long (hyperjump).        */
+    const trailAlpha = lerp(C.BLUR_SLOW, C.BLUR_FAST, t01 * t01);
+    ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailAlpha})`;
     ctx.fillRect(0, 0, W, H);
 
-    /* ── Blue nebula glow during warp ─── */
-    if (stretch > 0.05) {
-      const gR   = Math.min(W, H) * 0.6 * stretch;
-      const glowA = stretch * 0.18;
+    /* ── Ambient blue tunnel glow (during warp) ─── */
+    if (t01 > 0.08) {
+      const glowA = t01 * 0.22;
+      const gR    = Math.min(W, H) * 0.55 * t01;
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
-      g.addColorStop(0,   `rgba(37,99,235,${glowA})`);
-      g.addColorStop(0.5, `rgba(20,60,180,${glowA * 0.4})`);
-      g.addColorStop(1,   'rgba(0,0,0,0)');
+      g.addColorStop(0,    `rgba(37,99,235,${glowA})`);
+      g.addColorStop(0.5,  `rgba(20,55,180,${glowA * 0.4})`);
+      g.addColorStop(1,    'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
     }
 
-    /* ── Draw stars ─── */
-    for (const s of stars) {
-      const prevZ = s.z;
-      s.z -= spd;
+    /* ── Star movement & draw ─── */
+    const dz = spd * dt;   // depth change this frame (dt-normalized)
 
-      // Recycle star that passed the camera
-      if (s.z < CFG.Z_NEAR) {
-        Object.assign(s, makeStar(CFG.Z_MAX));
+    for (let i = 0; i < C.N; i++) {
+      sz[i] -= dz;
+
+      if (sz[i] < C.Z_NEAR) {
+        initStar(i, false);   // recycle from far
         continue;
       }
 
-      const { sx, sy } = project(s);
+      const sc  = C.FOCAL / sz[i];
+      const x2d = cx + sx3[i] * sc;
+      const y2d = cy + sy3[i] * sc;
 
-      // Skip if projected off-screen
-      if (sx < -80 || sx > W + 80 || sy < -80 || sy > H + 80) {
-        Object.assign(s, makeStar(CFG.Z_MAX));
-        continue;
-      }
+      const prox  = 1 - sz[i] / C.Z_FAR;    // 0=far, 1=close
+      const [r,g,b,ma] = C.COLORS[srnd[i]];
+      const alpha = clamp(ma * (0.15 + prox * 0.9), 0, 1);
+      const ptSz  = ssz[i] * (0.5 + prox * 2.2);
 
-      // Proximity brightness: stars approaching camera glow brighter
-      const prox  = 1 - s.z / CFG.Z_MAX;
-      const [r, g, b, maxA] = s.col;
-      const alpha = clamp(maxA * (0.2 + prox * 0.8), 0, 1);
-      const size  = s.size * (0.6 + prox * 1.8);        // grow as they approach
-
-      if (stretch > 0.01) {
-        // Draw as streak — tail from previous position
-        const prevSc = CFG.FOCAL / prevZ;
-        const tx = cx + s.x3d * prevSc;
-        const ty = cy + s.y3d * prevSc;
-
-        const tailLen = Math.hypot(sx - tx, sy - ty) * (0.5 + stretch * 4);
-        const ang = Math.atan2(sy - ty, sx - tx);
-
-        // elongate in motion direction
-        const ex = sx + Math.cos(ang) * tailLen * stretch;
-        const ey = sy + Math.sin(ang) * tailLen * stretch;
-
-        const grad = ctx.createLinearGradient(ex, ey, sx, sy);
-        grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
-        grad.addColorStop(1, `rgba(${r},${g},${b},${alpha})`);
-
+      // At warp speed: draw line from spx/spy → x2d/y2d (motion blur trail adds the streak naturally)
+      if (t01 > 0.05 && (spx[i] !== x2d || spy[i] !== y2d)) {
         ctx.beginPath();
-        ctx.strokeStyle = grad;
-        ctx.lineWidth   = Math.max(0.4, size * 0.5);
-        ctx.moveTo(ex, ey);
-        ctx.lineTo(sx, sy);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+        ctx.lineWidth   = Math.max(0.5, ptSz * 0.5);
+        ctx.moveTo(spx[i], spy[i]);
+        ctx.lineTo(x2d, y2d);
         ctx.stroke();
       } else {
-        // Draw as crisp dot
+        // Slow drift: crisp dot
         ctx.beginPath();
         ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-        ctx.arc(sx, sy, Math.max(0.3, size * 0.5), 0, Math.PI * 2);
+        ctx.arc(x2d, y2d, Math.max(0.3, ptSz * 0.45), 0, 6.2832);
         ctx.fill();
       }
+
+      spx[i] = x2d;
+      spy[i] = y2d;
     }
 
-    /* ── Dark void ring in center (tunnel mouth) ─── */
-    // Only draw during hyper phases to reinforce the ring effect
-    if (stretch > 0.15) {
-      const voidR  = 28 * stretch;
-      const voidG  = ctx.createRadialGradient(cx, cy, 0, cx, cy, voidR * 3.5);
-      voidG.addColorStop(0,    `rgba(5,8,18,${stretch * 0.92})`);
-      voidG.addColorStop(0.45, `rgba(7,9,15,${stretch * 0.55})`);
-      voidG.addColorStop(1,    'rgba(0,0,0,0)');
-      ctx.fillStyle = voidG;
+    /* ── Dark void at centre (tunnel mouth ring) ─── */
+    if (t01 > 0.12) {
+      const vR = 20 + t01 * 35;
+      const v  = ctx.createRadialGradient(cx, cy, 0, cx, cy, vR * 3);
+      v.addColorStop(0,    `rgba(5,7,14,${t01 * 0.96})`);
+      v.addColorStop(0.35, `rgba(7,9,15,${t01 * 0.60})`);
+      v.addColorStop(1,    'rgba(0,0,0,0)');
+      ctx.fillStyle = v;
       ctx.fillRect(0, 0, W, H);
     }
 
-    /* ── Done phase: fade out, fire hero reveal ─── */
+    /* ── Fade-out & reveal ─── */
     if (phase === 'done') {
-      const fadeT = clamp(elapsed / CFG.FADE_MS, 0, 1);
+      const fadeT = clamp(elapsed / C.T_FADE, 0, 1);
       canvas.style.opacity = (1 - fadeT).toString();
 
       if (fadeT >= 1) {
@@ -274,12 +262,7 @@
         replay.style.display = 'block';
         document.body.classList.remove('hyperjump-active');
         document.dispatchEvent(new CustomEvent('hyperjump-complete'));
-
-        // Stagger reveal .reveal elements
-        document.querySelectorAll('.reveal').forEach((el, i) => {
-          setTimeout(() => el.classList.add('revealed'), 100 * i);
-        });
-
+        revealHero(false);
         cancelAnimationFrame(rafId);
         rafId = null;
         return;
@@ -289,52 +272,117 @@
     rafId = requestAnimationFrame(frame);
   }
 
-  /* ── Boot ─────────────────────────────────────────────────────── */
-  function startIntro() {
+  /* ── Staggered hero reveal ────────────────────────────────────── */
+  function revealHero(instant) {
+    // Header first
+    const header = document.querySelector('header');
+    if (header) {
+      header.classList.add('reveal');
+      if (!instant) {
+        requestAnimationFrame(() => setTimeout(() => header.classList.add('revealed'), 60));
+      } else {
+        header.classList.add('revealed');
+      }
+    }
+
+    // All .reveal elements — use their data-delay or index-based stagger
+    const items = Array.from(document.querySelectorAll('.reveal:not(header)'));
+    items.forEach((el, i) => {
+      const delay = parseFloat(el.dataset.delay || 0) * 1000 || i * 90;
+      if (instant) {
+        el.classList.add('revealed');
+      } else {
+        setTimeout(() => el.classList.add('revealed'), 220 + delay);
+      }
+    });
+  }
+
+  /* ── Boot / Replay ────────────────────────────────────────────── */
+  function start() {
     canvas.style.display = 'block';
     canvas.style.opacity = '1';
     replay.style.display = 'none';
     document.body.classList.add('hyperjump-active');
 
+    // Reset reveal state for replay
+    document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
+    const header = document.querySelector('header');
+    if (header) header.classList.remove('revealed');
+
     resize();
+
     phase      = 'idle';
-    totalStart = phaseStart = performance.now();
+    phaseStart = performance.now();
+    lastTs     = phaseStart;
 
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(frame);
   }
 
-  window.addEventListener('resize', () => { resize(); });
-  replay.addEventListener('click', startIntro);
-  startIntro();
+  window.addEventListener('resize', resize, { passive: true });
+  replay.addEventListener('click', start);
+  start();
 })();
 </script>
 
 <style is:global>
+  /* Body lock during intro */
   body.hyperjump-active {
     overflow: hidden;
-    height: 100vh;
   }
 
+  /* ── Header reveal ── */
+  header {
+    opacity: 0;
+    transform: translateY(-12px);
+    transition:
+      opacity  0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  header.revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Hero element reveal ── */
   .reveal {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(24px);
     transition:
-      opacity  0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity  0.75s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
-
   .reveal.revealed {
     opacity: 1;
     transform: none;
   }
 
+  /* ── Glass cards extra: scale-in from slightly below ── */
+  .glass-panel.reveal,
+  .glass-card.reveal,
+  [class*="cap-card"].reveal,
+  .metric-card.reveal {
+    transform: translateY(32px) scale(0.97);
+    transition:
+      opacity  0.80s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.80s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .glass-panel.reveal.revealed,
+  .glass-card.reveal.revealed,
+  [class*="cap-card"].reveal.revealed,
+  .metric-card.reveal.revealed {
+    transform: none;
+  }
+
+  /* No animations for reduced motion users */
   @media (prefers-reduced-motion: reduce) {
-    .reveal, .reveal.revealed {
-      opacity: 1;
-      transform: none;
-      transition: none;
+    header,
+    .reveal,
+    .reveal.revealed {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
     }
   }
 </style>
