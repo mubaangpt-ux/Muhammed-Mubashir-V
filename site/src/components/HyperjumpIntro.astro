@@ -52,7 +52,7 @@
      CONFIG
      ═══════════════════════════════════════════════════════════════ */
   const C = {
-    N:          3500,     // Denser stars
+    N:          3501,     // Denser stars
 
     // 3D projection
     FOCAL:       380,
@@ -276,6 +276,7 @@
 
     if (phase === 'done') {
       if (clamp(el / C.T_FADE, 0, 1) >= 1 && mode === 'intro') {
+        sessionStorage.setItem('hj_intro_played', 'true');
         finishIntro();
         return;
       }
@@ -301,9 +302,12 @@
       vx[i] = 0;     vy[i] = 0;
     }
 
-    revealHero(false);
+    const alreadyPlayed = sessionStorage.getItem('hj_intro_played');
+    revealHero(!!alreadyPlayed);
+    
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
+    if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(bgLoop);
   }
 
@@ -361,38 +365,44 @@
   function revealHero(instant) {
     const header = document.querySelector('header');
     if (header) {
-      if (instant) header.classList.add('revealed');
-      else setTimeout(() => header.classList.add('revealed'), 100);
+      header.classList.add('revealed');
+      if (instant) header.style.transition = 'none';
     }
-
     const items = Array.from(document.querySelectorAll('.reveal'));
     items.forEach((el, i) => {
-      if (instant) { el.classList.add('revealed'); return; }
+      if (instant) { 
+        el.classList.add('revealed'); 
+        el.style.transition = 'none';
+        return; 
+      }
       const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 120;
       setTimeout(() => el.classList.add('revealed'), 450 + d);
     });
   }
 
   function start() {
+    resize();
+    const alreadyPlayed = sessionStorage.getItem('hj_intro_played');
+    const isHome = window.location.pathname === '/' || window.location.pathname === '/index.html';
+
+    if (alreadyPlayed || !isHome) {
+      finishIntro();
+      return;
+    }
+
     canvas.style.position = 'fixed';
     canvas.style.zIndex   = '9999';
     canvas.style.display  = 'block';
     canvas.style.opacity  = '1';
     replay.style.display  = 'none';
-
-    if (canvas.parentElement !== document.body) {
-      document.body.insertBefore(canvas, document.body.firstChild);
-    }
-
+    if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     document.body.classList.add('hyperjump-active');
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     
-    resize();
     mode       = 'intro';
     phase      = 'idle';
     phaseStart = lastTs = performance.now();
     curSpd     = C.V_SLOW;
-
     window.removeEventListener('mousemove', onMouse);
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(frame);
@@ -401,11 +411,20 @@
   window.addEventListener('resize', () => {
     W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    cx = W * 0.5;
-    cy = H * 0.5;
+    cx = W * 0.5; cy = H * 0.5;
   }, { passive: true });
 
-  replay.addEventListener('click', start);
+  // Astro ViewTransitions support
+  document.addEventListener('astro:after-swap', () => {
+    const newCanvas = document.getElementById('hj-canvas');
+    if (newCanvas) start();
+  });
+
+  replay.addEventListener('click', () => {
+    sessionStorage.removeItem('hj_intro_played');
+    start();
+  });
+
   start();
 })();
 </script>
