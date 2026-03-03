@@ -44,7 +44,7 @@ export default function StarfieldContainer({ reducedMotion }: StarfieldContainer
         during the hyperjump sequence. It fades out when complete. 
       */}
             <div
-                className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ease-in-out ${introState === "playing" ? "opacity-100" : "opacity-0"
+                className={`absolute inset-0 z-50 pointer-events-none transition-opacity duration-1000 ease-in-out ${introState === "playing" ? "opacity-100" : "opacity-0"
                     }`}
                 style={{
                     background: "linear-gradient(180deg, #07090f 0%, #080d1a 100%)"
@@ -52,7 +52,7 @@ export default function StarfieldContainer({ reducedMotion }: StarfieldContainer
             />
 
             {/* R3F Canvas - Always running, acts as the background starfield */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
+            <div className="absolute inset-0 z-0 pointer-events-none">
                 <Canvas
                     camera={{ position: [0, 0, 5], fov: 75 }}
                     dpr={[1, 2]}
@@ -71,7 +71,7 @@ export default function StarfieldContainer({ reducedMotion }: StarfieldContainer
             {introState === "complete" && !reducedMotion && (
                 <button
                     onClick={replayIntro}
-                    className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-mono tracking-widest uppercase transition-all duration-300 opacity-30 hover:opacity-100"
+                    className="absolute bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-mono tracking-widest uppercase transition-all duration-300 opacity-30 hover:opacity-100"
                     style={{
                         background: "rgba(37,99,235,0.1)",
                         border: "1px solid rgba(147,197,253,0.2)",

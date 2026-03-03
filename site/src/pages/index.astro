@@ -14,6 +14,7 @@ import {
   Star,
   Building2,
 } from "lucide-react";
+import StarfieldContainer from "../components/three/StarfieldContainer";
 import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { testimonials } from "../data/testimonials";
@@ -102,6 +103,8 @@ const personJsonLd = {
   class="hero-section relative overflow-hidden text-center"
   style="min-height: 100dvh; padding-top: clamp(90px, 10vh, 108px); padding-bottom: 24px;"
 >
+  <!-- R3F Starfield Background - local to hero section -->
+  <StarfieldContainer client:only="react" reducedMotion={false} />
 
   <!-- BACKGROUNDS z-0 -->
   <div class="absolute inset-0 pointer-events-none" style="z-index:0; background: radial-gradient(ellipse 55% 65% at 50% -5%, rgba(37,99,235,0.55) 0%, rgba(37,99,235,0.18) 35%, transparent 70%);"></div>

@@ -2,7 +2,6 @@
 import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import { profile } from "../data/profile";
-import StarfieldContainer from "../components/three/StarfieldContainer";
 import {
   ArrowUpRight,
   Copyright,
@@ -334,9 +333,11 @@ const isActive = (href: string) =>
         pointer-events: none;
       }
 
-      /* Prevent body scroll while splash is showing */
-      body.splash-active {
+      /* Prevent body scroll while intro is playing */
+      body.splash-active,
+      body.hyperjump-active {
         overflow: hidden;
+        height: 100vh;
       }
 
       /* Force 60fps GPU compositing on all animated elements */
@@ -398,9 +399,6 @@ const isActive = (href: string) =>
         }
       })();
     </script>
-
-    <!-- Starfield & Hyperjump Intro using R3F -->
-    <StarfieldContainer client:only="react" reducedMotion={false} />
 
     <!-- Noise overlay -->
     <div class="noise-overlay" aria-hidden="true"></div>
