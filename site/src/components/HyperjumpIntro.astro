@@ -1,9 +1,7 @@
 ---
-// HyperjumpIntro.astro — Cinematic Warp Tunnel (Zero-GC Edition)
-// Motion-blur technique: instead of per-star gradients (GC killer),
-// we paint a semi-transparent black overlay each frame — creates natural
-// fading trails (persistence of vision) with ZERO garbage allocation.
-// Stars use 3D cylinder projection: fly out from a ring, dark void at center.
+// HyperjumpIntro.astro — Seamless Warp-to-Background Edition
+// After the intro completes, the SAME canvas stays as the hero starfield.
+// No canvas swap = no flash. Stars freeze at final positions with cursor ripple.
 ---
 
 <canvas
@@ -51,57 +49,60 @@
   'use strict';
 
   /* ═══════════════════════════════════════════════════════════════
-     TUNING KNOBS — all safe to adjust
+     CONFIG — adjust anything here safely
      ═══════════════════════════════════════════════════════════════ */
   const C = {
-    // Stars
-    N:         1800,   // star count (keep under 3000 for 60fps on mid hardware)
-    FOCAL:      380,   // perspective focal length (larger = tighter zoom)
-    Z_FAR:     1500,   // spawn depth
-    Z_NEAR:       3,   // recycle when this close
+    N:          1800,     // star count (same for intro AND hero background)
 
-    // Tunnel ring (3D radius of the cylinder stars orbit)
-    R_INNER:      2,   // dark core radius (keep small — creates the void)
-    R_OUTER:    140,   // outer ring radius
+    // 3D projection
+    FOCAL:       380,
+    Z_FAR:      1500,
+    Z_NEAR:        3,
 
-    // Phase durations in ms
-    T_IDLE:    1400,   // calm drift
-    T_ACCEL:   1600,   // ramp-up
-    T_HYPER:   1100,   // full warp
-    T_DECEL:   1400,   // ease back
-    T_FADE:     900,   // canvas fade-out
+    // Tunnel cylinder — stars sit ON this ring (forms the circular tunnel)
+    R_INNER:      12,     // inner edge of ring (dark void inside this)
+    R_OUTER:     150,     // outer edge
 
-    // Speed (world-units per second at 60fps — normalized by dt)
-    V_SLOW:     22,    // idle drift speed
-    V_FAST:   1600,    // peak hyperjump speed
+    // Phase timings (ms)
+    T_IDLE:     1400,
+    T_ACCEL:    1800,     // longer ramp = smoother
+    T_HYPER:    1100,
+    T_DECEL:    1600,     // longer ease-out = smoother
+    T_FADE:     1200,     // canvas reposition fade
 
-    // Motion blur persistence (key to GC-free smooth trails)
-    // 0.0 = no trail | 1.0 = persistent ghost
-    BLUR_SLOW:  0.10,  // trail alpha at idle speed
-    BLUR_FAST:  0.88,  // trail alpha at peak speed (long streaks)
+    // Speed (units/sec)
+    V_SLOW:       22,
+    V_FAST:     1500,
 
-    // Star colour palette [R, G, B, baseAlpha]
-    COLORS: [
-      [245, 248, 255, 0.92],   // near-white
-      [210, 228, 255, 0.80],   // ice blue
-      [180, 210, 255, 0.72],   // electric blue
-      [240, 245, 255, 0.88],   // warm white
-      [150, 190, 255, 0.62],   // deep blue
+    // Motion blur persistence alpha
+    BLUR_LO:    0.08,     // idle trail
+    BLUR_HI:    0.86,     // full warp trail
+
+    // Post-intro cursor ripple
+    RIPPLE_R:    0.22,    // fraction of viewport
+    RIPPLE_F:     14,     // push force in px
+    SPRING:     0.05,     // return spring k
+
+    // Star colours [R,G,B,maxAlpha]
+    COLS: [
+      [245, 248, 255, 0.92],
+      [210, 228, 255, 0.78],
+      [178, 210, 255, 0.70],
+      [240, 244, 255, 0.85],
+      [152, 192, 255, 0.60],
     ],
 
-    BG: [7, 9, 15],            // #07090f as RGB for overlay
+    BG: [7, 9, 15],
   };
   /* ═══════════════════════════════════════════════════════════════ */
 
-  const canvas  = document.getElementById('hj-canvas');
-  const replay  = document.getElementById('hj-replay');
+  const canvas = document.getElementById('hj-canvas');
+  const replay = document.getElementById('hj-replay');
   if (!canvas) return;
 
-  // Reduced motion — skip intro
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     canvas.style.display = 'none';
     document.body.classList.remove('hyperjump-active');
-    document.dispatchEvent(new CustomEvent('hyperjump-complete'));
     revealHero(true);
     return;
   }
@@ -109,29 +110,37 @@
   const ctx = canvas.getContext('2d', { alpha: false });
   let W, H, cx, cy;
 
-  /* Pre-allocate star arrays (avoid object churn) */
-  const sx3  = new Float32Array(C.N);   // 3D x
-  const sy3  = new Float32Array(C.N);   // 3D y
-  const sz   = new Float32Array(C.N);   // depth z
-  const srnd = new Uint8Array(C.N);     // color index
-  const ssz  = new Float32Array(C.N);   // base size
-  const spx  = new Float32Array(C.N);   // prev screen x (for trails)
-  const spy  = new Float32Array(C.N);   // prev screen y
+  /* ── Pre-allocated typed arrays (zero GC) ─── */
+  const x3  = new Float32Array(C.N);
+  const y3  = new Float32Array(C.N);
+  const z   = new Float32Array(C.N);
+  const ci  = new Uint8Array(C.N);      // colour index
+  const bsz = new Float32Array(C.N);    // base size
 
-  function initStar(i, spread) {
+  // Screen-space positions (for trails + cursor interaction)
+  const sx  = new Float32Array(C.N);
+  const sy  = new Float32Array(C.N);
+  const psx = new Float32Array(C.N);    // prev screen x
+  const psy = new Float32Array(C.N);    // prev screen y
+
+  // Post-intro: home positions + velocity for cursor ripple
+  const hx  = new Float32Array(C.N);    // home x
+  const hy  = new Float32Array(C.N);    // home y
+  const vx  = new Float32Array(C.N);    // velocity x
+  const vy  = new Float32Array(C.N);    // velocity y
+
+  function initStar(i, randZ) {
     const ang = Math.random() * 6.2832;
-    const r   = C.R_INNER + Math.sqrt(Math.random()) * (C.R_OUTER - C.R_INNER);
-    sx3[i] = Math.cos(ang) * r;
-    sy3[i] = Math.sin(ang) * r;
-    sz[i]  = spread
-      ? Math.random() * C.Z_FAR + C.Z_NEAR
-      : C.Z_FAR * (0.7 + Math.random() * 0.3);
-    srnd[i]= Math.random() * C.COLORS.length | 0;
-    ssz[i] = Math.random() < 0.88 ? 0.4 + Math.random() * 0.7 : 1.0 + Math.random() * 1.5;
-    // seed prev positions to current to avoid first-frame streak
-    const sc = C.FOCAL / sz[i];
-    spx[i] = cx + sx3[i] * sc;
-    spy[i] = cy + sy3[i] * sc;
+    const rr  = C.R_INNER + Math.sqrt(Math.random()) * (C.R_OUTER - C.R_INNER);
+    x3[i]  = Math.cos(ang) * rr;
+    y3[i]  = Math.sin(ang) * rr;
+    z[i]   = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.7 + Math.random() * 0.3);
+    ci[i]  = Math.random() * C.COLS.length | 0;
+    bsz[i] = Math.random() < 0.88 ? 0.35 + Math.random() * 0.65 : 0.9 + Math.random() * 1.4;
+    const sc = C.FOCAL / z[i];
+    psx[i] = sx[i] = cx + x3[i] * sc;
+    psy[i] = sy[i] = cy + y3[i] * sc;
+    vx[i] = vy[i] = 0;
   }
 
   function resize() {
@@ -140,22 +149,23 @@
     cx = W * 0.5;
     cy = H * 0.5;
     for (let i = 0; i < C.N; i++) initStar(i, true);
-    // Clear to bg
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     ctx.fillRect(0, 0, W, H);
   }
 
-  /* ── Easing functions ─────────────────────────────────────────── */
-  const eIn  = t => t * t * t * t;       // quartic ease-in
+  /* ── Easing ─── */
+  const eIn  = t => t * t * t * t;
   const eOut = t => 1 - (1-t)*(1-t)*(1-t)*(1-t);
   const lerp = (a, b, t) => a + (b - a) * t;
   const clamp= (v,lo,hi) => v < lo ? lo : v > hi ? hi : v;
 
-  /* ── Phase state ──────────────────────────────────────────────── */
-  let phase      = 'idle';
+  /* ── State ─── */
+  let mode       = 'intro';   // intro | settling | background
+  let phase      = 'idle';    // idle | accel | hyper | decel | done
   let phaseStart = 0;
   let lastTs     = 0;
   let rafId      = null;
+  let mouseX     = -9999, mouseY = -9999;
 
   function getSpeed(ts) {
     const e = ts - phaseStart;
@@ -163,194 +173,272 @@
     if (phase === 'accel') return lerp(C.V_SLOW, C.V_FAST, eIn(clamp(e / C.T_ACCEL, 0, 1)));
     if (phase === 'hyper') return C.V_FAST;
     if (phase === 'decel') return lerp(C.V_FAST, C.V_SLOW, eOut(clamp(e / C.T_DECEL, 0, 1)));
-    return C.V_SLOW; // done
+    return 0;
   }
 
-  /* ── Main render loop ─────────────────────────────────────────── */
-  function frame(ts) {
-    const dt = Math.min((ts - lastTs) / 1000, 0.05); // cap at 50ms (20fps min)
+  /* ════════════════════════════════════════════════════════════════
+     INTRO RENDER LOOP
+     ════════════════════════════════════════════════════════════════ */
+  function introFrame(ts) {
+    const dt = Math.min((ts - lastTs) / 1000, 0.05);
     lastTs   = ts;
     const elapsed = ts - phaseStart;
 
-    /* Phase transitions */
+    // Phase transitions
     if      (phase === 'idle'  && elapsed > C.T_IDLE)  { phase = 'accel'; phaseStart = ts; }
     else if (phase === 'accel' && elapsed > C.T_ACCEL) { phase = 'hyper'; phaseStart = ts; }
     else if (phase === 'hyper' && elapsed > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
     else if (phase === 'decel' && elapsed > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
 
     const spd = getSpeed(ts);
-    const t01 = clamp((spd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1); // 0=idle, 1=full warp
+    const t01 = clamp((spd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
 
-    /* ── Motion blur overlay (GC-FREE trail technique) ──
-       Instead of per-star gradients, we simply paint a semi-transparent
-       bg rectangle each frame. Stars leave "afterimage" trails naturally.
-       The trail alpha scales from short (idle) to long (hyperjump).        */
-    const trailAlpha = lerp(C.BLUR_SLOW, C.BLUR_FAST, t01 * t01);
-    ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailAlpha})`;
+    // Motion blur overlay
+    const trailA = lerp(C.BLUR_LO, C.BLUR_HI, t01 * t01);
+    ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailA})`;
     ctx.fillRect(0, 0, W, H);
 
-    /* ── Ambient blue tunnel glow (during warp) ─── */
+    // Blue glow during warp
     if (t01 > 0.08) {
-      const glowA = t01 * 0.22;
-      const gR    = Math.min(W, H) * 0.55 * t01;
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
-      g.addColorStop(0,    `rgba(37,99,235,${glowA})`);
-      g.addColorStop(0.5,  `rgba(20,55,180,${glowA * 0.4})`);
+      const gA  = t01 * 0.20;
+      const gR  = Math.min(W, H) * 0.5 * t01;
+      const g   = ctx.createRadialGradient(cx, cy, 0, cx, cy, gR);
+      g.addColorStop(0,    `rgba(37,99,235,${gA})`);
+      g.addColorStop(0.45, `rgba(20,55,180,${gA * 0.35})`);
       g.addColorStop(1,    'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
     }
 
-    /* ── Star movement & draw ─── */
-    const dz = spd * dt;   // depth change this frame (dt-normalized)
-
+    // Move & draw stars
+    const dz = spd * dt;
     for (let i = 0; i < C.N; i++) {
-      sz[i] -= dz;
+      z[i] -= dz;
+      if (z[i] < C.Z_NEAR) { initStar(i, false); continue; }
 
-      if (sz[i] < C.Z_NEAR) {
-        initStar(i, false);   // recycle from far
-        continue;
-      }
+      const sc  = C.FOCAL / z[i];
+      const x2  = cx + x3[i] * sc;
+      const y2  = cy + y3[i] * sc;
+      const prox = 1 - z[i] / C.Z_FAR;
+      const [r, g, b, ma] = C.COLS[ci[i]];
+      const a   = clamp(ma * (0.12 + prox * 0.92), 0, 1);
+      const ps  = bsz[i] * (0.45 + prox * 2.2);
 
-      const sc  = C.FOCAL / sz[i];
-      const x2d = cx + sx3[i] * sc;
-      const y2d = cy + sy3[i] * sc;
-
-      const prox  = 1 - sz[i] / C.Z_FAR;    // 0=far, 1=close
-      const [r,g,b,ma] = C.COLORS[srnd[i]];
-      const alpha = clamp(ma * (0.15 + prox * 0.9), 0, 1);
-      const ptSz  = ssz[i] * (0.5 + prox * 2.2);
-
-      // At warp speed: draw line from spx/spy → x2d/y2d (motion blur trail adds the streak naturally)
-      if (t01 > 0.05 && (spx[i] !== x2d || spy[i] !== y2d)) {
+      // Warp mode: draw line (motion blur overlay creates the streak trail)
+      if (t01 > 0.04) {
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
-        ctx.lineWidth   = Math.max(0.5, ptSz * 0.5);
-        ctx.moveTo(spx[i], spy[i]);
-        ctx.lineTo(x2d, y2d);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+        ctx.lineWidth   = Math.max(0.4, ps * 0.5);
+        ctx.moveTo(psx[i], psy[i]);
+        ctx.lineTo(x2, y2);
         ctx.stroke();
       } else {
-        // Slow drift: crisp dot
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-        ctx.arc(x2d, y2d, Math.max(0.3, ptSz * 0.45), 0, 6.2832);
+        ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+        ctx.arc(x2, y2, Math.max(0.25, ps * 0.4), 0, 6.2832);
         ctx.fill();
       }
 
-      spx[i] = x2d;
-      spy[i] = y2d;
+      psx[i] = sx[i] = x2;
+      psy[i] = sy[i] = y2;
     }
 
-    /* ── Dark void at centre (tunnel mouth ring) ─── */
-    if (t01 > 0.12) {
-      const vR = 20 + t01 * 35;
-      const v  = ctx.createRadialGradient(cx, cy, 0, cx, cy, vR * 3);
-      v.addColorStop(0,    `rgba(5,7,14,${t01 * 0.96})`);
-      v.addColorStop(0.35, `rgba(7,9,15,${t01 * 0.60})`);
-      v.addColorStop(1,    'rgba(0,0,0,0)');
-      ctx.fillStyle = v;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    /* ── Fade-out & reveal ─── */
+    // ── DONE: transition to settling mode (no flash!) ───
     if (phase === 'done') {
       const fadeT = clamp(elapsed / C.T_FADE, 0, 1);
-      canvas.style.opacity = (1 - fadeT).toString();
 
-      if (fadeT >= 1) {
-        canvas.style.display = 'none';
-        replay.style.display = 'block';
-        document.body.classList.remove('hyperjump-active');
-        document.dispatchEvent(new CustomEvent('hyperjump-complete'));
-        revealHero(false);
-        cancelAnimationFrame(rafId);
-        rafId = null;
+      if (fadeT < 1) {
+        rafId = requestAnimationFrame(introFrame);
         return;
       }
+
+      // Transition: lock canvas to hero section bg
+      mode = 'settling';
+      canvas.style.position  = 'absolute';
+      canvas.style.zIndex    = '0';
+      canvas.style.pointerEvents = 'none';
+
+      // Move canvas into the hero section DOM
+      const heroSection = document.querySelector('.hero-section');
+      if (heroSection) {
+        heroSection.style.position = 'relative';
+        heroSection.insertBefore(canvas, heroSection.firstChild);
+      }
+
+      // Record current screen positions as "home" for cursor interaction
+      for (let i = 0; i < C.N; i++) {
+        hx[i] = sx[i]; hy[i] = sy[i];
+        vx[i] = 0;     vy[i] = 0;
+      }
+
+      // Remove body lock, show replay
+      document.body.classList.remove('hyperjump-active');
+      replay.style.display = 'block';
+
+      // Start cinematic reveal
+      revealHero(false);
+
+      // Enable cursor tracking
+      window.addEventListener('mousemove', onMouse, { passive: true });
+      window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
+
+      // Switch to background render loop
+      rafId = requestAnimationFrame(bgFrame);
+      return;
     }
 
-    rafId = requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(introFrame);
   }
 
-  /* ── Staggered hero reveal ────────────────────────────────────── */
-  function revealHero(instant) {
-    // Header first
-    const header = document.querySelector('header');
-    if (header) {
-      header.classList.add('reveal');
-      if (!instant) {
-        requestAnimationFrame(() => setTimeout(() => header.classList.add('revealed'), 60));
-      } else {
-        header.classList.add('revealed');
+  /* ════════════════════════════════════════════════════════════════
+     BACKGROUND RENDER LOOP (post-intro — same canvas, same stars)
+     Stars frozen at final positions with subtle cursor ripple.
+     ════════════════════════════════════════════════════════════════ */
+  function bgFrame(ts) {
+    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
+    ctx.fillRect(0, 0, W, H);
+
+    const rect = canvas.getBoundingClientRect();
+    const mxLocal = mouseX - rect.left;
+    const myLocal = mouseY - rect.top;
+    const rippleR = C.RIPPLE_R * Math.min(W, H);
+    const r2 = rippleR * rippleR;
+
+    for (let i = 0; i < C.N; i++) {
+      // Cursor ripple force
+      const dx = sx[i] - mxLocal;
+      const dy = sy[i] - myLocal;
+      const d2 = dx * dx + dy * dy;
+
+      if (d2 < r2 && d2 > 1) {
+        const t  = 1 - d2 / r2;
+        const inv = 1 / Math.sqrt(d2);
+        const f  = t * t * C.RIPPLE_F;
+        vx[i] += dx * inv * f * 0.04;
+        vy[i] += dy * inv * f * 0.04;
       }
+
+      // Spring back to home
+      vx[i] += (hx[i] - sx[i]) * C.SPRING;
+      vy[i] += (hy[i] - sy[i]) * C.SPRING;
+      vx[i] *= 0.80;
+      vy[i] *= 0.80;
+      sx[i] += vx[i];
+      sy[i] += vy[i];
+
+      const [r, g, b, ma] = C.COLS[ci[i]];
+      const s = bsz[i] * 0.6;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${r},${g},${b},${ma * 0.75})`;
+      ctx.arc(sx[i], sy[i], Math.max(0.25, s), 0, 6.2832);
+      ctx.fill();
     }
 
-    // All .reveal elements — use their data-delay or index-based stagger
-    const items = Array.from(document.querySelectorAll('.reveal:not(header)'));
+    rafId = requestAnimationFrame(bgFrame);
+  }
+
+  function onMouse(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  }
+
+  /* ════════════════════════════════════════════════════════════════
+     CINEMATIC STAGGERED REVEAL — each part appears separately
+     ════════════════════════════════════════════════════════════════ */
+  function revealHero(instant) {
+    // 1) Header — slides down first
+    const header = document.querySelector('header');
+    if (header) {
+      if (instant) { header.classList.add('revealed'); }
+      else { setTimeout(() => header.classList.add('revealed'), 100); }
+    }
+
+    // 2) All .reveal elements — staggered by data-delay or index
+    const items = Array.from(document.querySelectorAll('.reveal'));
     items.forEach((el, i) => {
-      const delay = parseFloat(el.dataset.delay || 0) * 1000 || i * 90;
       if (instant) {
         el.classList.add('revealed');
-      } else {
-        setTimeout(() => el.classList.add('revealed'), 220 + delay);
+        return;
       }
+      // Use data-delay (seconds) if specified, else index * 120ms
+      const delayMs = el.dataset.delay
+        ? parseFloat(el.dataset.delay) * 1000
+        : i * 120;
+      setTimeout(() => el.classList.add('revealed'), 350 + delayMs);
     });
   }
 
-  /* ── Boot / Replay ────────────────────────────────────────────── */
+  /* ════════════════════════════════════════════════════════════════
+     BOOT / REPLAY
+     ════════════════════════════════════════════════════════════════ */
   function start() {
-    canvas.style.display = 'block';
-    canvas.style.opacity = '1';
-    replay.style.display = 'none';
+    // Reset canvas to fixed overlay
+    canvas.style.position  = 'fixed';
+    canvas.style.inset     = '0';
+    canvas.style.zIndex    = '9999';
+    canvas.style.display   = 'block';
+    canvas.style.opacity   = '1';
+    replay.style.display   = 'none';
+
+    // Move canvas back to body if it was moved into hero
+    if (canvas.parentElement !== document.body) {
+      document.body.insertBefore(canvas, document.body.firstChild);
+    }
+
     document.body.classList.add('hyperjump-active');
 
-    // Reset reveal state for replay
+    // Reset reveal state
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     const header = document.querySelector('header');
     if (header) header.classList.remove('revealed');
 
     resize();
-
+    mode       = 'intro';
     phase      = 'idle';
-    phaseStart = performance.now();
-    lastTs     = phaseStart;
+    phaseStart = lastTs = performance.now();
 
+    window.removeEventListener('mousemove', onMouse);
     if (rafId) cancelAnimationFrame(rafId);
-    rafId = requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(introFrame);
   }
 
-  window.addEventListener('resize', resize, { passive: true });
+  window.addEventListener('resize', () => {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cx = W * 0.5;
+    cy = H * 0.5;
+  }, { passive: true });
+
   replay.addEventListener('click', start);
   start();
 })();
 </script>
 
 <style is:global>
-  /* Body lock during intro */
   body.hyperjump-active {
     overflow: hidden;
   }
 
-  /* ── Header reveal ── */
+  /* Header reveal — slides down */
   header {
     opacity: 0;
-    transform: translateY(-12px);
+    transform: translateY(-16px);
     transition:
-      opacity  0.8s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity   0.85s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
   }
   header.revealed {
     opacity: 1;
     transform: none;
   }
 
-  /* ── Hero element reveal ── */
+  /* Hero element reveal — slides up + fades in */
   .reveal {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(28px);
     transition:
-      opacity  0.75s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity   0.80s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.80s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: opacity, transform;
   }
   .reveal.revealed {
@@ -358,15 +446,15 @@
     transform: none;
   }
 
-  /* ── Glass cards extra: scale-in from slightly below ── */
+  /* Glass / metric cards — scale-in effect */
   .glass-panel.reveal,
   .glass-card.reveal,
   [class*="cap-card"].reveal,
   .metric-card.reveal {
-    transform: translateY(32px) scale(0.97);
+    transform: translateY(36px) scale(0.96);
     transition:
-      opacity  0.80s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.80s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity   0.90s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.90s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .glass-panel.reveal.revealed,
   .glass-card.reveal.revealed,
@@ -375,7 +463,6 @@
     transform: none;
   }
 
-  /* No animations for reduced motion users */
   @media (prefers-reduced-motion: reduce) {
     header,
     .reveal,
