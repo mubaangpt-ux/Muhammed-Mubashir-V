@@ -1,5 +1,6 @@
 ﻿---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import CreativeWorks from "../../components/CreativeWorks";
 import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
 ---
@@ -64,5 +65,7 @@ import { projects } from "../../data/projects";
     </div>
   </div>
 </section>
+
+<CreativeWorks client:load />
 
 </BaseLayout>

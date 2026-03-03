@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
 import CapabilityIcon from "../components/CapabilityIcon";
+import CreativeWorks from "../components/CreativeWorks/index";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -778,6 +779,8 @@ const personJsonLd = {
 
   </div>
 </section>
+
+<CreativeWorks client:load />
 
 
 <!-- TESTIMONIALS — 3-ROW PARALLAX SCROLL -->
