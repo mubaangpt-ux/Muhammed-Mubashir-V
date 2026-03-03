@@ -52,47 +52,45 @@
      CONFIG
      ═══════════════════════════════════════════════════════════════ */
   const C = {
-    N:          3200,     // Denser stars for realistic space
+    N:          3500,     // Denser stars
 
     // 3D projection
     FOCAL:       380,
     Z_FAR:      1600,
     Z_NEAR:        3,
 
-    // Tuning the "Loop" — Tunnel cylinder radii
-    R_INNER:      18,     // inner ring edge
-    R_OUTER:     165,     // outer ring edge
+    // Tuning the "Loop"
+    R_INNER:      22,     // sharper hole
+    R_OUTER:     180,     
 
-    // ms durations
-    T_IDLE:     1200,
-    T_ACCEL:    1800,
-    T_HYPER:    1200,
-    T_DECEL:    1800,
+    // timings
+    T_IDLE:     1000,
+    T_ACCEL:    2000,
+    T_HYPER:    1000,
+    T_DECEL:    2200,
     T_FADE:     1200,
 
-    // speeds (units/sec)
-    V_SLOW:       20,
-    V_FAST:     1600,
+    // speeds
+    V_SLOW:       15,
+    V_FAST:     1650,
 
-    // persistence (blur)
-    BLUR_LO:    0.08,
-    BLUR_HI:    0.88,
+    // persistence
+    BLUR_LO:    0.06,
+    BLUR_HI:    0.90,
 
     // background interaction
-    RIPPLE_R:    0.25,
-    RIPPLE_F:     16,
-    SPRING:     0.06,
+    RIPPLE_R:    0.28,
+    RIPPLE_F:     18,
+    SPRING:     0.05,
 
-    // colors [R,G,B,maxAlpha]
     COLS: [
-      [245, 248, 255, 0.95],
-      [210, 228, 255, 0.82],
-      [175, 210, 255, 0.75],
-      [240, 246, 255, 0.90],
-      [150, 195, 255, 0.65],
+      [255, 255, 255, 1.0],  // White
+      [147, 197, 253, 0.9],  // --accent-soft
+      [59, 130, 246, 0.8],   // --accent
+      [219, 234, 254, 0.95], // ultra soft blue
     ],
 
-    BG: [7, 9, 15],
+    BG: [7, 9, 15], // Match --bg-primary (#07090f)
   };
   /* ═══════════════════════════════════════════════════════════════ */
 
@@ -110,13 +108,12 @@
   const ctx = canvas.getContext('2d', { alpha: false });
   let W, H, cx, cy;
 
-  /* ── Pre-allocated typed arrays ─── */
+  /* ── Pre-allocated arrays ─── */
   const x3  = new Float32Array(C.N);
   const y3  = new Float32Array(C.N);
   const z3  = new Float32Array(C.N);
   const ci  = new Uint8Array(C.N);
   const bsz = new Float32Array(C.N);
-  const typ = new Uint8Array(C.N); // 0=tunnel, 1=field
 
   const sx  = new Float32Array(C.N);
   const sy  = new Float32Array(C.N);
@@ -129,18 +126,14 @@
   const vy  = new Float32Array(C.N);
 
   function initStar(i, randZ) {
-    const isTunnel = Math.random() < 0.72; // 72% tunnel stars
-    typ[i] = isTunnel ? 0 : 1;
-
+    const isTunnel = Math.random() < 0.75;
     const a = Math.random() * 6.2831;
     let r;
 
     if (isTunnel) {
-      // Concentrated ring stars form the dark "void" mouth
       r = C.R_INNER + Math.random() * (C.R_OUTER - C.R_INNER);
     } else {
-      // Background stars fill the whole screen space
-      r = Math.random() * (C.R_OUTER * 12);
+      r = Math.random() * (C.R_OUTER * 15);
     }
 
     x3[i]  = Math.cos(a) * r;
@@ -148,11 +141,11 @@
     z3[i]  = randZ ? Math.random() * C.Z_FAR + C.Z_NEAR : C.Z_FAR * (0.8 + Math.random() * 0.2);
     ci[i]  = Math.random() * C.COLS.length | 0;
     
-    const sc = isTunnel ? 1 : 0.6;
+    const sc = isTunnel ? 1 : 0.65;
     bsz[i] = (Math.random() < 0.9 ? 0.4 + Math.random() * 0.6 : 1.0 + Math.random() * 1.5) * sc;
     
     vx[i] = vy[i] = 0;
-    // ensure no zero-frame streak
+    
     const psc = C.FOCAL / z3[i];
     psx[i] = x3[i] * psc + (W / 2);
     psy[i] = y3[i] * psc + (H / 2);
@@ -180,6 +173,7 @@
   let mode       = 'intro';
   let mouseX     = -9999, mouseY = -9999;
   let curSpd     = C.V_SLOW;
+  let expFactor  = 1.0;
 
   function getTargetSpd(ts) {
     const e = ts - phaseStart;
@@ -206,17 +200,33 @@
     else if (phase === 'decel' && el > C.T_DECEL) { phase = 'done';  phaseStart = ts; }
 
     const target = getTargetSpd(ts);
-    curSpd = lerp(curSpd, target, 0.12);
+    curSpd = lerp(curSpd, target, 0.15);
     const t01 = clamp((curSpd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
 
-    // ── Motion Blur Overlay ──
+    // Fade to home background color
     const trailA = lerp(C.BLUR_LO, C.BLUR_HI, t01);
     ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - trailA})`;
     ctx.fillRect(0, 0, W, H);
 
-    // 🌟 Expansion factor — slowly widens the tunnel at the end 🌟
-    // This allows stars to cover the whole screen in background mode.
-    const expansion = (phase === 'decel' || phase === 'done')
+    // � Match Home Page Gradients during Decel/Done 🎨
+    if (phase === 'decel' || phase === 'done') {
+      const gT = clamp(el / (phase === 'decel' ? C.T_DECEL : C.T_FADE), 0, 1);
+      const alpha = gT * 0.45;
+      
+      // Blue top glow (Matches index.astro:110)
+      const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
+      g.addColorStop(0, `rgba(37,99,235,${alpha * 0.8})`);
+      g.addColorStop(0.4, `rgba(37,99,235,${alpha * 0.3})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    // Expansion logic
+    expFactor = (phase === 'decel' || phase === 'done')
       ? 1.0 + eOut(el / C.T_DECEL) * 6.0
       : 1.0;
 
@@ -227,38 +237,34 @@
         z3[i] -= dz;
         if (z3[i] < C.Z_NEAR) {
           initStar(i, false);
+          // Zero-out psx/psy to prevent "scribble" when star re-wraps
           const sc2 = C.FOCAL / z3[i];
-          psx[i] = cx + x3[i] * sc2;
-          psy[i] = cy + y3[i] * sc2;
+          psx[i] = cx + x3[i] * sc2 * expFactor;
+          psy[i] = cy + y3[i] * sc2 * expFactor;
         }
       }
 
       const sc = C.FOCAL / z3[i];
-      const x  = cx + x3[i] * sc * expansion;
-      const y  = cy + y3[i] * sc * expansion;
-
-      if (x < -100 || x > W + 100 || y < -100 || y > H + 100) {
-        if (phase !== 'done') initStar(i, false);
-      }
+      const x  = cx + x3[i] * sc * expFactor;
+      const y  = cy + y3[i] * sc * expFactor;
 
       const p = 1 - z3[i] / C.Z_FAR;
       const [r, g, b, ma] = C.COLS[ci[i]];
       const a = clamp(ma * (0.15 + p * 0.85), 0, 1);
       const s = bsz[i] * (0.6 + p * 1.8);
 
-      if (t01 > 0.04 && phase !== 'done') {
-        // Warp Streaks
+      if (t01 > 0.05 && phase !== 'done') {
         ctx.beginPath();
         ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
-        ctx.lineWidth   = Math.max(0.5, s * 0.5);
+        ctx.lineWidth   = Math.max(0.6, s * 0.5);
+        // Streak from psx/psy to ensure fluid lines
         ctx.moveTo(psx[i], psy[i]);
         ctx.lineTo(x, y);
         ctx.stroke();
       } else {
-        // Star Dots
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r},${g},${b},${a * (mode === 'background' ? 0.75 : 1)})`;
-        ctx.arc(x, y, Math.max(0.3, s * 0.45), 0, 6.2831);
+        ctx.fillStyle = `rgba(${r},${g},${b},${a * (mode === 'background' ? 0.7 : 1)})`;
+        ctx.arc(x, y, Math.max(0.35, s * 0.45), 0, 6.2831);
         ctx.fill();
       }
 
@@ -269,8 +275,7 @@
     }
 
     if (phase === 'done') {
-      const ft = clamp(el / C.T_FADE, 0, 1);
-      if (ft >= 1 && mode === 'intro') {
+      if (clamp(el / C.T_FADE, 0, 1) >= 1 && mode === 'intro') {
         finishIntro();
         return;
       }
@@ -299,13 +304,22 @@
     revealHero(false);
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('mouseleave', () => { mouseX = -9999; mouseY = -9999; }, { passive: true });
-
     rafId = requestAnimationFrame(bgLoop);
   }
 
   function bgLoop(ts) {
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     ctx.fillRect(0, 0, W, H);
+
+    // Render hero gradients in background too for blending
+    const g = ctx.createRadialGradient(cx, -cy * 0.1, 0, cx, -cy * 0.1, W * 0.7);
+    g.addColorStop(0, `rgba(37,99,235,0.35)`);
+    g.addColorStop(0.4, `rgba(37,99,235,0.12)`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalCompositeOperation = 'screen';
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
 
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left;
@@ -333,10 +347,10 @@
         sx[i] += vx[i];
         sy[i] += vy[i];
 
-        const [r, g, b, ma] = C.COLS[ci[i]];
+        const [rc, gc, bc, ma] = C.COLS[ci[i]];
         ctx.beginPath();
-        ctx.fillStyle = `rgba(${r},${g},${b},${ma * 0.75})`;
-        ctx.arc(sx[i], sy[i], Math.max(0.3, bsz[i] * 0.6), 0, 6.2831);
+        ctx.fillStyle = `rgba(${rc},${gc},${bc},${ma * 0.7})`;
+        ctx.arc(sx[i], sy[i], Math.max(0.35, bsz[i] * 0.6), 0, 6.2831);
         ctx.fill();
     }
     rafId = requestAnimationFrame(bgLoop);
@@ -354,8 +368,8 @@
     const items = Array.from(document.querySelectorAll('.reveal'));
     items.forEach((el, i) => {
       if (instant) { el.classList.add('revealed'); return; }
-      const delay = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 110;
-      setTimeout(() => el.classList.add('revealed'), 380 + delay);
+      const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 120;
+      setTimeout(() => el.classList.add('revealed'), 450 + d);
     });
   }
 
@@ -398,13 +412,13 @@
 
 <style is:global>
   body.hyperjump-active { overflow: hidden; }
-  header { opacity: 0; transform: translateY(-16px); transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
+  header { opacity: 0; transform: translateY(-16px); transition: all 1.1s cubic-bezier(0.25, 1, 0.4, 1); }
   header.revealed { opacity: 1; transform: none; }
-  .reveal { opacity: 0; transform: translateY(28px); transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); will-change: opacity, transform; }
+  .reveal { opacity: 0; transform: translateY(32px); transition: all 0.9s cubic-bezier(0.25, 1, 0.4, 1); will-change: opacity, transform; }
   .reveal.revealed { opacity: 1; transform: none; }
   
   .glass-panel.reveal, .glass-card.reveal, [class*="cap-card"].reveal, .metric-card.reveal {
-     transform: translateY(32px) scale(0.97); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1);
+     transform: translateY(32px) scale(0.97); transition: all 1.2s cubic-bezier(0.25, 1, 0.4, 1);
   }
   .glass-panel.reveal.revealed, .glass-card.reveal.revealed, [class*="cap-card"].reveal.revealed, .metric-card.reveal.revealed {
      transform: none;
