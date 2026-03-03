@@ -159,21 +159,24 @@
   }
 
   function finishIntro(wasSkipped) {
+    if (!canvas) return;
     mode = 'background';
     const hero = document.querySelector('.hero-section');
     
     if (hero) {
-      canvas.style.position = 'absolute'; canvas.style.zIndex = '0';
+      // Home page: Inject into hero but stay behind content
+      canvas.style.position = 'absolute'; canvas.style.zIndex = '1';
       hero.style.position = 'relative';
       if (canvas.parentElement !== hero) hero.insertBefore(canvas, hero.firstChild);
     } else {
-      // Sub-pages or pages without hero: use fixed global background
-      canvas.style.position = 'fixed'; canvas.style.zIndex = '-1';
+      // Sub-pages: Fixed global background, just above body bg
+      canvas.style.position = 'fixed'; canvas.style.zIndex = '0';
       if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     }
     
     canvas.style.display = 'block'; 
     canvas.style.opacity = '1';
+    canvas.style.pointerEvents = 'none'; // Ensure clicks pass through
     document.body.classList.remove('hyperjump-active');
     if (replay) replay.style.display = 'block';
 
@@ -233,7 +236,10 @@
 
   function start() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
-    if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
+    if (!canvas) return; 
+    ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
+    resize();
     
     const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
     if (played || !isHome) { finishIntro(true); return; }
