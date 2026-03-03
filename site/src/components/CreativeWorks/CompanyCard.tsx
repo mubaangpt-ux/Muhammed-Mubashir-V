@@ -37,16 +37,22 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
   return (
     <div
       ref={ref}
-      className={`group relative mx-auto h-[440px] w-full max-w-[340px] overflow-hidden rounded-[34px] border transition-[opacity,transform,border-color,box-shadow] duration-[650ms,650ms,300ms,300ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`group relative mx-auto h-[440px] w-full max-w-[340px] overflow-hidden rounded-[36px] border transition-[opacity,transform,border-color,box-shadow] duration-[650ms,650ms,300ms,300ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         isExpanded
-          ? "border-[#93c5fd]/45 shadow-[0_32px_85px_rgba(37,99,235,0.22)]"
-          : "border-white/12 shadow-[0_26px_65px_rgba(0,0,0,0.42)] hover:-translate-y-1.5 hover:border-white/18 hover:shadow-[0_34px_85px_rgba(0,0,0,0.5)]"
+          ? "border-[#93c5fd]/30 shadow-[0_30px_80px_rgba(2,8,23,0.55),0_0_0_1px_rgba(147,197,253,0.12)]"
+          : "border-white/10 shadow-[0_26px_65px_rgba(2,8,23,0.48)] hover:-translate-y-1.5 hover:border-white/14 hover:shadow-[0_34px_85px_rgba(2,8,23,0.58),0_0_0_1px_rgba(147,197,253,0.08)]"
       }`}
       style={{
         transitionDelay: `${delay}ms`,
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",
-        background: `linear-gradient(180deg, ${company.color} 0%, rgba(13,17,23,0.96) 100%)`,
+        background: `
+          linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%),
+          radial-gradient(circle at top, ${company.color}26 0%, transparent 42%),
+          linear-gradient(180deg, rgba(12,18,32,0.84) 0%, rgba(7,9,15,0.92) 100%)
+        `,
+        backdropFilter: "blur(22px)",
+        WebkitBackdropFilter: "blur(22px)",
       }}
     >
       <img
@@ -60,25 +66,27 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         className="absolute inset-0"
         style={{
           background: `
-            linear-gradient(180deg, rgba(7,9,15,0.02) 0%, rgba(7,9,15,0.10) 24%, rgba(7,9,15,0.42) 58%, rgba(7,9,15,0.92) 100%),
-            radial-gradient(circle at 50% 18%, rgba(255,255,255,0.18) 0%, transparent 38%),
-            linear-gradient(180deg, transparent 0%, ${company.color}66 100%)
+            linear-gradient(180deg, rgba(7,9,15,0.02) 0%, rgba(7,9,15,0.12) 24%, rgba(7,9,15,0.44) 56%, rgba(7,9,15,0.90) 100%),
+            radial-gradient(circle at 50% 16%, rgba(255,255,255,0.14) 0%, transparent 36%),
+            linear-gradient(180deg, transparent 0%, rgba(7,9,15,0.34) 66%, rgba(7,9,15,0.82) 100%)
           `,
         }}
       />
 
-      <div className="pointer-events-none absolute inset-[10px] rounded-[28px] border border-white/10 bg-white/[0.02]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/10 via-white/[0.03] to-transparent opacity-70" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/28 via-black/8 to-transparent" />
+      <div className="pointer-events-none absolute inset-[10px] rounded-[30px] border border-white/10 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-18px_40px_rgba(7,9,15,0.14)]" />
+      <div className="pointer-events-none absolute inset-[2px] rounded-[34px] border border-white/6 opacity-90" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/12 via-white/[0.03] to-transparent opacity-75" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/32 via-black/10 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
       <div className="absolute right-4 top-4">
-        <span className="inline-flex rounded-full border border-white/12 bg-black/35 px-3 py-1.5 font-mono text-[11px] text-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
+        <span className="inline-flex rounded-full border border-white/12 bg-[rgba(255,255,255,0.08)] px-3 py-1.5 font-mono text-[11px] text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
           {company.deliverables.length} Deliverables
         </span>
       </div>
 
       <div className="absolute inset-x-0 top-[49%] flex justify-center">
-        <div className="flex gap-1.5 rounded-full border border-white/8 bg-black/18 px-3 py-1.5 backdrop-blur-md">
+        <div className="flex gap-1.5 rounded-full border border-white/8 bg-[rgba(255,255,255,0.06)] px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
           {[0, 1, 2].map((index) => (
             <span
               key={index}
@@ -89,7 +97,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
       </div>
 
       <div className="absolute inset-x-4 bottom-4">
-        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+        <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_40px_rgba(2,8,23,0.34)] backdrop-blur-2xl">
           <div className="mb-3 flex items-start justify-between gap-4">
             <div>
               <h3
@@ -103,7 +111,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full border border-white/12 bg-black/35 px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-md">
+            <span className="shrink-0 rounded-full border border-white/12 bg-[rgba(255,255,255,0.08)] px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-md">
               Studio
             </span>
           </div>
@@ -116,7 +124,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             {company.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-white/10 bg-black/28 px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-md"
+                className="rounded-full border border-white/10 bg-[rgba(255,255,255,0.06)] px-3 py-1.5 font-mono text-[11px] text-white/78 backdrop-blur-md"
               >
                 {tag}
               </span>
