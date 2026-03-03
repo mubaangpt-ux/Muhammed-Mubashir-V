@@ -32,7 +32,7 @@ jobs:
         working-directory: site
         run: npm run build
 
-      - name: Probe Hostinger FTP ports
+      - name: Probe Hostinger deploy ports
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
         run: |
@@ -45,7 +45,7 @@ jobs:
               print("[probe] FTP_SERVER secret is empty")
               raise SystemExit(1)
 
-          for port in (21, 990):
+          for port in (21, 990, 65002):
               try:
                   with socket.create_connection((host, port), timeout=20):
                       print(f"[probe] port {port}: reachable")
@@ -105,9 +105,27 @@ jobs:
           dangerous-clean-slate: false
           log-level: standard
 
-      - name: Fail if every deploy mode failed
+      - name: Deploy dist to Hostinger via SFTP fallback
+        id: deploy_sftp
         if: steps.deploy_ftp.outcome == 'failure' && steps.deploy_ftps.outcome == 'failure' && steps.deploy_ftps_legacy.outcome == 'failure'
+        continue-on-error: true
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 65002
+          source: "site/dist/*"
+          target: ${{ secrets.FTP_SERVER_DIR }}
+          strip_components: 2
+          overwrite: true
+          timeout: 60s
+          command_timeout: 20m
+
+      - name: Fail if every deploy mode failed
+        if: steps.deploy_ftp.outcome == 'failure' && steps.deploy_ftps.outcome == 'failure' && steps.deploy_ftps_legacy.outcome == 'failure' && steps.deploy_sftp.outcome == 'failure'
         run: |
-          echo "FTP, explicit FTPS, and implicit FTPS all failed."
-          echo "Verify FTP_SERVER is the Hostinger FTP hostname from hPanel and that the account allows remote FTP access."
+          echo "FTP, explicit FTPS, implicit FTPS, and SFTP all failed."
+          echo "Verify FTP_SERVER uses the Hostinger FTP IP from hPanel, not the site domain."
+          echo "If your Hostinger plan includes SSH access, confirm SFTP/SSH is enabled and reachable on port 65002."
           exit 1
