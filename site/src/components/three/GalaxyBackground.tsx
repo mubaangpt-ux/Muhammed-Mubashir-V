@@ -7,40 +7,40 @@ import * as THREE from "three";
 
 const GALAXY_CONFIGS = [
     {
-        count: 12000,
-        radius: 180,
+        count: 25000,
+        radius: 200,
         arms: 3,
         spin: 1.4,
-        randomness: 0.35,
+        randomness: 0.3,
         randomnessPower: 3,
         // electric blue core → subtle purple outer arms
-        innerColor: new THREE.Color("#1a4fd4"),
-        outerColor: new THREE.Color("#0a0e1f"),
-        position: [0, 0, -600] as [number, number, number],
+        innerColor: new THREE.Color("#4a89ff"),
+        outerColor: new THREE.Color("#1a1e3f"),
+        position: [0, 0, -400] as [number, number, number],
         rotationSpeed: 0.00008,
     },
     {
-        count: 8000,
-        radius: 130,
+        count: 15000,
+        radius: 150,
         arms: 2,
         spin: -1.1,
-        randomness: 0.4,
+        randomness: 0.35,
         randomnessPower: 2.8,
-        innerColor: new THREE.Color("#0e3cb5"),
-        outerColor: new THREE.Color("#060810"),
-        position: [250, -80, -900] as [number, number, number],
+        innerColor: new THREE.Color("#2563eb"),
+        outerColor: new THREE.Color("#0f172a"),
+        position: [180, -60, -600] as [number, number, number],
         rotationSpeed: 0.00006,
     },
     {
-        count: 6000,
-        radius: 100,
+        count: 12000,
+        radius: 120,
         arms: 2,
         spin: 1.7,
-        randomness: 0.5,
+        randomness: 0.4,
         randomnessPower: 2.5,
-        innerColor: new THREE.Color("#3b6cff"),
-        outerColor: new THREE.Color("#07090f"),
-        position: [-220, 60, -750] as [number, number, number],
+        innerColor: new THREE.Color("#60a5fa"),
+        outerColor: new THREE.Color("#1e293b"),
+        position: [-160, 40, -500] as [number, number, number],
         rotationSpeed: 0.0001,
     },
 ];
@@ -54,9 +54,9 @@ const VERTEX_SHADER = `
     vColor = aColor;
     vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
     gl_Position = projectionMatrix * mvPos;
-    // size attenuates with distance
-    float size = 60.0 / -mvPos.z;
-    gl_PointSize = clamp(size, 0.5, 3.5);
+    // size attenuates with distance - increased for visibility
+    float size = 80.0 / -mvPos.z;
+    gl_PointSize = clamp(size, 0.8, 6.0);
   }
 `;
 
@@ -68,8 +68,8 @@ const FRAGMENT_SHADER = `
     float dist = length(xy);
     if (dist > 0.5) discard;
     float alpha = 1.0 - dist * 2.0;
-    alpha = pow(alpha, 2.0);
-    gl_FragColor = vec4(vColor, alpha * 0.7);
+    alpha = pow(alpha, 1.5); // softer falloff
+    gl_FragColor = vec4(vColor, alpha * 0.9); // higher alpha
   }
 `;
 
