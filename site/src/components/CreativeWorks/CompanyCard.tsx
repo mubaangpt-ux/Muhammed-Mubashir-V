@@ -66,9 +66,9 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         className="absolute inset-0"
         style={{
           background: `
-            linear-gradient(180deg, rgba(7,9,15,0.02) 0%, rgba(7,9,15,0.09) 24%, rgba(7,9,15,0.32) 56%, rgba(7,9,15,0.72) 100%),
+            linear-gradient(180deg, rgba(7,9,15,0.01) 0%, rgba(7,9,15,0.05) 24%, rgba(7,9,15,0.18) 56%, rgba(7,9,15,0.44) 100%),
             radial-gradient(circle at 50% 16%, rgba(255,255,255,0.14) 0%, transparent 36%),
-            linear-gradient(180deg, transparent 0%, rgba(7,9,15,0.18) 66%, rgba(7,9,15,0.56) 100%)
+            linear-gradient(180deg, transparent 0%, rgba(7,9,15,0.08) 66%, rgba(7,9,15,0.30) 100%)
           `,
         }}
       />
@@ -76,7 +76,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
       <div className="pointer-events-none absolute inset-[10px] rounded-[30px] border border-white/10 bg-white/[0.015] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-18px_40px_rgba(7,9,15,0.14)]" />
       <div className="pointer-events-none absolute inset-[2px] rounded-[34px] border border-white/6 opacity-90" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/12 via-white/[0.03] to-transparent opacity-75" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/32 via-black/10 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-black/16 via-black/5 to-transparent" />
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
       <div className="absolute right-4 top-4">
@@ -109,17 +109,20 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
           className="relative overflow-hidden rounded-[30px] p-5 shadow-[0_18px_40px_rgba(2,8,23,0.26)]"
           style={{
             background: `
-              linear-gradient(145deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.08) 18%, rgba(255,255,255,0.03) 52%, rgba(255,255,255,0.02) 100%),
-              rgba(255,255,255,0.03)
+              linear-gradient(145deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.045) 22%, rgba(255,255,255,0.015) 54%, rgba(255,255,255,0.02) 100%),
+              rgba(255,255,255,0.012)
             `,
-            border: "1px solid rgba(255,255,255,0.14)",
-            backdropFilter: "blur(28px) saturate(140%)",
-            WebkitBackdropFilter: "blur(28px) saturate(140%)",
+            border: "1px solid rgba(255,255,255,0.16)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -18px 36px rgba(255,255,255,0.015), 0 18px 40px rgba(2,8,23,0.14)",
+            backdropFilter: "blur(32px) saturate(118%)",
+            WebkitBackdropFilter: "blur(32px) saturate(118%)",
           }}
         >
-          <div className="pointer-events-none absolute inset-0 rounded-[30px] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.08),transparent_34%,rgba(255,255,255,0.03)_100%)] opacity-90" />
-          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/14 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 rounded-[30px] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_30%),radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_32%,rgba(255,255,255,0.02)_100%)] opacity-95" />
+          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-8 left-0 w-px bg-gradient-to-b from-transparent via-white/16 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-8 right-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white/[0.03] to-transparent" />
 
           <div className="relative mb-3 flex items-start justify-between gap-4">
             <div>
@@ -137,10 +140,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             <span
               className="shrink-0 rounded-full px-3 py-1.5 font-mono text-[11px] text-white/80"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                backdropFilter: "blur(18px) saturate(135%)",
-                WebkitBackdropFilter: "blur(18px) saturate(135%)",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.16)",
+                backdropFilter: "blur(18px) saturate(118%)",
+                WebkitBackdropFilter: "blur(18px) saturate(118%)",
               }}
             >
               Studio
@@ -157,10 +160,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
                 key={tag}
                 className="rounded-full px-3 py-1.5 font-mono text-[11px] text-white/78"
                 style={{
-                  background: "rgba(255,255,255,0.045)",
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  backdropFilter: "blur(16px) saturate(135%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(135%)",
+                  background: "rgba(255,255,255,0.028)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  backdropFilter: "blur(16px) saturate(118%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(118%)",
                 }}
               >
                 {tag}
