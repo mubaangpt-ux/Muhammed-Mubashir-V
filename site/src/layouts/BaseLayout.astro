@@ -2,6 +2,7 @@
 import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import { profile } from "../data/profile";
+import StarfieldContainer from "../components/three/StarfieldContainer";
 import {
   ArrowUpRight,
   Copyright,
@@ -391,139 +392,13 @@ const isActive = (href: string) =>
   </head>
     <body class="antialiased">
 
-    <!-- SPLASH SCREEN — shows on first load only -->
-    <div id="splash" style="
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: #07090f;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      pointer-events: all;
-    ">
-
-      <!-- Star particles canvas -->
-      <canvas id="splash-canvas" style="
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.6;
-      "></canvas>
-
-      <!-- Vertical beam -->
-      <div style="
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 1px;
-        height: 100%;
-        background: linear-gradient(180deg,
-          transparent 0%,
-          rgba(147,197,253,0.6) 30%,
-          rgba(37,99,235,0.8) 50%,
-          rgba(147,197,253,0.6) 70%,
-          transparent 100%);
-        animation: splashBeam 1.2s ease forwards;
-        opacity: 0;
-      "></div>
-
-      <!-- Name container -->
-      <div style="
-        position: relative;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0;
-      ">
-
-        <!-- Letter-by-letter name reveal -->
-        <div id="splash-name" style="
-          font-family: 'Orbitron', sans-serif;
-          font-size: clamp(1.8rem, 6vw, 4rem);
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: transparent;
-          position: relative;
-          white-space: nowrap;
-          display: flex;
-          align-items: center;
-          gap: 0;
-        ">
-          <!-- Each letter gets fill animation via JS -->
-        </div>
-
-        <!-- Glow baseline under name -->
-        <div id="splash-line" style="
-          height: 1px;
-          width: 0%;
-          margin-top: 6px;
-          background: linear-gradient(90deg,
-            transparent 0%,
-            rgba(147,197,253,0.5) 20%,
-            rgba(255,255,255,0.95) 50%,
-            rgba(147,197,253,0.5) 80%,
-            transparent 100%);
-          box-shadow: 0 0 12px rgba(147,197,253,0.6), 0 0 28px rgba(37,99,235,0.4);
-          transition: width 0.7s cubic-bezier(0.22,1,0.36,1);
-        "></div>
-
-        <!-- Tagline -->
-        <p id="splash-tag" style="
-          font-family: 'DM Mono', monospace;
-          font-size: 0.65rem;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          color: rgba(147,197,253,0);
-          margin-top: 14px;
-          transition: color 0.6s ease;
-        ">Digital Marketing &middot; Performance &middot; Design &middot; Web Systems</p>
-
-      </div>
-
-      <!-- Loading bar at bottom -->
-      <div style="
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: rgba(255,255,255,0.04);
-      ">
-        <div id="splash-progress" style="
-          height: 100%;
-          width: 0%;
-          background: linear-gradient(90deg, #2563eb, #93c5fd, #2563eb);
-          background-size: 200% 100%;
-          animation: splashProgress 1.4s cubic-bezier(0.22,1,0.36,1) forwards,
-                     splashShimmer 1.0s linear infinite;
-          box-shadow: 0 0 8px rgba(37,99,235,0.8);
-        "></div>
-      </div>
-
-    </div>
-    <!-- END SPLASH -->
+    <!-- Starfield & Hyperjump Intro using R3F -->
+    <StarfieldContainer client:only="react" reducedMotion={false} />
 
     <!-- Noise overlay -->
     <div class="noise-overlay" aria-hidden="true"></div>
 
-    <!-- Star field -->
-    <canvas id="star-canvas" aria-hidden="true" style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 55vh;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 1;
-      transition: opacity 0.1s linear;
-    "></canvas>
+
 
     <!-- Cursor -->
     <div id="cursor-dot" aria-hidden="true"></div>
@@ -716,7 +591,8 @@ const isActive = (href: string) =>
     <!-- Reveal observer -->
     <script is:inline>
     (() => {
-      // Skip on index — handled by unified observer there
+      // Skip on index — handled by unified observer there. Actually wait, let's keep it here for simplicity
+      // and update it to handle the hyperjump sequence.
       if (document.querySelector('.hero-section')) return;
 
       const els = document.querySelectorAll('.reveal');
@@ -735,6 +611,19 @@ const isActive = (href: string) =>
         writeQueue.length = 0;
       }
 
+      function triggerReveal(el, delay, isIntersecting) {
+        if (isIntersecting) {
+          // If hyperjump is active, wait for it to complete
+          if (document.body.classList.contains('hyperjump-active')) {
+            document.addEventListener('hyperjump-complete', () => {
+              setTimeout(() => el.classList.add('visible'), delay);
+            }, { once: true });
+          } else {
+            setTimeout(() => el.classList.add('visible'), delay);
+          }
+        }
+      }
+
       const obs = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           readQueue.push(() => {
@@ -742,9 +631,7 @@ const isActive = (href: string) =>
             const el = entry.target;
             const isIntersecting = entry.isIntersecting;
             writeQueue.push(() => {
-              if (isIntersecting) {
-                setTimeout(() => el.classList.add('visible'), delay);
-              }
+              triggerReveal(el, delay, isIntersecting);
             });
           });
         });
@@ -755,478 +642,9 @@ const isActive = (href: string) =>
     })();
     </script>
 
-    <!-- Star Field -->
-    <script is:inline>
-    (() => {
-      const existing = window.__starFieldState || {
-        canvas: null,
-        ctx: null,
-        W: 0,
-        H: 0,
-        stars: [],
-        shootingStar: null,
-        shootingTimer: null,
-        animId: null,
-        lastTime: 0,
-        lastFrame: 0,
-        listenersBound: false,
-      };
-      window.__starFieldState = existing;
 
-      const state = existing;
-      const TARGET_FPS = 60;
-      const FRAME_INTERVAL = 1000 / TARGET_FPS;
-      const STAR_COLOURS = [
-        [214, 228, 255],
-        [200, 220, 255],
-        [185, 214, 255],
-        [230, 238, 255],
-        [162, 202, 255],
-      ];
 
-      const CFG = {
-        starCount: 340,
-        maxRadius: 1.5,
-        minRadius: 0.18,
-        twinkleSpeed: 0.008,
-        twinkleVariance: 0.018,
-        baseAlpha: 0.62,
-        shootingStarInterval: [16000, 26000],
-        shootingDuration: 1350,
-        shootingTrailLength: 190,
-        topBias: 0.8,
-      };
 
-      function bindCanvas() {
-        state.canvas = document.getElementById('star-canvas');
-        state.ctx = state.canvas ? state.canvas.getContext('2d') : null;
-        return !!(state.canvas && state.ctx);
-      }
-
-      function buildStars() {
-        state.stars = [];
-        for (let i = 0; i < CFG.starCount; i++) {
-          const col = STAR_COLOURS[Math.floor(Math.random() * STAR_COLOURS.length)];
-          const yFrac = Math.pow(Math.random(), 1.55) * CFG.topBias;
-          state.stars.push({
-            x: Math.random() * state.W,
-            y: yFrac * state.H,
-            r: CFG.minRadius + Math.random() * (CFG.maxRadius - CFG.minRadius),
-            alpha: CFG.baseAlpha * (0.45 + Math.random() * 0.65),
-            twinkleSpeed: CFG.twinkleSpeed + (Math.random() - 0.5) * CFG.twinkleVariance,
-            twinkleActive: Math.random() < 0.55,
-            twinklePhase: Math.random() * Math.PI * 2,
-            col,
-            bright: Math.random() < 0.09,
-          });
-        }
-      }
-
-      function resize() {
-        if (!bindCanvas()) return;
-        state.W = state.canvas.width = window.innerWidth;
-        state.H = state.canvas.height = window.innerHeight * 0.55;
-        buildStars();
-      }
-
-      function scheduleShootingStar(delayOverride) {
-        clearTimeout(state.shootingTimer);
-        const [min, max] = CFG.shootingStarInterval;
-        const delay = typeof delayOverride === 'number'
-          ? delayOverride
-          : min + Math.random() * (max - min);
-        state.shootingTimer = setTimeout(launchShootingStar, delay);
-      }
-
-      function launchShootingStar() {
-        if (!state.W || !state.H) return;
-        const angle = (16 + Math.random() * 18) * Math.PI / 180;
-        const startX = state.W * (0.12 + Math.random() * 0.5);
-        const startY = state.H * (0.05 + Math.random() * 0.22);
-        const speed = 300 + Math.random() * 140;
-
-        state.shootingStar = {
-          x: startX,
-          y: startY,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          startTime: performance.now(),
-          trailLength: CFG.shootingTrailLength + Math.random() * 70,
-          width: 1.6 + Math.random() * 0.9,
-        };
-
-        scheduleShootingStar();
-      }
-
-      function drawBackground() {
-        const ctx = state.ctx;
-        if (!ctx) return;
-
-        ctx.clearRect(0, 0, state.W, state.H);
-
-        const sky = ctx.createLinearGradient(0, 0, 0, state.H);
-        sky.addColorStop(0, 'rgba(18,42,102,0.34)');
-        sky.addColorStop(0.25, 'rgba(14,30,86,0.18)');
-        sky.addColorStop(0.6, 'rgba(7,12,28,0.04)');
-        sky.addColorStop(1, 'rgba(7,9,15,0)');
-        ctx.fillStyle = sky;
-        ctx.fillRect(0, 0, state.W, state.H);
-
-        const horizonGlow = ctx.createRadialGradient(
-          state.W * 0.5,
-          state.H * 0.16,
-          0,
-          state.W * 0.5,
-          state.H * 0.16,
-          Math.max(state.W * 0.26, 220)
-        );
-        horizonGlow.addColorStop(0, 'rgba(96,165,250,0.16)');
-        horizonGlow.addColorStop(0.45, 'rgba(37,99,235,0.08)');
-        horizonGlow.addColorStop(1, 'rgba(37,99,235,0)');
-        ctx.fillStyle = horizonGlow;
-        ctx.fillRect(0, 0, state.W, state.H);
-      }
-
-      function drawStars(dt) {
-        const ctx = state.ctx;
-        if (!ctx) return;
-
-        state.stars.forEach((star) => {
-          if (star.twinkleActive) {
-            star.twinklePhase += star.twinkleSpeed * dt * 0.06;
-            const wave = (Math.sin(star.twinklePhase) + 1) / 2;
-            star.alpha = 0.28 + wave * (star.bright ? 0.82 : 0.58);
-          }
-
-          const [r, g, b] = star.col;
-          ctx.save();
-
-          if (star.bright && star.alpha > 0.68) {
-            const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.r * 8);
-            glow.addColorStop(0, `rgba(${r},${g},${b},${(star.alpha * 0.44).toFixed(3)})`);
-            glow.addColorStop(0.45, `rgba(${r},${g},${b},${(star.alpha * 0.16).toFixed(3)})`);
-            glow.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = glow;
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.r * 8, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          ctx.globalAlpha = Math.min(star.alpha, 1);
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.beginPath();
-          ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        });
-      }
-
-      function drawShootingStar(now) {
-        const ctx = state.ctx;
-        const ss = state.shootingStar;
-        if (!ctx || !ss) return;
-
-        const elapsed = (now - ss.startTime) / 1000;
-        const totalDur = CFG.shootingDuration / 1000;
-        const t = elapsed / totalDur;
-
-        if (t >= 1) {
-          state.shootingStar = null;
-          return;
-        }
-
-        let alpha;
-        if (t < 0.12) alpha = t / 0.12;
-        else if (t < 0.76) alpha = 1;
-        else alpha = 1 - (t - 0.76) / 0.24;
-
-        const hx = ss.x + ss.vx * elapsed;
-        const hy = ss.y + ss.vy * elapsed;
-        const angle = Math.atan2(ss.vy, ss.vx);
-        const tx = hx - Math.cos(angle) * ss.trailLength;
-        const ty = hy - Math.sin(angle) * ss.trailLength;
-
-        ctx.save();
-        ctx.globalAlpha = Math.min(alpha, 1) * 0.95;
-        const grad = ctx.createLinearGradient(tx, ty, hx, hy);
-        grad.addColorStop(0, 'rgba(200,220,255,0)');
-        grad.addColorStop(0.35, 'rgba(184,214,255,0.18)');
-        grad.addColorStop(0.8, 'rgba(226,238,255,0.84)');
-        grad.addColorStop(1, 'rgba(255,255,255,1)');
-
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = ss.width;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(tx, ty);
-        ctx.lineTo(hx, hy);
-        ctx.stroke();
-
-        const headGlow = ctx.createRadialGradient(hx, hy, 0, hx, hy, 5);
-        headGlow.addColorStop(0, 'rgba(255,255,255,1)');
-        headGlow.addColorStop(0.35, 'rgba(214,228,255,0.72)');
-        headGlow.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = headGlow;
-        ctx.beginPath();
-        ctx.arc(hx, hy, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      function handleScroll() {
-        if (!state.canvas) return;
-        const fadeOver = window.innerHeight * 0.42;
-        const opacity = Math.max(0, 1 - window.scrollY / fadeOver);
-        state.canvas.style.opacity = opacity.toFixed(3);
-      }
-
-      function loop(now = 0) {
-        if (!bindCanvas()) return;
-
-        const delta = now - state.lastFrame;
-        if (delta < FRAME_INTERVAL - 0.5) {
-          state.animId = requestAnimationFrame(loop);
-          return;
-        }
-
-        state.lastFrame = now - (delta % FRAME_INTERVAL);
-        const dt = now - state.lastTime;
-        state.lastTime = now;
-
-        drawBackground();
-        drawStars(dt);
-        drawShootingStar(now);
-        state.animId = requestAnimationFrame(loop);
-      }
-
-      function refreshForNavigation() {
-        resize();
-        handleScroll();
-
-        if (window.location.pathname === '/') {
-          if (!state.shootingStar) {
-            scheduleShootingStar(3200 + Math.random() * 2800);
-          }
-        }
-      }
-
-      function initStaticStars() {
-        resize();
-        drawBackground();
-        state.stars.forEach((star) => {
-          const [r, g, b] = star.col;
-          state.ctx.globalAlpha = star.alpha * 0.78;
-          state.ctx.fillStyle = `rgb(${r},${g},${b})`;
-          state.ctx.beginPath();
-          state.ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-          state.ctx.fill();
-        });
-        handleScroll();
-      }
-
-      function init() {
-        if (!bindCanvas()) return;
-
-        if (!state.listenersBound) {
-          state.listenersBound = true;
-          window.addEventListener('resize', resize, { passive: true });
-          window.addEventListener('scroll', handleScroll, { passive: true });
-          window.addEventListener('pageshow', refreshForNavigation, { passive: true });
-          document.addEventListener('astro:page-load', refreshForNavigation);
-        }
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          initStaticStars();
-          return;
-        }
-
-        refreshForNavigation();
-
-        if (!state.animId) {
-          requestAnimationFrame((t) => {
-            state.lastTime = t;
-            state.lastFrame = t;
-            loop(t);
-          });
-        }
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
-      } else {
-        init();
-      }
-    })();
-    </script>
-
-      <!-- Splash screen controller -->
-    <script is:inline>
-    (() => {
-      const NAME = 'MUHAMMED MUBASHIR V';
-      const splash = document.getElementById('splash');
-      const nameEl = document.getElementById('splash-name');
-      const lineEl = document.getElementById('splash-line');
-      const tagEl  = document.getElementById('splash-tag');
-      if (!splash || !nameEl) return;
-
-      const isHomePage = window.location.pathname === '/';
-
-      // Only show splash ONCE per session
-      const splashShown = sessionStorage.getItem('splash_shown');
-      if (!isHomePage || splashShown) {
-        splash.style.display = 'none';
-        document.body.classList.remove('splash-active');
-        return;
-      }
-
-      splash.style.display = 'flex';
-      // Mark as shown for rest of session
-      sessionStorage.setItem('splash_shown', '1');
-
-      // Block scroll during splash
-      document.body.classList.add('splash-active');
-
-      // ── Build letter spans ──────────────────────────
-      NAME.split('').forEach((char, i) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-        span.style.cssText = `
-          display: inline-block;
-          color: transparent;
-          -webkit-text-stroke: 1px rgba(147,197,253,0.20);
-          animation: letterFill 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
-          animation-delay: ${0.35 + i * 0.045}s;
-          opacity: 0;
-        `;
-        // Fade letter in first
-        span.style.animation = 'none';
-        span.style.opacity = '0';
-        span.style.transition = `opacity 0.1s ease ${0.30 + i * 0.045}s`;
-        nameEl.appendChild(span);
-      });
-
-      // ── Splash canvas: small floating particles ─────
-      const canvas = document.getElementById('splash-canvas');
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles = Array.from({ length: 60 }, () => ({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: 0.3 + Math.random() * 0.9,
-          a: 0.1 + Math.random() * 0.5,
-          speed: 0.008 + Math.random() * 0.012,
-          phase: Math.random() * Math.PI * 2,
-        }));
-
-        let rafId;
-        const drawParticles = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          particles.forEach(p => {
-            p.phase += p.speed;
-            const alpha = p.a * (0.4 + 0.6 * Math.sin(p.phase));
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = '#93c5fd';
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          ctx.globalAlpha = 1;
-          rafId = requestAnimationFrame(drawParticles);
-        };
-        drawParticles();
-
-        // Store rafId so we can cancel it
-        splash._particleRaf = rafId;
-        splash._cancelParticles = () => {
-          cancelAnimationFrame(rafId);
-        };
-      }
-
-      // ── Animate letters in sequence ─────────────────
-      const letters = nameEl.querySelectorAll('span');
-
-      // Step 1: fade each letter in
-      setTimeout(() => {
-        letters.forEach((span, i) => {
-          setTimeout(() => {
-            span.style.opacity = '1';
-            span.style.color = 'transparent';
-            span.style.webkitTextStroke = '1px rgba(147,197,253,0.35)';
-          }, i * 45);
-        });
-      }, 300);
-
-      // Step 2: fill letters with colour (water-fill effect staggered)
-      setTimeout(() => {
-        letters.forEach((span, i) => {
-          setTimeout(() => {
-            span.style.transition = `
-              color 0.45s cubic-bezier(0.22,1,0.36,1),
-              text-shadow 0.45s ease,
-              -webkit-text-stroke 0.3s ease
-            `;
-            span.style.color = '#e8edf8';
-            span.style.webkitTextStroke = '0px transparent';
-            span.style.textShadow = '0 0 30px rgba(147,197,253,0.3), 0 0 60px rgba(37,99,235,0.18)';
-          }, i * 40);
-        });
-
-        // Expand baseline
-        setTimeout(() => {
-          if (lineEl) lineEl.style.width = '100%';
-        }, NAME.length * 40 - 80);
-
-        // Show tagline
-        setTimeout(() => {
-          if (tagEl) tagEl.style.color = 'rgba(147,197,253,0.55)';
-        }, NAME.length * 40);
-
-      }, 600);
-
-      // ── Exit splash ──────────────────────────────────
-      function exitSplash() {
-        if (splash._exiting) return;
-        splash._exiting = true;
-
-        if (splash._cancelParticles) splash._cancelParticles();
-
-        splash.classList.add('splash-exit');
-        document.body.classList.remove('splash-active');
-
-        setTimeout(() => {
-          splash.style.display = 'none';
-        }, 720);
-      }
-
-      // Exit when page is interactive OR after max 2.8s
-      const maxTimer = setTimeout(exitSplash, 2800);
-
-      if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        clearTimeout(maxTimer);
-        setTimeout(exitSplash, 1800);
-      } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          clearTimeout(maxTimer);
-          setTimeout(exitSplash, 1800);
-        });
-      }
-
-      // If page loads faster than 1.8s still wait minimum 1.8s
-      // so animation completes gracefully
-      window.addEventListener('load', () => {
-        clearTimeout(maxTimer);
-        // Calculate how long animation needs to finish
-        const minDisplay = 1800;
-        const elapsed = performance.now();
-        const remaining = Math.max(0, minDisplay - elapsed);
-        setTimeout(exitSplash, remaining);
-      });
-
-    })();
-    </script>
 
     <script is:inline>
     (() => {
