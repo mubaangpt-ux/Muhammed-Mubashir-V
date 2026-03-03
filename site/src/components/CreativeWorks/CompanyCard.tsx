@@ -80,7 +80,15 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
       <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
       <div className="absolute right-4 top-4">
-        <span className="inline-flex rounded-full border border-white/12 bg-[rgba(255,255,255,0.08)] px-3 py-1.5 font-mono text-[11px] text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
+        <span
+          className="inline-flex rounded-full px-3 py-1.5 font-mono text-[11px] text-white/78"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
           {company.deliverables.length} Deliverables
         </span>
       </div>
@@ -97,7 +105,15 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
       </div>
 
       <div className="absolute inset-x-4 bottom-4">
-        <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.04))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_18px_40px_rgba(2,8,23,0.34)] backdrop-blur-2xl">
+        <div
+          className="rounded-[30px] p-5 shadow-[0_18px_40px_rgba(2,8,23,0.34)]"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
           <div className="mb-3 flex items-start justify-between gap-4">
             <div>
               <h3
@@ -111,7 +127,15 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full border border-white/12 bg-[rgba(255,255,255,0.08)] px-3 py-1.5 font-mono text-[11px] text-white/80 backdrop-blur-md">
+            <span
+              className="shrink-0 rounded-full px-3 py-1.5 font-mono text-[11px] text-white/80"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.10)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+              }}
+            >
               Studio
             </span>
           </div>
@@ -124,7 +148,13 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             {company.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-white/10 bg-[rgba(255,255,255,0.06)] px-3 py-1.5 font-mono text-[11px] text-white/78 backdrop-blur-md"
+                className="rounded-full px-3 py-1.5 font-mono text-[11px] text-white/78"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                }}
               >
                 {tag}
               </span>
