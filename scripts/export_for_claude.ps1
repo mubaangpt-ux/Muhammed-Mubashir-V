@@ -1,4 +1,4 @@
-﻿param(
+﻿soparam(
   [string]$OutFile = "PROJECT_SNAPSHOT_FOR_CLAUDE.md",
   [int]$MaxLines = 2000
 )
