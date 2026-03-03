@@ -219,10 +219,7 @@ const personJsonLd = {
     <div class="relative w-full flex flex-col items-center" style="isolation: isolate;">
 
       <!-- Dark shade behind name -->
-      <div class="hero-name-shade reveal absolute pointer-events-none" data-delay="0.45" style="inset-inline: 0; top: -180px; height: calc(100% + 220px); bottom: auto; background:
-        radial-gradient(ellipse 80% 100% at 50% 100%, rgba(7,9,15,0.65) 0%, rgba(7,9,15,0.40) 35%, transparent 75%),
-        radial-gradient(ellipse 80% 100% at 50% 0%, rgba(7,9,15,0.58) 0%, rgba(7,9,15,0.32) 34%, transparent 74%);
-        z-index: 0;"></div>
+      <div class="hero-name-shade reveal absolute pointer-events-none" data-delay="0.45" style="inset-inline: 0; top: -180px; height: calc(100% + 180px); bottom: auto; background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(7,9,15,0.65) 0%, rgba(7,9,15,0.40) 35%, transparent 75%); z-index: 0;"></div>
 
       <!-- Name H1 -->
       <div class="hero-name-stack reveal" data-delay="0.45" style="position: relative; z-index: 2; margin-top: 6px;">
@@ -241,43 +238,50 @@ const personJsonLd = {
       <div class="hero-glow-baseline reveal mx-auto" data-delay="0.46" style="position: relative; z-index: 2; height: 1px; width: clamp(200px, 55%, 420px); margin-top: 0px; margin-bottom: 0; background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.45) 20%, rgba(255,255,255,0.90) 50%, rgba(147,197,253,0.45) 80%, transparent 100%); box-shadow: 0 0 12px rgba(147,197,253,0.5), 0 0 28px rgba(37,99,235,0.35), 0 2px 40px rgba(37,99,235,0.15);"></div>
     </div>
 
-    <!-- ROLE -->
-    <div class="hero-role-reveal reveal mt-2" data-delay="0.80">
-      <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide">{profile.roleTitle}</p>
-    </div>
+    <div class="relative w-full flex flex-col items-center mt-2" style="isolation: isolate;">
+      <div class="hero-copy-shade reveal absolute pointer-events-none" data-delay="0.78" style="left: 50%; top: -8px; transform: translateX(-50%); width: min(980px, 100vw); height: calc(100% + 32px); background:
+        radial-gradient(ellipse 72% 92% at 50% 0%, rgba(7,9,15,0.34) 0%, rgba(7,9,15,0.50) 20%, rgba(7,9,15,0.70) 48%, rgba(7,9,15,0.56) 72%, rgba(7,9,15,0.22) 88%, transparent 100%),
+        linear-gradient(180deg, rgba(7,9,15,0.08) 0%, rgba(7,9,15,0.42) 24%, rgba(7,9,15,0.68) 55%, rgba(7,9,15,0.46) 82%, transparent 100%);
+        z-index: 0;"></div>
 
-    <!-- DISCIPLINES -->
-    <div class="hero-discipline-reveal reveal mt-4" data-delay="0.85">
-      <p class="text-xs font-mono tracking-[0.28em] uppercase" style="color: rgba(147,197,253,0.65);">{profile.headline}</p>
-    </div>
-
-    <!-- CTAs -->
-    <div class="hero-cta-reveal reveal mt-10" data-delay="1.00">
-      <div class="inline-flex items-center gap-1 rounded-full p-1.5" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
-        <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
-          class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
-          style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);">
-          <ArrowUpRight client:visible size={14} strokeWidth={2.2} /> WhatsApp
-        </a>
-        <a href="/work" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">Work</a>
-        <a href="/about" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">About</a>
-        <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
-        <a href="/contact" class="rounded-full px-5 py-2 text-xs font-medium transition-all duration-200" style="background: rgba(255,255,255,0.08); color: #e2e8f0;">
-          Contact <ArrowUpRight client:visible size={14} strokeWidth={2.2} />
-        </a>
+      <!-- ROLE -->
+      <div class="hero-role-reveal reveal mt-2" data-delay="0.80" style="position: relative; z-index: 1;">
+        <p class="text-base md:text-lg font-medium text-slate-300 tracking-wide">{profile.roleTitle}</p>
       </div>
-    </div>
 
-    <!-- SOCIAL PROOF -->
-    <div class="reveal hero-social-proof flex items-center justify-center gap-3 mt-8 mb-6" data-delay="1.10">
-      <div class="flex -space-x-2">
-        {['M','B','R'].map((l) => (
-          <div class="w-6 h-6 rounded-full flex items-center justify-center text-white border border-obsidian" style="background: linear-gradient(135deg, #2563eb, #93c5fd); font-size: 0.55rem; font-weight: 700;">
-            {l}
-          </div>
-        ))}
+      <!-- DISCIPLINES -->
+      <div class="hero-discipline-reveal reveal mt-4" data-delay="0.85" style="position: relative; z-index: 1;">
+        <p class="text-xs font-mono tracking-[0.28em] uppercase" style="color: rgba(147,197,253,0.65);">{profile.headline}</p>
       </div>
-      <p class="text-xs font-mono text-slate-600">2,300+ verified leads delivered across UAE campaigns</p>
+
+      <!-- CTAs -->
+      <div class="hero-cta-reveal reveal mt-10" data-delay="1.00" style="position: relative; z-index: 1;">
+        <div class="inline-flex items-center gap-1 rounded-full p-1.5" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);">
+          <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+            class="rounded-full px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 16px rgba(37,99,235,0.5);">
+            <ArrowUpRight client:visible size={14} strokeWidth={2.2} /> WhatsApp
+          </a>
+          <a href="/work" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">Work</a>
+          <a href="/about" class="rounded-full px-5 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors duration-200">About</a>
+          <span class="w-px h-4 mx-1" style="background: rgba(255,255,255,0.12);"></span>
+          <a href="/contact" class="rounded-full px-5 py-2 text-xs font-medium transition-all duration-200" style="background: rgba(255,255,255,0.08); color: #e2e8f0;">
+            Contact <ArrowUpRight client:visible size={14} strokeWidth={2.2} />
+          </a>
+        </div>
+      </div>
+
+      <!-- SOCIAL PROOF -->
+      <div class="reveal hero-social-proof flex items-center justify-center gap-3 mt-8 mb-6" data-delay="1.10" style="position: relative; z-index: 1;">
+        <div class="flex -space-x-2">
+          {['M','B','R'].map((l) => (
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-white border border-obsidian" style="background: linear-gradient(135deg, #2563eb, #93c5fd); font-size: 0.55rem; font-weight: 700;">
+              {l}
+            </div>
+          ))}
+        </div>
+        <p class="text-xs font-mono text-slate-600">2,300+ verified leads delivered across UAE campaigns</p>
+      </div>
     </div>
 
   </div>
@@ -2777,4 +2781,3 @@ const personJsonLd = {
     font-display: swap;
   }
 </style>
-
