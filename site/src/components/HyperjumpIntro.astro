@@ -74,6 +74,10 @@
     ],
     BG: [7, 9, 15]
   };
+  const BG_SNAPSHOT_KEY = 'hj_background_snapshot_v1';
+  const BG_POS_SCALE = 100000;
+  const BG_SIZE_SCALE = 1000;
+  const BG_ALPHA_SCALE = 1000;
 
   // Persistent engine state (survives client-side navigation)
   let canvas, ctx, replay, W, H, cx, cy;
@@ -83,11 +87,14 @@
   let initialized = false;
   let backgroundPrepared = false;
   let bgEventsBound = false;
+  let backgroundSnapshot = null;
+  let revealTimers = [];
 
   const x3 = new Float32Array(C.N), y3 = new Float32Array(C.N), z3 = new Float32Array(C.N);
   const ci = new Uint8Array(C.N), bsz = new Float32Array(C.N);
   const sx = new Float32Array(C.N), sy = new Float32Array(C.N), psx = new Float32Array(C.N), psy = new Float32Array(C.N);
   const hx = new Float32Array(C.N), hy = new Float32Array(C.N), vx = new Float32Array(C.N), vy = new Float32Array(C.N);
+  const sa = new Float32Array(C.N), sr = new Float32Array(C.N);
 
   function createSeededRandom(seed) {
     let state = seed >>> 0;
@@ -106,6 +113,8 @@
     ci[i] = random() * C.COLS.length | 0;
     bsz[i] = (random() < 0.9 ? 0.4 + random() * 0.6 : 1.0 + random() * 1.5) * (tunnel ? 1 : 0.65);
     vx[i] = vy[i] = 0;
+    sa[i] = C.COLS[ci[i]][3];
+    sr[i] = Math.max(0.35, bsz[i] * 0.6);
     const psc = C.FOCAL / z3[i]; 
     const px = x3[i] * psc + (W / 2);
     const py = y3[i] * psc + (H / 2);
@@ -116,6 +125,81 @@
   function resetIntroScene() {
     for (let i = 0; i < C.N; i++) initStar(i, true);
     backgroundPrepared = false;
+  }
+
+  function loadBackgroundSnapshot() {
+    if (backgroundSnapshot) return backgroundSnapshot;
+    try {
+      const raw = sessionStorage.getItem(BG_SNAPSHOT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || (parsed.v !== 1 && parsed.v !== 2)) return null;
+      if (!Array.isArray(parsed.x) || !Array.isArray(parsed.y) || !Array.isArray(parsed.s) || !Array.isArray(parsed.c)) return null;
+      if (parsed.x.length !== C.N || parsed.y.length !== C.N || parsed.s.length !== C.N || parsed.c.length !== C.N) return null;
+      if (parsed.a && (!Array.isArray(parsed.a) || parsed.a.length !== C.N)) return null;
+      backgroundSnapshot = parsed;
+      return backgroundSnapshot;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveBackgroundSnapshot() {
+    const snapshot = {
+      v: 2,
+      x: Array.from({ length: C.N }, (_, i) => Math.round((hx[i] / W) * BG_POS_SCALE)),
+      y: Array.from({ length: C.N }, (_, i) => Math.round((hy[i] / H) * BG_POS_SCALE)),
+      s: Array.from({ length: C.N }, (_, i) => Math.round(sr[i] * BG_SIZE_SCALE)),
+      a: Array.from({ length: C.N }, (_, i) => Math.round(sa[i] * BG_ALPHA_SCALE)),
+      c: Array.from(ci),
+    };
+    backgroundSnapshot = snapshot;
+    try {
+      sessionStorage.setItem(BG_SNAPSHOT_KEY, JSON.stringify(snapshot));
+    } catch {}
+  }
+
+  function restoreBackgroundSnapshot(snapshot = loadBackgroundSnapshot()) {
+    if (!snapshot) return false;
+    const legacySnapshot = snapshot.v === 1;
+    for (let i = 0; i < C.N; i++) {
+      const px = (snapshot.x[i] / BG_POS_SCALE) * W;
+      const py = (snapshot.y[i] / BG_POS_SCALE) * H;
+      hx[i] = sx[i] = psx[i] = px;
+      hy[i] = sy[i] = psy[i] = py;
+      x3[i] = px - cx;
+      y3[i] = py - cy;
+      z3[i] = C.Z_FAR * 0.86;
+      const colorIndex = Number.isInteger(snapshot.c[i]) ? snapshot.c[i] : 0;
+      const storedSize = Math.max(0.35, (snapshot.s[i] || 450) / BG_SIZE_SCALE);
+      bsz[i] = storedSize;
+      sr[i] = legacySnapshot ? Math.max(0.35, storedSize * 0.6) : storedSize;
+      sa[i] = Array.isArray(snapshot.a)
+        ? Math.min(1, Math.max(0.12, (snapshot.a[i] || 700) / BG_ALPHA_SCALE))
+        : C.COLS[colorIndex][3] * 0.7;
+      ci[i] = colorIndex;
+      vx[i] = vy[i] = 0;
+    }
+    backgroundPrepared = true;
+    return true;
+  }
+
+  function freezeCurrentBackgroundFrame() {
+    for (let i = 0; i < C.N; i++) {
+      hx[i] = sx[i];
+      hy[i] = sy[i];
+      psx[i] = sx[i];
+      psy[i] = sy[i];
+      x3[i] = sx[i] - cx;
+      y3[i] = sy[i] - cy;
+      vx[i] = vy[i] = 0;
+    }
+    backgroundPrepared = true;
+  }
+
+  function clearRevealTimers() {
+    revealTimers.forEach((timerId) => clearTimeout(timerId));
+    revealTimers = [];
   }
 
   function prepareBackgroundScene() {
@@ -155,6 +239,8 @@
         : layer < 0.82
           ? 0.25 + random() * 0.55
           : 0.6 + random() * 1.2;
+      sr[i] = Math.max(0.35, bsz[i] * 0.6);
+      sa[i] = C.COLS[ci[i]][3] * 0.7;
       vx[i] = vy[i] = 0;
     }
     backgroundPrepared = true;
@@ -242,7 +328,10 @@
       resetIntroScene();
       initialized = true;
     } else if (mode === 'background' && backgroundPrepared) {
-      prepareBackgroundScene();
+      if (!restoreBackgroundSnapshot()) {
+        prepareBackgroundScene();
+        saveBackgroundSnapshot();
+      }
     }
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
   }
@@ -282,12 +371,15 @@
       }
       const sc = C.FOCAL / z3[i], x = cx + x3[i]*sc*expFactor, y = cy + y3[i]*sc*expFactor;
       const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], a = clamp(ma*(0.15+p*0.85),0,1), s = bsz[i]*(0.6+p*1.8);
+      const fillAlpha = a * (mode === 'background' ? 0.7 : 1);
+      sa[i] = fillAlpha;
+      sr[i] = Math.max(0.35, s * 0.45);
       if (t01 > 0.05 && phase !== 'done') {
         ctx.beginPath(); ctx.strokeStyle = `rgba(${r},${g},${b},${a})`; ctx.lineWidth = Math.max(0.6, s*0.5);
         ctx.moveTo(psx[i], psy[i]); ctx.lineTo(x, y); ctx.stroke();
       } else {
-        ctx.beginPath(); ctx.fillStyle = `rgba(${r},${g},${b},${a * (mode==='background'?0.7:1)})`;
-        ctx.arc(x, y, Math.max(0.35, s*0.45), 0, 6.2831); ctx.fill();
+        ctx.beginPath(); ctx.fillStyle = `rgba(${r},${g},${b},${fillAlpha})`;
+        ctx.arc(x, y, sr[i], 0, 6.2831); ctx.fill();
       }
       psx[i] = x; psy[i] = y; sx[i] = x; sy[i] = y;
     }
@@ -302,7 +394,15 @@
     if (!canvas) return;
     mode = 'background';
     mountBackgroundCanvas();
-    prepareBackgroundScene();
+    if (wasSkipped) {
+      if (!restoreBackgroundSnapshot()) {
+        prepareBackgroundScene();
+        saveBackgroundSnapshot();
+      }
+    } else {
+      freezeCurrentBackgroundFrame();
+      saveBackgroundSnapshot();
+    }
     canvas.style.display = 'block'; 
     canvas.style.opacity = '1';
     canvas.style.pointerEvents = 'none';
@@ -329,37 +429,60 @@
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
-        const [rc, gc, bc, ma] = C.COLS[ci[i]];
-        ctx.beginPath(); ctx.fillStyle = `rgba(${rc},${gc},${bc},${ma*0.7})`;
-        ctx.arc(sx[i], sy[i], Math.max(0.35, bsz[i]*0.6), 0, 6.2831); ctx.fill();
+        const [rc, gc, bc] = C.COLS[ci[i]];
+        ctx.beginPath(); ctx.fillStyle = `rgba(${rc},${gc},${bc},${sa[i]})`;
+        ctx.arc(sx[i], sy[i], sr[i], 0, 6.2831); ctx.fill();
     }
     rafId = requestAnimationFrame(bgLoop);
   }
 
   function onMouse(e) { mouseX = e.clientX; mouseY = e.clientY; }
 
-  function revealHero(instant) {
+  function scheduleReveal(el, delay) {
+    if (!el) return;
+    const timerId = window.setTimeout(() => el.classList.add('revealed'), delay);
+    revealTimers.push(timerId);
+  }
+
+  function revealHero(wasSkipped) {
+    const fastMode = Boolean(wasSkipped);
     const header = document.querySelector('header');
-    if (header) { 
-      header.classList.add('revealed'); 
-      if (instant) header.style.transition = 'none'; 
+    if (header) {
+      scheduleReveal(header, fastMode ? 120 : 200);
     }
-    const reveals = document.querySelectorAll('.reveal');
-    reveals.forEach((el, i) => {
-      if (instant) { 
-        el.classList.add('revealed'); 
-        el.style.transition = 'none'; 
-        return; 
-      }
-      // Group-based delays for cinematic effect
-      const d = el.dataset.delay ? parseFloat(el.dataset.delay) * 1000 : i * 150;
-      setTimeout(() => el.classList.add('revealed'), 400 + d);
+
+    const hero = document.querySelector('.hero-section');
+    if (!hero) {
+      document.querySelectorAll('.reveal').forEach((el, i) => {
+        scheduleReveal(el, (fastMode ? 200 : 320) + i * (fastMode ? 55 : 90));
+      });
+      return;
+    }
+
+    scheduleReveal(document.querySelector('.hero-orbit-stage'), fastMode ? 360 : 780);
+    scheduleReveal(document.querySelector('.hero-portrait-layer'), fastMode ? 620 : 1260);
+
+    const copyGroups = [
+      ['.hero-pill-reveal'],
+      ['.hero-name-shade', '.hero-name-stack', '.hero-glow-baseline'],
+      ['.hero-role-reveal'],
+      ['.hero-discipline-reveal'],
+      ['.hero-cta-reveal'],
+      ['.hero-social-proof'],
+    ];
+    const copyStart = fastMode ? 820 : 1700;
+    const copyStagger = fastMode ? 130 : 210;
+
+    copyGroups.forEach((selectors, index) => {
+      const delay = copyStart + index * copyStagger;
+      selectors.forEach((selector) => scheduleReveal(document.querySelector(selector), delay));
     });
   }
 
   function start() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
     if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
+    clearRevealTimers();
     
     const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
     if (played || !isHome) { finishIntro(true); return; }
@@ -367,6 +490,8 @@
     canvas.style.position = 'fixed'; canvas.style.zIndex = '9999'; canvas.style.display = 'block'; canvas.style.opacity = '1';
     if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     document.body.classList.add('hyperjump-active');
+    const header = document.querySelector('header');
+    if (header) header.classList.remove('revealed');
     document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
     
     resetIntroScene();
@@ -378,18 +503,28 @@
     if (!window.hj_ev) { window.addEventListener('resize', () => { if(canvas) resize(); }, { passive: true }); window.hj_ev = true; }
     start();
   });
-  document.addEventListener('astro:after-swap', () => { if (rafId) cancelAnimationFrame(rafId); });
-  document.addEventListener('click', (e) => { if (e.target.id === 'hj-replay') { sessionStorage.removeItem('hj_intro_played'); start(); } });
+  document.addEventListener('astro:after-swap', () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    clearRevealTimers();
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'hj-replay') {
+      sessionStorage.removeItem('hj_intro_played');
+      sessionStorage.removeItem(BG_SNAPSHOT_KEY);
+      backgroundSnapshot = null;
+      start();
+    }
+  });
 </script>
 
 <style is:global>
   body.hyperjump-active { overflow: hidden; height: 100vh; }
-  header { opacity: 0; transform: translateY(-12px); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+  header { opacity: 0; transform: translateY(-14px); transition: opacity 1.35s cubic-bezier(0.22, 1, 0.36, 1), transform 1.35s cubic-bezier(0.22, 1, 0.36, 1); }
   header.revealed { opacity: 1; transform: none; }
-  .reveal { opacity: 0; transform: translateY(24px); transition: all 1s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform, opacity; }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 1.45s cubic-bezier(0.22, 1, 0.36, 1), transform 1.65s cubic-bezier(0.22, 1, 0.36, 1); will-change: transform, opacity; }
   .reveal.revealed { opacity: 1; transform: none; }
   .glass-panel.reveal, .glass-card.reveal, [class*="cap-card"].reveal, .metric-card.reveal {
-     transform: translateY(24px) scale(0.985); transition: all 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+     transform: translateY(28px) scale(0.985); transition: opacity 1.55s cubic-bezier(0.22, 1, 0.36, 1), transform 1.75s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .glass-panel.reveal.revealed, .glass-card.reveal.revealed, [class*="cap-card"].reveal.revealed, .metric-card.reveal.revealed {
      transform: none;
