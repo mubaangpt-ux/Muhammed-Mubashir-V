@@ -56,7 +56,6 @@ const isActive = (href: string) =>
   <head>
     <!-- Critical resource priority chain -->
     <link rel="preload" as="image" href="/profile.png" fetchpriority="high" />
-    <link rel="modulepreload" href="/src/pages/index.astro" />
 
     <!-- Prefetch next likely pages -->
     <link rel="prefetch" href="/work" />
@@ -391,6 +390,14 @@ const isActive = (href: string) =>
     <ViewTransitions fallback="none" />
   </head>
     <body class="antialiased">
+    <!-- Intro Preflight -->
+    <script is:inline>
+      (() => {
+        if (!localStorage.getItem('hyperjump_played') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.body.classList.add('hyperjump-active');
+        }
+      })();
+    </script>
 
     <!-- Starfield & Hyperjump Intro using R3F -->
     <StarfieldContainer client:only="react" reducedMotion={false} />

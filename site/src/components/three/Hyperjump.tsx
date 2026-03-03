@@ -4,6 +4,7 @@ import * as THREE from "three";
 
 interface HyperjumpProps {
     onIntroComplete: () => void;
+    staticMode?: boolean;
 }
 
 const STAR_COUNT = 3000;
@@ -12,7 +13,7 @@ const DURATION_ACCEL = 1000;
 const DURATION_HYPER = 1500;
 const DURATION_DECEL = 1000;
 
-export default function Hyperjump({ onIntroComplete }: HyperjumpProps) {
+export default function Hyperjump({ onIntroComplete, staticMode = false }: HyperjumpProps) {
     const pointsRef = useRef<THREE.Points>(null);
     const materialRef = useRef<THREE.ShaderMaterial>(null);
     const { size, viewport, camera, gl } = useThree();
@@ -165,42 +166,47 @@ export default function Hyperjump({ onIntroComplete }: HyperjumpProps) {
             let currentSpeed = 1.0; // base drift speed
             let currentStretch = 0.0; // 0 = dots, 1 = streaks
 
-            if (phase === "idle") {
-                if (elapsed > DURATION_IDLE) {
-                    setPhase("accel");
-                    startTime.current = now;
-                }
-            } else if (phase === "accel") {
-                const t = elapsed / DURATION_ACCEL;
-                // Exponential ease in
-                const easeIn = t * t * t;
-                currentSpeed = 1.0 + easeIn * 30.0;
-                currentStretch = easeIn;
-                if (t >= 1) {
-                    setPhase("hyper");
-                    startTime.current = now;
-                }
-            } else if (phase === "hyper") {
-                currentSpeed = 31.0;
-                currentStretch = 1.0;
-                if (elapsed > DURATION_HYPER) {
-                    setPhase("decel");
-                    startTime.current = now;
-                }
-            } else if (phase === "decel") {
-                const t = elapsed / DURATION_DECEL;
-                // Exponential ease out
-                const easeOut = 1 - Math.pow(1 - t, 3);
-                currentSpeed = 31.0 - (easeOut * 30.0);
-                currentStretch = 1.0 - easeOut;
-                if (t >= 1) {
-                    setPhase("done");
-                    onIntroComplete();
-                }
-            } else if (phase === "done") {
+            if (staticMode) {
                 currentSpeed = 1.0;
                 currentStretch = 0.0;
-            }
+            } else {
+                if (phase === "idle") {
+                    if (elapsed > DURATION_IDLE) {
+                        setPhase("accel");
+                        startTime.current = now;
+                    }
+                } else if (phase === "accel") {
+                    const t = elapsed / DURATION_ACCEL;
+                    // Exponential ease in
+                    const easeIn = t * t * t;
+                    currentSpeed = 1.0 + easeIn * 30.0;
+                    currentStretch = easeIn;
+                    if (t >= 1) {
+                        setPhase("hyper");
+                        startTime.current = now;
+                    }
+                } else if (phase === "hyper") {
+                    currentSpeed = 31.0;
+                    currentStretch = 1.0;
+                    if (elapsed > DURATION_HYPER) {
+                        setPhase("decel");
+                        startTime.current = now;
+                    }
+                } else if (phase === "decel") {
+                    const t = elapsed / DURATION_DECEL;
+                    // Exponential ease out
+                    const easeOut = 1 - Math.pow(1 - t, 3);
+                    currentSpeed = 31.0 - (easeOut * 30.0);
+                    currentStretch = 1.0 - easeOut;
+                    if (t >= 1) {
+                        setPhase("done");
+                        onIntroComplete();
+                    }
+                } else if (phase === "done") {
+                    currentSpeed = 1.0;
+                    currentStretch = 0.0;
+                }
+            } // end if !staticMode
 
             // Smoothly apply uniforms to avoid jumps
             materialRef.current.uniforms.uSpeed.value = THREE.MathUtils.lerp(
@@ -219,9 +225,9 @@ export default function Hyperjump({ onIntroComplete }: HyperjumpProps) {
     return (
         <points ref={pointsRef}>
             <bufferGeometry>
-                <bufferAttribute attach="attributes-position" count={STAR_COUNT} array={positions} itemSize={3} />
-                <bufferAttribute attach="attributes-scale" count={STAR_COUNT} array={scales} itemSize={1} />
-                <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
+                <bufferAttribute attach="attributes-position" count={STAR_COUNT} array={positions} itemSize={3} args={[positions, 3]} />
+                <bufferAttribute attach="attributes-scale" count={STAR_COUNT} array={scales} itemSize={1} args={[scales, 1]} />
+                <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} args={[colors, 3]} />
             </bufferGeometry>
             <shaderMaterial
                 ref={materialRef}

@@ -59,12 +59,10 @@ export default function StarfieldContainer({ reducedMotion }: StarfieldContainer
                     gl={{ antialias: false, alpha: true }}
                 >
                     {introState === "playing" ? (
-                        <Hyperjump onIntroComplete={handleIntroComplete} />
+                        <Hyperjump key="playing" onIntroComplete={handleIntroComplete} />
                     ) : (
                         // Just import Hyperjump as a static drift if we are in complete state
-                        // But bypass the intro phase timeline. We pass a null function since
-                        // it's already complete.
-                        <Hyperjump onIntroComplete={() => { }} />
+                        <Hyperjump key="static" staticMode onIntroComplete={() => { }} />
                     )}
                 </Canvas>
             </div>
