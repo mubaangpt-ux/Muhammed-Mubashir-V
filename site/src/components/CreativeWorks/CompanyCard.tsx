@@ -66,9 +66,9 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         className="absolute inset-0"
         style={{
           background: `
-            linear-gradient(180deg, rgba(7,9,15,0.02) 0%, rgba(7,9,15,0.12) 24%, rgba(7,9,15,0.44) 56%, rgba(7,9,15,0.90) 100%),
+            linear-gradient(180deg, rgba(7,9,15,0.02) 0%, rgba(7,9,15,0.09) 24%, rgba(7,9,15,0.32) 56%, rgba(7,9,15,0.72) 100%),
             radial-gradient(circle at 50% 16%, rgba(255,255,255,0.14) 0%, transparent 36%),
-            linear-gradient(180deg, transparent 0%, rgba(7,9,15,0.34) 66%, rgba(7,9,15,0.82) 100%)
+            linear-gradient(180deg, transparent 0%, rgba(7,9,15,0.18) 66%, rgba(7,9,15,0.56) 100%)
           `,
         }}
       />
@@ -106,15 +106,22 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
 
       <div className="absolute inset-x-4 bottom-4">
         <div
-          className="rounded-[30px] p-5 shadow-[0_18px_40px_rgba(2,8,23,0.34)]"
+          className="relative overflow-hidden rounded-[30px] p-5 shadow-[0_18px_40px_rgba(2,8,23,0.26)]"
           style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.10)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
+            background: `
+              linear-gradient(145deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.08) 18%, rgba(255,255,255,0.03) 52%, rgba(255,255,255,0.02) 100%),
+              rgba(255,255,255,0.03)
+            `,
+            border: "1px solid rgba(255,255,255,0.14)",
+            backdropFilter: "blur(28px) saturate(140%)",
+            WebkitBackdropFilter: "blur(28px) saturate(140%)",
           }}
         >
-          <div className="mb-3 flex items-start justify-between gap-4">
+          <div className="pointer-events-none absolute inset-0 rounded-[30px] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.08),transparent_34%,rgba(255,255,255,0.03)_100%)] opacity-90" />
+          <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/14 to-transparent" />
+
+          <div className="relative mb-3 flex items-start justify-between gap-4">
             <div>
               <h3
                 className="text-[1.85rem] font-semibold leading-none text-white"
@@ -130,30 +137,30 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             <span
               className="shrink-0 rounded-full px-3 py-1.5 font-mono text-[11px] text-white/80"
               style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                backdropFilter: "blur(18px) saturate(135%)",
+                WebkitBackdropFilter: "blur(18px) saturate(135%)",
               }}
             >
               Studio
             </span>
           </div>
 
-          <p className="mb-4 max-w-[26ch] text-sm leading-relaxed text-white/58">
+          <p className="relative mb-4 max-w-[26ch] text-sm leading-relaxed text-white/62">
             {getCardSummary(company)}
           </p>
 
-          <div className="mb-5 flex flex-wrap gap-2">
+          <div className="relative mb-5 flex flex-wrap gap-2">
             {company.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
                 className="rounded-full px-3 py-1.5 font-mono text-[11px] text-white/78"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
+                  background: "rgba(255,255,255,0.045)",
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  backdropFilter: "blur(16px) saturate(135%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(135%)",
                 }}
               >
                 {tag}
@@ -164,7 +171,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
           <button
             type="button"
             onClick={onToggle}
-            className={`inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-sm font-semibold transition-all duration-300 ${
+            className={`relative inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-sm font-semibold transition-all duration-300 ${
               isExpanded
                 ? "bg-[#2563eb] text-white shadow-[0_10px_26px_rgba(37,99,235,0.34)]"
                 : "bg-white text-[#07090f] shadow-[0_12px_26px_rgba(255,255,255,0.16)] hover:bg-[#eef4ff]"
