@@ -591,52 +591,87 @@ const isActive = (href: string) =>
     <!-- Reveal observer -->
     <script is:inline>
     (() => {
-      const els = Array.from(document.querySelectorAll('.reveal')).filter(
-        (el) => !el.closest('.hero-section')
-      );
-      if (!els.length) return;
-
-      // Batch all DOM reads first, then writes — prevents layout thrashing
-      const readQueue  = [];
+      const readQueue = [];
       const writeQueue = [];
+      let observer = null;
+      const revealTimers = new Set();
 
       function flushQueues() {
-        // READ phase — all getBoundingClientRect etc
-        readQueue.forEach(fn => fn());
+        readQueue.forEach((fn) => fn());
         readQueue.length = 0;
-        // WRITE phase — all style mutations
-        writeQueue.forEach(fn => fn());
+        writeQueue.forEach((fn) => fn());
         writeQueue.length = 0;
       }
 
-      function triggerReveal(el, delay, isIntersecting) {
-        if (isIntersecting) {
-          // If hyperjump is active, wait for it to complete
-          if (document.body.classList.contains('hyperjump-active')) {
-            document.addEventListener('hyperjump-complete', () => {
-              setTimeout(() => el.classList.add('revealed'), delay);
-            }, { once: true });
-          } else {
-            setTimeout(() => el.classList.add('revealed'), delay);
-          }
+      function clearRevealObserver() {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
         }
+
+        revealTimers.forEach((timerId) => window.clearTimeout(timerId));
+        revealTimers.clear();
       }
 
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          readQueue.push(() => {
-            const delay = parseFloat(entry.target.dataset.delay || '0') * 1000;
-            const el = entry.target;
-            const isIntersecting = entry.isIntersecting;
-            writeQueue.push(() => {
-              triggerReveal(el, delay, isIntersecting);
+      function queueReveal(el, delay) {
+        const timerId = window.setTimeout(() => {
+          revealTimers.delete(timerId);
+          if (!document.body.contains(el)) return;
+          el.classList.add('revealed');
+        }, delay);
+        revealTimers.add(timerId);
+      }
+
+      function triggerReveal(el, delay, isIntersecting) {
+        if (!isIntersecting || el.classList.contains('revealed')) return;
+
+        if (document.body.classList.contains('hyperjump-active')) {
+          document.addEventListener('hyperjump-complete', () => {
+            queueReveal(el, delay);
+          }, { once: true });
+          return;
+        }
+
+        queueReveal(el, delay);
+      }
+
+      function initRevealObserver() {
+        clearRevealObserver();
+
+        const els = Array.from(document.querySelectorAll('.reveal')).filter(
+          (el) => !el.closest('.hero-section')
+        );
+
+        if (!els.length) return;
+
+        observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            readQueue.push(() => {
+              const delay = parseFloat(entry.target.dataset.delay || '0') * 1000;
+              const el = entry.target;
+              const isIntersecting = entry.isIntersecting;
+
+              writeQueue.push(() => {
+                triggerReveal(el, delay, isIntersecting);
+              });
             });
           });
-        });
-        requestAnimationFrame(flushQueues);
-      }, { threshold: 0.18, rootMargin: '0px 0px -60px 0px' });
 
-      els.forEach(el => obs.observe(el));
+          requestAnimationFrame(flushQueues);
+        }, { threshold: 0.18, rootMargin: '0px 0px -60px 0px' });
+
+        els.forEach((el) => observer.observe(el));
+      }
+
+      if (!window.__layoutRevealObserverBound) {
+        document.addEventListener('astro:page-load', initRevealObserver);
+        document.addEventListener('astro:after-swap', clearRevealObserver);
+        window.__layoutRevealObserverBound = true;
+      }
+
+      window.__layoutRevealObserverCleanup = clearRevealObserver;
+      window.__layoutRevealObserverInit = initRevealObserver;
+      initRevealObserver();
     })();
     </script>
 
@@ -745,5 +780,4 @@ const isActive = (href: string) =>
     </script>
   </body>
 </html>
-
 

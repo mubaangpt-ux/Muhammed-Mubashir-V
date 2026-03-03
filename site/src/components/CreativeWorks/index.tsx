@@ -58,10 +58,7 @@ export default function CreativeWorks() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-[#07090f] px-4 py-24 md:px-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_34%),radial-gradient(circle_at_bottom,rgba(147,197,253,0.08),transparent_28%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#93c5fd]/30 to-transparent" />
-
+    <section className="relative overflow-hidden bg-transparent px-4 py-24 md:px-6">
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.36em] text-[#93c5fd]/75">
