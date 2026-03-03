@@ -460,11 +460,13 @@
     }
 
     scheduleReveal(document.querySelector('.hero-orbit-stage'), fastMode ? 360 : 780);
-    scheduleReveal(document.querySelector('.hero-portrait-layer'), fastMode ? 620 : 1260);
+    const portraitBeatDelay = fastMode ? 620 : 1260;
+    scheduleReveal(document.querySelector('.hero-portrait-layer'), portraitBeatDelay);
+    scheduleReveal(document.querySelector('.hero-content-shade'), portraitBeatDelay);
 
     const copyGroups = [
       ['.hero-pill-reveal'],
-      ['.hero-content-shade', '.hero-name-stack', '.hero-glow-baseline'],
+      ['.hero-name-stack', '.hero-glow-baseline'],
       ['.hero-role-reveal'],
       ['.hero-discipline-reveal'],
       ['.hero-cta-reveal'],
