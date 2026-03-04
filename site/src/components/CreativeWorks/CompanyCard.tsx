@@ -94,7 +94,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </span>
       </div>
 
-      <div className="absolute inset-x-0 top-[45%] flex justify-center">
+      <div className="absolute inset-x-0 top-[39%] flex justify-center">
         <div className="flex gap-1.5 rounded-full border border-white/8 bg-[rgba(255,255,255,0.06)] px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
           {[0, 1, 2].map((index) => (
             <span
@@ -105,10 +105,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </div>
       </div>
 
-      <div className="absolute inset-x-6 bottom-6 top-[50%]">
+      <div className="absolute inset-x-6 bottom-6 top-[42%]">
         <div className="relative flex h-full flex-col justify-end">
           <div
-            className="relative overflow-hidden rounded-[28px] border px-5 py-4 shadow-[0_18px_40px_rgba(2,8,23,0.16)]"
+            className="relative overflow-hidden rounded-[28px] border px-4 py-3.5 shadow-[0_18px_40px_rgba(2,8,23,0.16)]"
             style={{
               background: "rgba(7,9,15,0.40)",
               borderColor: "rgba(255,255,255,0.16)",
@@ -123,25 +123,25 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
 
             <div className="relative mb-3">
               <h3
-                className="max-w-[10ch] text-[1.6rem] font-semibold leading-none text-white [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]"
+                className="max-w-[10ch] text-[1.5rem] font-semibold leading-none text-white [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]"
                 style={{ fontFamily: "Orbitron, sans-serif", letterSpacing: "-0.04em" }}
               >
                 {company.name}
               </h3>
-              <p className="mt-2.5 font-mono text-[10px] uppercase tracking-[0.26em] text-white/82 [text-shadow:0_2px_14px_rgba(2,6,23,0.75)]">
+              <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.26em] text-white/82 [text-shadow:0_2px_14px_rgba(2,6,23,0.75)]">
                 {company.industry}
               </p>
             </div>
 
-            <p className="relative mb-4 max-w-[24ch] text-[0.9rem] leading-[1.48] text-white/92 [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]">
+            <p className="relative mb-3 max-w-[24ch] text-[0.81rem] leading-[1.38] text-white/92 [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]">
               {getCardSummary(company)}
             </p>
 
-            <div className="relative mb-4 flex flex-nowrap items-center gap-1.5 overflow-visible">
+            <div className="relative mb-3 flex flex-nowrap items-center gap-1 overflow-visible">
               {company.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="shrink-0 rounded-full px-2 py-1 font-mono text-[9px] whitespace-nowrap text-white/92 [text-shadow:0_1px_10px_rgba(2,6,23,0.55)]"
+                  className="shrink-0 rounded-full px-2 py-1 font-mono text-[8px] whitespace-nowrap text-white/92 [text-shadow:0_1px_10px_rgba(2,6,23,0.55)]"
                   style={{
                     background: "rgba(255,255,255,0.08)",
                     border: "1px solid rgba(255,255,255,0.16)",
@@ -158,7 +158,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             <button
               type="button"
               onClick={onToggle}
-              className={`relative inline-flex min-w-[118px] items-center justify-center self-start rounded-full border px-4 py-2 text-[0.92rem] font-semibold text-white transition-all duration-300 ${
+              className={`relative inline-flex min-w-[108px] items-center justify-center self-start rounded-full border px-3.5 py-1.5 text-[0.85rem] font-semibold text-white transition-all duration-300 ${
                 isExpanded
                   ? "border-[#93c5fd]/35 bg-[#2563eb]/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_12px_28px_rgba(37,99,235,0.18)]"
                   : "border-white/18 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_14px_30px_rgba(2,8,23,0.18)] hover:bg-white/14"
