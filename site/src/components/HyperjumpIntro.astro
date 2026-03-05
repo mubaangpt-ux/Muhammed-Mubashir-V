@@ -246,56 +246,71 @@
     backgroundPrepared = true;
   }
 
-  function drawBackgroundBackdrop(alpha = 1) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
-    ctx.fillRect(0, 0, W, H);
+  let bgCanvas = null;
 
-    const centerField = ctx.createRadialGradient(cx, H * 0.42, 0, cx, H * 0.42, Math.max(W * 0.54, H * 0.84));
+  function prepareCachedBackdrop() {
+    if (!bgCanvas) bgCanvas = document.createElement('canvas');
+    bgCanvas.width = W; bgCanvas.height = H;
+    const bCtx = bgCanvas.getContext('2d', { alpha: false });
+    
+    bCtx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
+    bCtx.fillRect(0, 0, W, H);
+
+    const centerField = bCtx.createRadialGradient(cx, H * 0.42, 0, cx, H * 0.42, Math.max(W * 0.54, H * 0.84));
     centerField.addColorStop(0, 'rgba(16,54,138,0.52)');
     centerField.addColorStop(0.42, 'rgba(10,38,104,0.34)');
     centerField.addColorStop(0.72, 'rgba(6,20,64,0.18)');
     centerField.addColorStop(1, 'rgba(6,20,64,0)');
-    ctx.fillStyle = centerField;
-    ctx.fillRect(0, 0, W, H);
+    bCtx.fillStyle = centerField;
+    bCtx.fillRect(0, 0, W, H);
 
-    const upperHalo = ctx.createRadialGradient(cx, H * 0.12, 0, cx, H * 0.18, Math.max(W * 0.38, H * 0.42));
+    const upperHalo = bCtx.createRadialGradient(cx, H * 0.12, 0, cx, H * 0.18, Math.max(W * 0.38, H * 0.42));
     upperHalo.addColorStop(0, 'rgba(37,99,235,0.22)');
     upperHalo.addColorStop(0.45, 'rgba(37,99,235,0.12)');
     upperHalo.addColorStop(1, 'rgba(37,99,235,0)');
-    ctx.fillStyle = upperHalo;
-    ctx.fillRect(0, 0, W, H);
+    bCtx.fillStyle = upperHalo;
+    bCtx.fillRect(0, 0, W, H);
 
-    const leftVignette = ctx.createLinearGradient(0, 0, W * 0.24, 0);
+    const leftVignette = bCtx.createLinearGradient(0, 0, W * 0.24, 0);
     leftVignette.addColorStop(0, 'rgba(0,0,0,0.96)');
     leftVignette.addColorStop(0.28, 'rgba(1,4,14,0.82)');
     leftVignette.addColorStop(1, 'rgba(1,4,14,0)');
-    ctx.fillStyle = leftVignette;
-    ctx.fillRect(0, 0, W, H);
+    bCtx.fillStyle = leftVignette;
+    bCtx.fillRect(0, 0, W, H);
 
-    const rightVignette = ctx.createLinearGradient(W, 0, W * 0.76, 0);
+    const rightVignette = bCtx.createLinearGradient(W, 0, W * 0.76, 0);
     rightVignette.addColorStop(0, 'rgba(0,0,0,0.96)');
     rightVignette.addColorStop(0.28, 'rgba(1,4,14,0.82)');
     rightVignette.addColorStop(1, 'rgba(1,4,14,0)');
-    ctx.fillStyle = rightVignette;
-    ctx.fillRect(0, 0, W, H);
+    bCtx.fillStyle = rightVignette;
+    bCtx.fillRect(0, 0, W, H);
 
-    const verticalVignette = ctx.createLinearGradient(0, 0, 0, H);
+    const verticalVignette = bCtx.createLinearGradient(0, 0, 0, H);
     verticalVignette.addColorStop(0, 'rgba(1,6,18,0.44)');
     verticalVignette.addColorStop(0.18, 'rgba(1,6,18,0.16)');
     verticalVignette.addColorStop(0.65, 'rgba(1,6,18,0)');
     verticalVignette.addColorStop(1, 'rgba(0,0,0,0.44)');
-    ctx.fillStyle = verticalVignette;
-    ctx.fillRect(0, 0, W, H);
+    bCtx.fillStyle = verticalVignette;
+    bCtx.fillRect(0, 0, W, H);
 
-    const bottomDepth = ctx.createRadialGradient(cx, H * 1.02, 0, cx, H * 1.02, Math.max(W * 0.66, H * 0.56));
+    const bottomDepth = bCtx.createRadialGradient(cx, H * 1.02, 0, cx, H * 1.02, Math.max(W * 0.66, H * 0.56));
     bottomDepth.addColorStop(0, 'rgba(2,8,23,0.60)');
     bottomDepth.addColorStop(0.7, 'rgba(2,8,23,0.22)');
     bottomDepth.addColorStop(1, 'rgba(2,8,23,0)');
-    ctx.fillStyle = bottomDepth;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
+    bCtx.fillStyle = bottomDepth;
+    bCtx.fillRect(0, 0, W, H);
+  }
+
+  function drawBackgroundBackdrop(alpha = 1) {
+    if (!bgCanvas) prepareCachedBackdrop();
+    if (alpha !== 1) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(bgCanvas, 0, 0);
+      ctx.restore();
+    } else {
+      ctx.drawImage(bgCanvas, 0, 0);
+    }
   }
 
   function mountBackgroundCanvas() {
@@ -324,6 +339,7 @@
   function resize() {
     W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
     cx = W * 0.5; cy = H * 0.5;
+    prepareCachedBackdrop();
     if (!initialized) {
       resetIntroScene();
       initialized = true;
@@ -378,8 +394,9 @@
         ctx.beginPath(); ctx.strokeStyle = `rgba(${r},${g},${b},${a})`; ctx.lineWidth = Math.max(0.6, s*0.5);
         ctx.moveTo(psx[i], psy[i]); ctx.lineTo(x, y); ctx.stroke();
       } else {
-        ctx.beginPath(); ctx.fillStyle = `rgba(${r},${g},${b},${fillAlpha})`;
-        ctx.arc(x, y, sr[i], 0, 6.2831); ctx.fill();
+        ctx.fillStyle = `rgba(${r},${g},${b},${fillAlpha})`;
+        const sSize = sr[i] * 2;
+        ctx.fillRect(x - sr[i], y - sr[i], sSize, sSize);
       }
       psx[i] = x; psy[i] = y; sx[i] = x; sy[i] = y;
     }
@@ -430,8 +447,9 @@
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
         const [rc, gc, bc] = C.COLS[ci[i]];
-        ctx.beginPath(); ctx.fillStyle = `rgba(${rc},${gc},${bc},${sa[i]})`;
-        ctx.arc(sx[i], sy[i], sr[i], 0, 6.2831); ctx.fill();
+        ctx.fillStyle = `rgba(${rc},${gc},${bc},${sa[i]})`;
+        const sSize = sr[i] * 2;
+        ctx.fillRect(sx[i] - sr[i], sy[i] - sr[i], sSize, sSize);
     }
     rafId = requestAnimationFrame(bgLoop);
   }
