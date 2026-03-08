@@ -792,3 +792,10 @@
 [2m20:14:54[22m [34m[200][39m /contact [2m27ms[22m
 [2m20:14:55[22m [34m[200][39m /about [2m35ms[22m
 [2m20:14:55[22m [34m[200][39m /resume [2m28ms[22m
+[2m18:50:01[22m [34m[watch][39m src/pages/index.astro
+[2m18:50:34[22m [34m[watch][39m src/pages/index.astro
+[2m18:50:35[22m [34m[watch][39m src/pages/work/index.astro
+[2m18:50:35[22m [34m[watch][39m src/pages/work/index.astro
+[2m18:51:26[22m [34m[watch][39m /@fs/C:\Users\USER\Documents\Portfolio\muhammed-portfolio\site\src\components\CapabilityIcon.tsx, /src/styles/global.css
+[2m18:51:26[22m [34m[watch][39m src/components/CapabilityIcon.tsx
+[2m19:01:57[22m [34m[watch][39m src/pages/index.astro
