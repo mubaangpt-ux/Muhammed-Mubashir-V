@@ -1,12 +1,28 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
+import { absoluteUrl, breadcrumbJsonLd } from "../lib/seo";
+
+const contactJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: `Contact ${profile.name}`,
+    url: absoluteUrl("/contact"),
+    description: `Contact ${profile.name} for digital marketing, SEO, and web systems work in Dubai and the UAE.`,
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Contact", path: "/contact" },
+  ]),
+];
 ---
 
 <BaseLayout
-  title={`Contact | ${profile.name}`}
-  description={`Start a project with ${profile.name}`}
+  title={`Contact ${profile.name} | Dubai Growth and Web Systems`}
+  description={`Start a project with ${profile.name} for digital marketing, technical SEO, lead generation, and web systems in Dubai.`}
   path="/contact"
+  jsonLd={contactJsonLd}
 >
 
 <section class="py-20 px-4">
@@ -126,6 +142,40 @@ import { profile } from "../data/profile";
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Helpful Paths</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Start from the page that matches the problem</h2>
+      <p class="mt-4 max-w-3xl text-sm text-slate-400 leading-loose">
+        If you are still scoping the project, these pages give the clearest context:
+        <a href="/services/dubai-technical-seo" class="text-accent-soft hover:text-white transition-colors"> technical SEO</a>,
+        <a href="/services/dubai-digital-marketing" class="text-accent-soft hover:text-white transition-colors"> digital marketing</a>,
+        <a href="/services/dubai-lead-generation-web-systems" class="text-accent-soft hover:text-white transition-colors"> lead-generation web systems</a>,
+        and the <a href="/work" class="text-accent-soft hover:text-white transition-colors">case studies</a>.
+      </p>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <a href="/services/dubai-technical-seo" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Dubai SEO</p>
+        <p class="text-sm text-slate-400 leading-loose">Site architecture, crawlability, structured data, and internal linking.</p>
+      </a>
+      <a href="/services/dubai-digital-marketing" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Campaigns</p>
+        <p class="text-sm text-slate-400 leading-loose">Meta, Google, creative testing, landing flows, and reporting.</p>
+      </a>
+      <a href="/services/dubai-lead-generation-web-systems" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Lead Systems</p>
+        <p class="text-sm text-slate-400 leading-loose">Funnels, WhatsApp conversion logic, WordPress systems, and measurement.</p>
+      </a>
+      <a href="/work" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Proof</p>
+        <p class="text-sm text-slate-400 leading-loose">Case studies showing lead generation, growth ops, and operational delivery.</p>
+      </a>
     </div>
   </div>
 </section>

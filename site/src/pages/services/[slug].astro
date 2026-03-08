@@ -1,0 +1,228 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { profile } from "../../data/profile";
+import { projects } from "../../data/projects";
+import { resources } from "../../data/resources";
+import { services } from "../../data/services";
+import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "../../lib/seo";
+
+export function getStaticPaths() {
+  return services.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+const relatedProjects = projects.filter((project) => service.relatedProjectSlugs.includes(project.slug));
+const relatedServices = services.filter((item) => item.slug !== service.slug).slice(0, 2);
+const relatedResources = resources.filter((resource) => resource.relatedServiceSlugs.includes(service.slug)).slice(0, 2);
+const pageJsonLd = [
+  serviceJsonLd(service),
+  faqJsonLd(service.faqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    { name: service.title, path: `/services/${service.slug}` },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`${service.title} | ${profile.name}`}
+  description={service.summary}
+  path={`/services/${service.slug}`}
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <nav aria-label="Breadcrumb" class="reveal mb-4" data-delay="0.02">
+      <ol class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500">
+        <li><a href="/" class="hover:text-accent-soft transition-colors">Home</a></li>
+        <li>/</li>
+        <li><a href="/services" class="hover:text-accent-soft transition-colors">Services</a></li>
+        <li>/</li>
+        <li class="text-slate-300">{service.shortTitle}</li>
+      </ol>
+    </nav>
+
+    <div class="grid gap-8 lg:grid-cols-[1.35fr,0.65fr] items-start">
+      <div class="reveal" data-delay="0.06">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">{service.shortTitle}</p>
+        <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 4.8vw, 4rem); letter-spacing: -0.035em;">
+          {service.title}
+        </h1>
+        <p class="mt-5 text-base text-slate-400 leading-loose max-w-3xl">{service.intro}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+          >
+            Enquire about this service
+          </a>
+          <a
+            href="/work"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+          >
+            View proof in work
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.10">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Built for Dubai</p>
+        <p class="text-sm text-slate-400 leading-loose">{service.localAngle}</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl grid gap-5 lg:grid-cols-2">
+    <div class="reveal glass-panel rounded-3xl p-8" data-delay="0.06">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Deliverables</p>
+      <ul class="space-y-4">
+        {service.deliverables.map((item) => (
+          <li class="flex items-start gap-3 text-sm text-slate-300 leading-loose">
+            <span class="text-accent-soft/60 font-mono mt-0.5 shrink-0">+</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="reveal glass-panel rounded-3xl p-8" data-delay="0.10">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Ideal for</p>
+      <ul class="space-y-4">
+        {service.idealFor.map((item) => (
+          <li class="flex items-start gap-3 text-sm text-slate-300 leading-loose">
+            <span class="text-accent-soft/60 font-mono mt-0.5 shrink-0">+</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+{relatedProjects.length > 0 && (
+  <section class="pb-20 px-4 section-border">
+    <div class="mx-auto max-w-6xl pt-14">
+      <div class="reveal mb-8" data-delay="0.05">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Related Work</p>
+        <h2 class="font-display font-semibold text-white text-2xl">Proof connected to this service</h2>
+      </div>
+      <div class="grid gap-5 md:grid-cols-2">
+        {relatedProjects.map((project, index) => (
+          <a
+            href={`/work/${project.slug}`}
+            class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+            data-delay={String(0.08 + index * 0.05)}
+          >
+            <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+            <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+            <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+              Open case study →
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions clients usually ask</h2>
+    </div>
+    <div class="space-y-4">
+      {service.faqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+{relatedResources.length > 0 && (
+  <section class="pb-20 px-4 section-border">
+    <div class="mx-auto max-w-6xl pt-14">
+      <div class="reveal mb-8" data-delay="0.05">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Guides</p>
+        <h2 class="font-display font-semibold text-white text-2xl">Useful reading connected to this service</h2>
+      </div>
+      <div class="grid gap-5 md:grid-cols-2">
+        {relatedResources.map((item, index) => (
+          <a
+            href={`/resources/${item.slug}`}
+            class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+            data-delay={String(0.06 + index * 0.05)}
+          >
+            <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{item.audience}</p>
+            <h3 class="font-display font-semibold text-white text-lg mb-2">{item.title}</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">{item.excerpt}</p>
+            <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+              Read guide →
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14 grid gap-5 md:grid-cols-2">
+    {relatedServices.map((item, index) => (
+      <a
+        href={`/services/${item.slug}`}
+        class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+        data-delay={String(0.06 + index * 0.05)}
+      >
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Related Service</p>
+        <h3 class="font-display font-semibold text-white text-lg mb-2">{item.title}</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">{item.summary}</p>
+        <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+          Explore service →
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl reveal glass-panel-strong rounded-3xl p-8 md:p-10" data-delay="0.06">
+    <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Next Step</p>
+    <h2 class="font-display font-semibold text-white text-2xl mb-4">Need this service built into your current site and funnel?</h2>
+    <p class="text-sm text-slate-400 leading-loose max-w-2xl">
+      I work across digital marketing, technical SEO, conversion tracking, web systems, and Dubai-focused service architecture so the
+      site can rank, convert, and support actual operations.
+    </p>
+    <div class="flex flex-wrap gap-3 mt-7">
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+      >
+        Open contact page
+      </a>
+      <a
+        href="/services"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+      >
+        Back to all services
+      </a>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

@@ -1,7 +1,9 @@
-﻿export type ContactLink = { label: string; href: string; };
-export type LanguageSkill = { language: string; proficiency: string; };
-export type ImpactMetric = { value: string; label: string; detail: string; };
-export type Capability = { title: string; description: string; icon: string; };
+const siteUrl = (import.meta.env.PUBLIC_SITE_URL || "https://mubaan.online").replace(/\/+$/, "");
+
+export type ContactLink = { label: string; href: string };
+export type LanguageSkill = { language: string; proficiency: string };
+export type ImpactMetric = { value: string; label: string; detail: string };
+export type Capability = { title: string; description: string; icon: string };
 
 export type Profile = {
   name: string;
@@ -11,7 +13,7 @@ export type Profile = {
   location: string;
   siteUrl: string;
   email: string;
-  links: { whatsapp: string; email: string; instagram: string; instagramHandle: string; };
+  links: { whatsapp: string; email: string; instagram: string; instagramHandle: string };
   whatsappDisplay: string;
   whatsappUrl: string;
   instagram: ContactLink[];
@@ -19,7 +21,7 @@ export type Profile = {
   languages: LanguageSkill[];
   impactMetrics: ImpactMetric[];
   capabilities: Capability[];
-  finalCta: { title: string; description: string; };
+  finalCta: { title: string; description: string };
   aboutNarrative: string[];
 };
 
@@ -27,9 +29,10 @@ export const profile: Profile = {
   name: "Muhammed Mubashir V",
   roleTitle: "Helping You Build, Optimize, and Grow Your Business",
   headline: "Digital Marketing \u2022 Performance \u2022 Design \u2022 Web Systems",
-  summary: "Operator-level digital growth: Meta/Google ads, conversion funnels, pixel tracking, WordPress systems, and content pipelines — built for measurable outcomes across UAE markets.",
+  summary:
+    "Dubai-based digital marketer focused on Meta and Google ads, technical SEO, conversion funnels, pixel tracking, WordPress systems, and content pipelines built for measurable UAE market outcomes.",
   location: "Dubai, UAE",
-  siteUrl: "https://your-domain.com",
+  siteUrl,
   email: "mubaan74@gmail.com",
   links: {
     whatsapp: "https://wa.me/971529144135",
@@ -51,7 +54,11 @@ export const profile: Profile = {
     { language: "Malayalam", proficiency: "Native" },
   ],
   impactMetrics: [
-    { value: "100+", label: "AI-Assisted Builds", detail: "Designs, web apps, landing systems, AI workflows, and video formats delivered faster with AI." },
+    {
+      value: "100+",
+      label: "AI-Assisted Builds",
+      detail: "Designs, web apps, landing systems, AI workflows, and video formats delivered faster with AI.",
+    },
     { value: "-35%", label: "Cost per Lead", detail: "Through creative testing + audience segmentation." },
     { value: "5+", label: "Brands Built", detail: "Across UAE market channels" },
     { value: "4+", label: "Years Experience", detail: "Dubai & regional digital operations" },
@@ -59,33 +66,34 @@ export const profile: Profile = {
   capabilities: [
     {
       title: "Growth & Performance",
-      description: "Full-funnel Meta and Google campaign architecture with creative testing loops, segmented audience strategy, and CPL optimization.",
-      icon: "◈",
+      description:
+        "Full-funnel Meta and Google campaign architecture with creative testing loops, segmented audience strategy, and CPL optimization.",
+      icon: "\u25c8",
     },
     {
       title: "Tracking & Analytics",
       description: "Pixel and event mapping, UTM governance, lead-quality diagnostics, and executive-ready reporting dashboards.",
-      icon: "◎",
+      icon: "\u25ce",
     },
     {
       title: "Web Systems",
       description: "WordPress and landing systems engineered for speed, clarity, lead qualification, and campaign traffic conversion.",
-      icon: "⬡",
+      icon: "\u2b21",
     },
     {
       title: "Content & Creative",
-      description: "Video production, reels, brand kits, and creative pipelines — from brief to final asset at operational speed.",
-      icon: "◐",
+      description: "Video production, reels, brand kits, and creative pipelines from brief to final asset at operational speed.",
+      icon: "\u25d0",
     },
     {
       title: "Digital Operations",
       description: "Cross-brand governance, playbooks, SOP frameworks, and multi-team reporting standards that sustain quality at scale.",
-      icon: "⬢",
+      icon: "\u2b22",
     },
     {
       title: "Web App & Plugin Dev",
-      description: "Plugin-led WordPress workflows with custom MySQL table logic, admin UX, and tracking hooks — built for operational scale.",
-      icon: "◇",
+      description: "Plugin-led WordPress workflows with custom MySQL table logic, admin UX, and tracking hooks built for operational scale.",
+      icon: "\u25c7",
     },
   ],
   finalCta: {
@@ -93,8 +101,8 @@ export const profile: Profile = {
     description: "Share your funnel goals and current blockers. I return a focused rollout plan within 24 hours.",
   },
   aboutNarrative: [
-    "I work at the intersection of digital operations, performance marketing, and content systems — for businesses that demand reliable outcomes and clean execution.",
-    "My approach: build practical systems first — lead funnels, creative pipelines, tracking frameworks, and reporting standards — then iterate based on real signal.",
+    "I work at the intersection of digital operations, performance marketing, and content systems for businesses that demand reliable outcomes and clean execution.",
+    "My approach: build practical systems first, including lead funnels, creative pipelines, tracking frameworks, and reporting standards, then iterate based on real signal.",
     "Based in Dubai, I operate across UAE market verticals including real estate, services, and multi-brand portfolios. I bring both strategic clarity and hands-on execution.",
   ],
 };

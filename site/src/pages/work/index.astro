@@ -3,15 +3,25 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import CreativeWorks from "../../components/CreativeWorks";
 import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
+import { breadcrumbJsonLd, workCollectionJsonLd } from "../../lib/seo";
+
+const workJsonLd = [
+  workCollectionJsonLd(),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Work", path: "/work" },
+  ]),
+];
 ---
 
 <BaseLayout
-  title={`Work | ${profile.name}`}
-  description="Case studies and selected projects"
+  title={`Portfolio, Case Studies and Creative Work | ${profile.name}`}
+  description="Case studies in digital marketing, technical SEO, lead generation, web systems, and creative work for Dubai and UAE brands."
   path="/work"
+  jsonLd={workJsonLd}
 >
 
-<CreativeWorks client:load />
+<CreativeWorks client:visible />
 
 <section class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
@@ -25,6 +35,15 @@ import { projects } from "../../data/projects";
       <p class="text-base text-slate-400 mt-4 max-w-xl leading-relaxed">
         Selected work with measurable operational and growth outcomes across UAE markets.
       </p>
+      <div class="mt-6">
+        <a
+          href="/services"
+          class="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all duration-300"
+          style="border: 1px solid rgba(255,255,255,0.12); color: #93c5fd; background: rgba(37,99,235,0.08);"
+        >
+          Explore Dubai service pages →
+        </a>
+      </div>
     </div>
 
     <div class="grid gap-5 md:grid-cols-2">

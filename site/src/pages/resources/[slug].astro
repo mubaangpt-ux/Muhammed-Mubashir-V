@@ -1,0 +1,155 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { profile } from "../../data/profile";
+import { projects } from "../../data/projects";
+import { resources } from "../../data/resources";
+import { services } from "../../data/services";
+import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from "../../lib/seo";
+
+export function getStaticPaths() {
+  return resources.map((resource) => ({
+    params: { slug: resource.slug },
+    props: { resource },
+  }));
+}
+
+const { resource } = Astro.props;
+const relatedServices = services.filter((service) => resource.relatedServiceSlugs.includes(service.slug));
+const relatedProjects = projects.filter((project) => resource.relatedProjectSlugs.includes(project.slug));
+const pageJsonLd = [
+  articleJsonLd(resource),
+  faqJsonLd(resource.faqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Resources", path: "/resources" },
+    { name: resource.title, path: `/resources/${resource.slug}` },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`${resource.title} | ${profile.name}`}
+  description={resource.description}
+  path={`/resources/${resource.slug}`}
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-4xl">
+    <nav aria-label="Breadcrumb" class="reveal mb-4" data-delay="0.03">
+      <ol class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500">
+        <li><a href="/" class="hover:text-accent-soft transition-colors">Home</a></li>
+        <li>/</li>
+        <li><a href="/resources" class="hover:text-accent-soft transition-colors">Resources</a></li>
+        <li>/</li>
+        <li class="text-slate-300">{resource.title}</li>
+      </ol>
+    </nav>
+
+    <div class="reveal mb-4" data-delay="0.06">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">{resource.audience}</p>
+    </div>
+    <div class="reveal" data-delay="0.10">
+      <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2rem, 4.5vw, 3.6rem); letter-spacing: -0.035em;">
+        {resource.title}
+      </h1>
+    </div>
+    <div class="reveal flex flex-wrap items-center gap-3 mt-5" data-delay="0.14">
+      <span class="text-xs font-mono px-3 py-1 rounded-full text-slate-400" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+        Written by {profile.name}
+      </span>
+      <span class="text-xs font-mono text-slate-600">{resource.publishDate}</span>
+      <span class="text-xs font-mono text-slate-600">{resource.readingTime}</span>
+    </div>
+    <div class="reveal mt-6" data-delay="0.18">
+      <p class="text-base text-slate-400 leading-loose">{resource.description}</p>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-4xl grid gap-6 lg:grid-cols-[0.72fr,0.28fr] items-start">
+    <article class="space-y-6">
+      <div class="reveal glass-panel rounded-3xl p-8" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Key Takeaways</p>
+        <ul class="space-y-3">
+          {resource.keyTakeaways.map((item) => (
+            <li class="flex items-start gap-3 text-sm text-slate-300 leading-loose">
+              <span class="text-accent-soft/60 font-mono mt-0.5 shrink-0">+</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {resource.sections.map((section, index) => (
+        <section class="reveal glass-panel rounded-3xl p-8" data-delay={String(0.10 + index * 0.04)}>
+          <h2 class="font-display font-semibold text-white text-2xl mb-5">{section.heading}</h2>
+          <div class="space-y-4">
+            {section.body.map((paragraph) => (
+              <p class="text-sm text-slate-400 leading-loose">{paragraph}</p>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      <section class="reveal glass-panel rounded-3xl p-8" data-delay="0.24">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">FAQ</p>
+        <div class="space-y-4">
+          {resource.faqs.map((faq) => (
+            <details class="rounded-2xl border border-white/8 bg-white/[0.02] p-5 group">
+              <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+                <span>{faq.question}</span>
+                <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+              </summary>
+              <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </article>
+
+    <aside class="space-y-5">
+      <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Related Services</p>
+        <div class="space-y-4">
+          {relatedServices.map((service) => (
+            <a href={`/services/${service.slug}`} class="block rounded-2xl border border-white/8 bg-white/[0.02] p-4 transition-colors hover:border-blue-500/30 hover:bg-blue-500/[0.05]">
+              <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-2">{service.shortTitle}</p>
+              <p class="text-sm text-white">{service.title}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Related Proof</p>
+        <div class="space-y-4">
+          {relatedProjects.map((project) => (
+            <a href={`/work/${project.slug}`} class="block rounded-2xl border border-white/8 bg-white/[0.02] p-4 transition-colors hover:border-blue-500/30 hover:bg-blue-500/[0.05]">
+              <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-2">{project.category}</p>
+              <p class="text-sm text-white">{project.title}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Next Step</p>
+        <p class="text-sm text-slate-400 leading-loose">
+          Use this guide as context, then move into the matching service page or contact page if you want the same type of system built.
+        </p>
+        <div class="mt-5 flex flex-col gap-3">
+          <a href="/contact" class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+            Open contact page
+          </a>
+          <a href="/resources" class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            Back to resources
+          </a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+</BaseLayout>

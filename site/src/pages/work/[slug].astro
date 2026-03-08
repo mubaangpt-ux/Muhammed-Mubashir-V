@@ -2,6 +2,8 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
+import { services } from "../../data/services";
+import { breadcrumbJsonLd, projectJsonLd } from "../../lib/seo";
 
 export function getStaticPaths() {
   return projects.map((project) => ({
@@ -11,16 +13,44 @@ export function getStaticPaths() {
 }
 
 const { project } = Astro.props;
+const relatedProjects = projects.filter((item) => item.slug !== project.slug).slice(0, 2);
+const projectServiceMap: Record<string, string[]> = {
+  "180-degree-meal-planner": ["dubai-lead-generation-web-systems", "dubai-technical-seo"],
+  "bluemark-real-estate-leadgen": ["dubai-digital-marketing", "dubai-lead-generation-web-systems"],
+  "multi-company-digital-ops": ["dubai-digital-marketing", "dubai-technical-seo"],
+  "raslan-bc-growth": ["dubai-digital-marketing", "dubai-lead-generation-web-systems"],
+  "raslan-media-content-performance": ["dubai-digital-marketing", "dubai-technical-seo"],
+};
+const relatedServices = services.filter((service) => (projectServiceMap[project.slug] || []).includes(service.slug));
+const caseStudyJsonLd = [
+  projectJsonLd(project),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Work", path: "/work" },
+    { name: project.title, path: `/work/${project.slug}` },
+  ]),
+];
 ---
 
 <BaseLayout
-  title={`${project.title} | ${profile.name}`}
+  title={`${project.title} | Case Study | ${profile.name}`}
   description={project.overview}
   path={`/work/${project.slug}`}
+  jsonLd={caseStudyJsonLd}
 >
 
 <section class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
+    <nav aria-label="Breadcrumb" class="reveal mb-4" data-delay="0.02">
+      <ol class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500">
+        <li><a href="/" class="hover:text-accent-soft transition-colors">Home</a></li>
+        <li>/</li>
+        <li><a href="/work" class="hover:text-accent-soft transition-colors">Work</a></li>
+        <li>/</li>
+        <li class="text-slate-300">{project.title}</li>
+      </ol>
+    </nav>
+
     <div class="reveal mb-6" data-delay="0.04">
       <a href="/work" class="text-xs font-mono text-slate-600 hover:text-accent-soft transition-colors">
         ← Back to Work
@@ -31,8 +61,7 @@ const { project } = Astro.props;
       <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">{project.category}</p>
     </div>
     <div class="reveal mb-2" data-delay="0.12">
-      <h1 class="font-display font-bold text-white text-balance"
-        style="font-size: clamp(1.9rem, 4vw, 3rem); letter-spacing: -0.03em;">
+      <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(1.9rem, 4vw, 3rem); letter-spacing: -0.03em;">
         {project.title}
       </h1>
     </div>
@@ -45,8 +74,6 @@ const { project } = Astro.props;
 <section class="pb-20 px-4">
   <div class="mx-auto max-w-6xl">
     <div class="grid gap-5 lg:grid-cols-3">
-
-      <!-- Main content -->
       <div class="lg:col-span-2 space-y-5">
         <div class="reveal glass-panel rounded-2xl p-8" data-delay="0.08">
           <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Overview</h2>
@@ -62,14 +89,13 @@ const { project } = Astro.props;
         </div>
       </div>
 
-      <!-- Sidebar -->
       <div class="space-y-5">
         <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.10">
           <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Results</h2>
           <ul class="space-y-3">
-            {project.results.map((r) => (
+            {project.results.map((result) => (
               <li class="flex items-start gap-3 text-sm text-slate-300">
-                <span class="text-accent-soft/50 font-mono mt-0.5 shrink-0">✓</span> {r}
+                <span class="text-accent-soft/50 font-mono mt-0.5 shrink-0">+</span> {result}
               </li>
             ))}
           </ul>
@@ -77,9 +103,9 @@ const { project } = Astro.props;
         <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.15">
           <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Deliverables</h2>
           <ul class="space-y-3">
-            {project.deliverables.map((d) => (
+            {project.deliverables.map((deliverable) => (
               <li class="flex items-start gap-3 text-sm text-slate-400">
-                <span class="text-slate-700 font-mono mt-0.5 shrink-0">—</span> {d}
+                <span class="text-slate-700 font-mono mt-0.5 shrink-0">-</span> {deliverable}
               </li>
             ))}
           </ul>
@@ -88,8 +114,10 @@ const { project } = Astro.props;
           <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Tools</h2>
           <div class="flex flex-wrap gap-2">
             {project.tools.map((tool) => (
-              <span class="text-xs px-2.5 py-1.5 rounded-full text-slate-500 font-mono"
-                style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+              <span
+                class="text-xs px-2.5 py-1.5 rounded-full text-slate-500 font-mono"
+                style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);"
+              >
                 {tool}
               </span>
             ))}
@@ -98,18 +126,78 @@ const { project } = Astro.props;
       </div>
     </div>
 
-    <!-- Bottom CTA -->
-    <div class="reveal mt-10 pt-10 border-t flex flex-wrap gap-4" style="border-color: rgba(255,255,255,0.07);" data-delay="0.1">
-      <a href={profile.links.whatsapp} target="_blank" rel="noreferrer"
+    <div
+      class="reveal mt-10 pt-10 border-t flex flex-wrap gap-4"
+      style="border-color: rgba(255,255,255,0.07);"
+      data-delay="0.1"
+    >
+      <a
+        href={profile.links.whatsapp}
+        target="_blank"
+        rel="noreferrer"
         class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
-        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+      >
         ↗ Discuss a similar project
       </a>
-      <a href="/work"
-        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-400 glass-panel ring-hover hover:text-white transition-colors">
+      <a
+        href="/work"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-400 glass-panel ring-hover hover:text-white transition-colors"
+      >
         ← All work
       </a>
     </div>
+
+    {relatedProjects.length > 0 && (
+      <section class="reveal mt-14" data-delay="0.14" aria-labelledby="related-case-studies">
+        <div class="mb-6">
+          <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-2">Explore More</p>
+          <h2 id="related-case-studies" class="font-display font-semibold text-white text-xl">Related case studies</h2>
+        </div>
+        <div class="grid gap-5 md:grid-cols-2">
+          {relatedProjects.map((item) => (
+            <a
+              href={`/work/${item.slug}`}
+              class="glass-panel ring-hover rounded-2xl p-6 group transition-all duration-300 hover:-translate-y-1"
+            >
+              <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{item.category}</p>
+              <h3 class="font-display font-semibold text-white text-lg mb-2">{item.title}</h3>
+              <p class="text-sm text-slate-400 leading-relaxed">{item.overview}</p>
+              <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+                View case study →
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {relatedServices.length > 0 && (
+      <section class="reveal mt-14" data-delay="0.16" aria-labelledby="related-services">
+        <div class="mb-6">
+          <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-2">Service Context</p>
+          <h2 id="related-services" class="font-display font-semibold text-white text-xl">Services connected to this project</h2>
+          <p class="mt-3 max-w-3xl text-sm text-slate-400 leading-loose">
+            If you are looking for the same type of outcome, start with the service pages that match this case study's execution model.
+          </p>
+        </div>
+        <div class="grid gap-5 md:grid-cols-2">
+          {relatedServices.map((service) => (
+            <a
+              href={`/services/${service.slug}`}
+              class="glass-panel ring-hover rounded-2xl p-6 group transition-all duration-300 hover:-translate-y-1"
+            >
+              <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+              <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+              <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+              <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+                Open service page →
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
 </section>
 

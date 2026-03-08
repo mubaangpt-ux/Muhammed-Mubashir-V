@@ -2,6 +2,8 @@
 import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import { profile } from "../data/profile";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
 import HyperjumpIntro from "../components/HyperjumpIntro.astro";
 import {
   ArrowUpRight,
@@ -29,13 +31,19 @@ const {
   title = `${profile.name} | ${profile.roleTitle}`,
   description = profile.summary,
   path = Astro.url.pathname,
-  image = "/favicon.svg",
+  image = "/profile.png",
   noindex = false,
   jsonLd,
 } = Astro.props;
 
-const canonical = new URL(path, profile.siteUrl).toString();
-const ogImage = image.startsWith("http") ? image : new URL(image, profile.siteUrl).toString();
+const siteOrigin = (Astro.site?.toString() || profile.siteUrl).replace(/\/+$/, "");
+const canonical = new URL(path, `${siteOrigin}/`).toString();
+const ogImage = image.startsWith("http") ? image : new URL(image, `${siteOrigin}/`).toString();
+const robotsContent = noindex
+  ? "noindex,nofollow"
+  : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
+const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+const bingSiteVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION;
 const isDev = import.meta.env.DEV;
 
 const navItems = [
@@ -48,7 +56,7 @@ const navItems = [
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-AE">
   <head>
     <!-- Critical resource priority chain -->
     <link rel="preload" as="image" href="/profile.png" fetchpriority="high" />
@@ -71,21 +79,36 @@ const navItems = [
     <meta charset="UTF-8" />
     <meta http-equiv="x-dns-prefetch-control" content="on" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07090f" />
+    <meta name="author" content={profile.name} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    {googleSiteVerification && <meta name="google-site-verification" content={googleSiteVerification} />}
+    {bingSiteVerification && <meta name="msvalidate.01" content={bingSiteVerification} />}
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow"} />
+    <meta name="robots" content={robotsContent} />
+    <meta name="googlebot" content={robotsContent} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hrefLang="en" href={canonical} />
+    <link rel="alternate" hrefLang="en-AE" href={canonical} />
+    <link rel="alternate" hrefLang="x-default" href={canonical} />
+    <link rel="manifest" href="/manifest.json" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:locale" content="en_AE" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={title} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+    <meta name="twitter:creator" content={profile.links.instagramHandle} />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
@@ -752,6 +775,27 @@ const navItems = [
                 {item.label}
               </a>
             ))}
+            <div class="pt-4 mt-4 border-t border-white/6">
+              <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Service Links</p>
+              <a href="/services" class="block text-sm text-slate-400 hover:text-white transition-colors">Services Hub</a>
+              {services.map((service) => (
+                <a href={`/services/${service.slug}`}
+                  class="block text-sm text-slate-400 hover:text-white transition-colors">
+                  {service.shortTitle}
+                </a>
+              ))}
+            </div>
+            <div class="pt-4 mt-4 border-t border-white/6">
+              <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Guides</p>
+              <a href="/dubai-digital-marketer" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Digital Marketer</a>
+              <a href="/resources" class="block text-sm text-slate-400 hover:text-white transition-colors">Resources Hub</a>
+              {resources.map((resource) => (
+                <a href={`/resources/${resource.slug}`}
+                  class="block text-sm text-slate-400 hover:text-white transition-colors">
+                  {resource.title}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 

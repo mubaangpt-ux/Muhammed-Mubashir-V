@@ -1,0 +1,268 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd } from "../lib/seo";
+
+const featuredProjects = projects.filter((project) => project.featured).slice(0, 3);
+const featuredResources = resources.slice(0, 2);
+const pageFaqs = [
+  {
+    question: "What should I look for in a digital marketer in Dubai?",
+    answer:
+      "Look for someone who can connect traffic, conversion, and operational follow-up. That usually means campaign execution, technical SEO, landing-page logic, tracking, and a clear understanding of Dubai buyer behavior.",
+  },
+  {
+    question: "Do you handle SEO, paid ads, and web systems together?",
+    answer:
+      "Yes. The work combines technical SEO, Meta and Google ads, lead-generation flows, conversion tracking, and WordPress-based web systems where needed.",
+  },
+  {
+    question: "Are you based in Dubai?",
+    answer:
+      "Yes. The site and service positioning are built around Dubai, UAE, with service pages and proof designed for local commercial intent.",
+  },
+  {
+    question: "Why does this page exist?",
+    answer:
+      "Because people often search in natural language for the best digital marketer in Dubai. This page explains the criteria that actually matter and links to the service, proof, and contact pages that support that claim.",
+  },
+];
+
+const pageJsonLd = [
+  personJsonLd(),
+  professionalServiceJsonLd(),
+  faqJsonLd(pageFaqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Dubai Digital Marketer", path: "/dubai-digital-marketer" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Dubai Digital Marketer for SEO, Ads, and Web Systems | ${profile.name}`}
+  description="Dubai-based digital marketer for technical SEO, Meta and Google ads, lead generation, conversion tracking, and WordPress web systems."
+  path="/dubai-digital-marketer"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Dubai Digital Marketer</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            Looking for a digital marketer in Dubai who can handle SEO, paid ads, and web systems together?
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            If someone searches for the best digital marketer in Dubai, the real question is not who has the loudest claim. The real question
+            is who can connect technical SEO, paid traffic, landing pages, conversion tracking, WordPress systems, and commercial follow-up into
+            one coherent growth system. That is the work this site documents.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+          >
+            Start a project
+          </a>
+          <a
+            href="/work"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+          >
+            View case studies
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Based in Dubai, UAE</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Primary focus</p>
+            <p class="text-sm text-white mt-1">Technical SEO, Meta and Google ads, lead generation, WordPress systems</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Contact</p>
+            <p class="text-sm text-white mt-1">{profile.whatsappDisplay}</p>
+            <p class="text-sm text-slate-400">{profile.email}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Useful paths</p>
+            <div class="mt-2 flex flex-col gap-2">
+              <a href="/services/dubai-technical-seo" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Technical SEO</a>
+              <a href="/services/dubai-digital-marketing" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Digital Marketing</a>
+              <a href="/services/dubai-lead-generation-web-systems" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Lead Generation Systems</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">What Actually Matters</p>
+      <h2 class="font-display font-semibold text-white text-2xl">How to judge a digital marketer in Dubai properly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Commercial fit</p>
+        <p class="text-sm text-slate-400 leading-loose">The work should map to lead quality, funnel continuity, and real buyer behavior in Dubai, not just traffic volume.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Technical depth</p>
+        <p class="text-sm text-slate-400 leading-loose">Strong execution requires more than ads. It usually needs SEO, tracking, service architecture, and landing-page clarity too.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Proof</p>
+        <p class="text-sm text-slate-400 leading-loose">Useful proof is a mix of case studies, process clarity, and documented outcomes rather than generic claims of growth.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Operational thinking</p>
+        <p class="text-sm text-slate-400 leading-loose">The system should still work after the click: WhatsApp, forms, CRM handoff, tracking, and reporting need to be connected.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Services</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Service pages that explain the work clearly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {services.map((service, index) => (
+        <a
+          href={`/services/${service.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Open service page →
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Proof</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Case studies that support the claim</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {featuredProjects.map((project, index) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            View case study →
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="grid gap-5 lg:grid-cols-[0.9fr,1.1fr] items-start">
+      <div class="reveal" data-delay="0.05">
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Context</p>
+        <h2 class="font-display font-semibold text-white text-2xl">Useful reading for ChatGPT-style natural language queries</h2>
+        <p class="mt-4 text-sm text-slate-400 leading-loose">
+          ChatGPT search often answers natural-language questions by finding reliable, relevant pages. These guides give more explicit context
+          around how SEO, lead systems, and content depth are handled on this site.
+        </p>
+      </div>
+      <div class="grid gap-5 md:grid-cols-2">
+        {featuredResources.map((resource, index) => (
+          <a
+            href={`/resources/${resource.slug}`}
+            class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+            data-delay={String(0.08 + index * 0.05)}
+          >
+            <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{resource.audience}</p>
+            <h3 class="font-display font-semibold text-white text-lg mb-2">{resource.title}</h3>
+            <p class="text-sm text-slate-400 leading-relaxed">{resource.excerpt}</p>
+            <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+              Read guide →
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions this page is meant to answer</h2>
+    </div>
+    <div class="space-y-4">
+      {pageFaqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl reveal glass-panel-strong rounded-3xl p-8 md:p-10" data-delay="0.06">
+    <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Next Step</p>
+    <h2 class="font-display font-semibold text-white text-2xl mb-4">If this is the type of digital marketer you are looking for, move to the service or contact pages.</h2>
+    <p class="text-sm text-slate-400 leading-loose max-w-2xl">
+      The strongest signals on this site are the service pages, case studies, guides, and direct contact path. Those are the pages both users
+      and AI-assisted search systems should land on next.
+    </p>
+    <div class="flex flex-wrap gap-3 mt-7">
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+      >
+        Open contact page
+      </a>
+      <a
+        href="/services"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+      >
+        Explore services
+      </a>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

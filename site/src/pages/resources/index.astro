@@ -1,0 +1,70 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { profile } from "../../data/profile";
+import { resources } from "../../data/resources";
+import { breadcrumbJsonLd } from "../../lib/seo";
+
+const resourcesJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Resources | ${profile.name}`,
+    description: "Guides on Dubai technical SEO, digital marketing, content depth, and lead generation systems.",
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Resources", path: "/resources" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Resources and Guides | ${profile.name}`}
+  description="Dubai-focused guides on technical SEO, digital marketing, content depth, and lead generation systems."
+  path="/resources"
+  jsonLd={resourcesJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Resources</p>
+    </div>
+    <div class="reveal max-w-3xl" data-delay="0.10">
+      <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+        Practical guides that support trust, search visibility, and lead quality
+      </h1>
+      <p class="mt-5 text-base text-slate-400 leading-loose">
+        These guides are built to add real topical depth to the site, explain how the work is approached, and connect service pages with
+        proof pages in a way that is useful for both users and search engines.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl grid gap-5 lg:grid-cols-3">
+    {resources.map((resource, index) => (
+      <article class="reveal glass-panel rounded-3xl p-7 flex flex-col" data-delay={String(0.06 + index * 0.05)}>
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70">{resource.audience}</p>
+          <span class="text-xs font-mono text-slate-600">{resource.readingTime}</span>
+        </div>
+        <h2 class="font-display font-semibold text-white text-xl leading-tight">{resource.title}</h2>
+        <p class="mt-4 text-sm text-slate-400 leading-loose flex-1">{resource.excerpt}</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          {resource.keyTakeaways.slice(0, 2).map((item) => (
+            <span class="text-[11px] px-2.5 py-1 rounded-full text-slate-500 font-mono" style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+              {item}
+            </span>
+          ))}
+        </div>
+        <a href={`/resources/${resource.slug}`} class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent-soft/70 hover:text-accent-soft transition-colors">
+          Read guide →
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+</BaseLayout>

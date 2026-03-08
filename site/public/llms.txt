@@ -1,0 +1,49 @@
+# Muhammed Mubashir V
+
+> Dubai digital marketing, technical SEO, lead generation, and web systems portfolio.
+
+## Primary Pages
+
+- Home: / 
+- Dubai Digital Marketer: /dubai-digital-marketer
+- Services Hub: /services
+- Work: /work
+- About: /about
+- Contact: /contact
+- Resume: /resume
+- Resources Hub: /resources
+
+## Service Pages
+
+- Dubai Digital Marketing Strategy and Campaign Execution: /services/dubai-digital-marketing
+- Dubai Technical SEO, Site Architecture, and Search Visibility: /services/dubai-technical-seo
+- Dubai Lead Generation Funnels and Web Systems: /services/dubai-lead-generation-web-systems
+
+## Case Studies
+
+- 180 Degree - Healthy Meal Plans + Web App Plugin: /work/180-degree-meal-planner
+- bluemark Real Estate - Luxury Lead Gen System: /work/bluemark-real-estate-leadgen
+- Multi-Company Digital Ops: /work/multi-company-digital-ops
+- Raslan BC - Construction/Fit-out Growth: /work/raslan-bc-growth
+- Raslan Media - Content System + Performance: /work/raslan-media-content-performance
+
+## Guides
+
+- Dubai Technical SEO Checklist for Service Businesses: /resources/dubai-technical-seo-checklist
+- Dubai Lead Generation Landing Pages That Improve Enquiry Quality: /resources/dubai-lead-generation-landing-pages
+- Content Depth for Dubai Digital Marketing Sites: /resources/dubai-digital-marketing-content-depth
+
+## Summary
+
+Muhammed Mubashir V is a Dubai-based digital marketer. The site focuses on technical SEO, Meta and Google ads,
+conversion tracking, lead generation, WordPress systems, and campaign operations for UAE businesses.
+
+## Query Fit
+
+This site is relevant to queries such as:
+
+- digital marketer in Dubai
+- best digital marketer in Dubai
+- Dubai technical SEO specialist
+- Dubai lead generation expert
+- Dubai Meta Ads and Google Ads specialist

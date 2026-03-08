@@ -1,0 +1,115 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { profile } from "../../data/profile";
+import { services } from "../../data/services";
+import { breadcrumbJsonLd } from "../../lib/seo";
+
+const servicesJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Services | ${profile.name}`,
+    description: "Dubai digital marketing, technical SEO, and lead generation web systems services.",
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Dubai SEO, Digital Marketing and Web Systems Services | ${profile.name}`}
+  description="Dubai-focused digital marketing, technical SEO, and lead generation web systems services for UAE businesses."
+  path="/services"
+  jsonLd={servicesJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.04">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Services</p>
+    </div>
+    <div class="reveal max-w-3xl" data-delay="0.08">
+      <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+        Dubai growth systems built for ranking, lead flow, and operational clarity
+      </h1>
+      <p class="mt-5 text-base text-slate-400 leading-loose">
+        This service stack is built for Dubai businesses that need more than a brochure site. The work combines technical SEO,
+        campaign architecture, conversion tracking, landing systems, and commercial content structure so search visibility can
+        support actual lead generation.
+      </p>
+    </div>
+    <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.12">
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+      >
+        Start a project
+      </a>
+      <a
+        href="/work"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+      >
+        View case studies
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl grid gap-5 lg:grid-cols-3">
+    {services.map((service, index) => (
+      <article
+        class="reveal glass-panel rounded-3xl p-7 flex flex-col"
+        data-delay={String(0.05 + index * 0.05)}
+      >
+        <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">{service.shortTitle}</p>
+        <h2 class="font-display font-semibold text-white text-xl leading-tight">{service.title}</h2>
+        <p class="text-sm text-slate-400 leading-loose mt-4 flex-1">{service.summary}</p>
+        <div class="mt-6 flex flex-wrap gap-2">
+          {service.deliverables.slice(0, 3).map((item) => (
+            <span
+              class="text-xs px-3 py-1.5 rounded-full text-slate-400 font-mono"
+              style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+        <a
+          href={`/services/${service.slug}`}
+          class="mt-7 inline-flex items-center gap-2 text-sm font-medium text-accent-soft/70 hover:text-accent-soft transition-colors"
+        >
+          Explore service →
+        </a>
+      </article>
+    ))}
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14 grid gap-5 md:grid-cols-3">
+    <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">SEO architecture</p>
+      <p class="text-sm text-slate-400 leading-loose">
+        Crawlability, sitemap control, canonicals, structured data, metadata, internal links, and keyword-to-page mapping.
+      </p>
+    </div>
+    <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.09">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Local intent</p>
+      <p class="text-sm text-slate-400 leading-loose">
+        Dubai-specific service positioning, location relevance, and commercial pages designed around how UAE buyers actually search.
+      </p>
+    </div>
+    <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.13">
+      <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Lead systems</p>
+      <p class="text-sm text-slate-400 leading-loose">
+        Landing pages, WhatsApp flows, forms, tracking, and operational web systems that connect search traffic to real enquiries.
+      </p>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>
