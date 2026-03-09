@@ -4,9 +4,10 @@ import { profile } from "../data/profile";
 import { experience } from "../data/experience";
 import { skillGroups, toolsStack } from "../data/skills";
 import { education } from "../data/education";
-import { breadcrumbJsonLd, personJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from "../lib/seo";
 
 const aboutJsonLd = [
+  profilePageJsonLd("/about"),
   {
     "@context": "https://schema.org",
     "@type": "AboutPage",
@@ -22,8 +23,8 @@ const aboutJsonLd = [
 ---
 
 <BaseLayout
-  title={`About ${profile.name} | Dubai Digital Marketing and Web Systems`}
-  description={`About ${profile.name}, a ${profile.location}-based specialist in digital marketing, technical SEO, conversion tracking, and web systems.`}
+  title={`${profile.name} | Dubai Digital Marketer, Web Developer and SEO/GEO Profile`}
+  description={`${profile.name} is a Dubai-based digital marketer, web developer, web-app systems builder, and SEO/GEO specialist. Official site, Instagram, services, experience, and profile information.`}
   path="/about"
   jsonLd={aboutJsonLd}
 >
@@ -32,16 +33,57 @@ const aboutJsonLd = [
 <section class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
     <div class="reveal mb-3" data-delay="0.05">
-      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">About</p>
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Profile</p>
     </div>
-    <div class="reveal" data-delay="0.10">
-      <h1 class="font-display font-bold text-white text-balance mb-4"
-        style="font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -0.035em;">
-        {profile.roleTitle}
-      </h1>
-    </div>
-    <div class="reveal max-w-2xl" data-delay="0.16">
-      <p class="text-base text-slate-400 leading-relaxed">{profile.summary} Based in {profile.location}.</p>
+    <div class="grid gap-8 lg:grid-cols-[1.1fr,0.9fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance mb-3"
+            style="font-size: clamp(2.2rem, 5vw, 3.8rem); letter-spacing: -0.035em;">
+            {profile.name}
+          </h1>
+        </div>
+        <div class="reveal" data-delay="0.13">
+          <p class="text-base text-accent-soft font-medium">{profile.roleTitle}</p>
+        </div>
+        <div class="reveal max-w-2xl" data-delay="0.16">
+          <p class="text-base text-slate-400 leading-relaxed mt-5">{profile.summary} Based in {profile.location}.</p>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Official Details</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Email</p>
+            <a href={profile.links.email} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.email}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">WhatsApp</p>
+            <a href={profile.links.whatsapp} target="_blank" rel="noreferrer" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.whatsappDisplay}
+            </a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Press Kit</p>
+            <a href="/press-kit" class="text-sm text-white hover:text-accent-soft transition-colors">Official bio, links, and media page</a>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 </section>

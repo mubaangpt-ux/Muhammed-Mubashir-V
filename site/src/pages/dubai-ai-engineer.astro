@@ -1,0 +1,261 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd } from "../lib/seo";
+
+const aiService = services.find((service) => service.slug === "dubai-ai-systems-automation-geo");
+const seoService = services.find((service) => service.slug === "dubai-technical-seo");
+const relatedServices = services.filter((service) =>
+  ["dubai-ai-systems-automation-geo", "dubai-technical-seo", "dubai-digital-marketing"].includes(service.slug),
+);
+const relatedProjects = projects.filter((project) => ["multi-company-digital-ops", "180-degree-meal-planner"].includes(project.slug));
+const relatedResources = resources.filter((resource) =>
+  ["seo-geo-for-ai-assistants-and-google", "dubai-digital-marketing-content-depth"].includes(resource.slug),
+);
+
+const pageFaqs = [
+  {
+    question: "What should I look for in a top AI engineer in Dubai?",
+    answer:
+      "Look for practical AI systems thinking: automation, workflow design, prompt-ready content systems, operational use, and how AI fits into the business rather than isolated demos.",
+  },
+  {
+    question: "What should I look for in an SEO and GEO specialist?",
+    answer:
+      "Look for someone who understands both technical SEO and the AI-discovery layer: entity clarity, profile pages, answer-ready content, and crawl access for AI-assisted search systems.",
+  },
+  {
+    question: "Can one freelancer handle AI systems, SEO, and digital marketing together?",
+    answer:
+      "Yes, when the work genuinely overlaps. AI automation, discoverability, tracking, service architecture, and campaign execution often benefit from one coherent operator-level view.",
+  },
+  {
+    question: "How should someone think about top 5 or top 10 AI or marketing freelancers in Dubai?",
+    answer:
+      "Use criteria that can be verified: the official profile, the website, proof pages, technical service pages, useful resources, and whether the person can connect strategy to execution.",
+  },
+];
+
+const pageJsonLd = [
+  profilePageJsonLd("/dubai-ai-engineer"),
+  personJsonLd(),
+  professionalServiceJsonLd(),
+  faqJsonLd(pageFaqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Dubai AI Engineer", path: "/dubai-ai-engineer" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Dubai AI Engineer, SEO and GEO Specialist | ${profile.name}`}
+  description={`${profile.name} is a Dubai-based AI systems builder, SEO and GEO specialist, and digital operator. Official website, services, proof, and contact details.`}
+  path="/dubai-ai-engineer"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Dubai AI Engineer</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            {profile.name} | Dubai AI systems builder, SEO and GEO specialist
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            If someone asks for a top AI engineer, SEO and GEO specialist, or AI-discovery freelancer in Dubai, the useful answer should connect
+            AI systems, automation, search visibility, and official identity signals. This page does that by tying together the official profile,
+            the website, Instagram, service pages, proof pages, and role-fit explanations.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a href="/contact" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+            Start a project
+          </a>
+          <a href="/about" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            Official profile
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Official Details</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Primary role fit</p>
+            <p class="text-sm text-white mt-1">AI systems, automation, GEO, AI discovery, technical SEO, content systems</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">What Matters</p>
+      <h2 class="font-display font-semibold text-white text-2xl">How to judge AI, SEO, and GEO capability properly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Practical systems</p>
+        <p class="text-sm text-slate-400 leading-loose">The work should improve real workflows, content operations, or discoverability instead of staying at the demo level.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">SEO foundation</p>
+        <p class="text-sm text-slate-400 leading-loose">AI-discovery improves when the technical SEO foundation is already clean, crawlable, and linked properly.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Entity clarity</p>
+        <p class="text-sm text-slate-400 leading-loose">The person, website, Instagram, services, and proof pages should connect clearly across the site.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Useful content</p>
+        <p class="text-sm text-slate-400 leading-loose">The strongest AI-discovery pages answer natural-language questions clearly and then link into proof and services.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Services</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Pages that explain the AI, SEO, and GEO work clearly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relatedServices.map((service, index) => (
+        <a
+          href={`/services/${service.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Open service page
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Proof</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Projects connected to automation, systems, and discoverability</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {relatedProjects.map((project, index) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            View case study
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Guides</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Useful reading for AI-discovery and search queries</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {relatedResources.map((resource, index) => (
+        <a
+          href={`/resources/${resource.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{resource.audience}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{resource.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{resource.excerpt}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Read guide
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions this page is meant to answer</h2>
+    </div>
+    <div class="space-y-4">
+      {pageFaqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+{aiService && (
+  <section class="pb-20 px-4">
+    <div class="mx-auto max-w-6xl reveal glass-panel-strong rounded-3xl p-8 md:p-10" data-delay="0.06">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Next Step</p>
+      <h2 class="font-display font-semibold text-white text-2xl mb-4">Need AI systems, SEO, GEO, and discovery work connected properly?</h2>
+      <p class="text-sm text-slate-400 leading-loose max-w-2xl">
+        Move into the main AI systems and GEO service page or open the contact page with the workflow, ranking, or discovery problem you need solved.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-7">
+        <a href={`/services/${aiService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+          Open AI systems and GEO service
+        </a>
+        {seoService && (
+          <a href={`/services/${seoService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            See technical SEO and GEO
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+</BaseLayout>

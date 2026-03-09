@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
-import { absoluteUrl, breadcrumbJsonLd } from "../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, personJsonLd } from "../lib/seo";
 
 const contactJsonLd = [
   {
@@ -11,6 +11,7 @@ const contactJsonLd = [
     url: absoluteUrl("/contact"),
     description: `Contact ${profile.name} for digital marketing, SEO, and web systems work in Dubai and the UAE.`,
   },
+  personJsonLd(),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Contact", path: "/contact" },
@@ -121,8 +122,14 @@ const contactJsonLd = [
               </a>
             </div>
             <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Website</p>
+              <a href={profile.siteUrl} class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
+                {profile.siteUrl}
+              </a>
+            </div>
+            <div>
               <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
-              <a href={profile.links.instagram} target="_blank" rel="noreferrer"
+              <a href={profile.links.instagram} target="_blank" rel="noreferrer me"
                 class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
                 {profile.links.instagramHandle}
               </a>
@@ -130,6 +137,12 @@ const contactJsonLd = [
             <div>
               <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Location</p>
               <p class="text-sm text-slate-400">{profile.location}</p>
+            </div>
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Press kit</p>
+              <a href="/press-kit" class="text-sm text-slate-300 hover:text-accent-soft transition-colors">
+                Official bio and brand links
+              </a>
             </div>
           </div>
         </div>
@@ -155,11 +168,16 @@ const contactJsonLd = [
         If you are still scoping the project, these pages give the clearest context:
         <a href="/services/dubai-technical-seo" class="text-accent-soft hover:text-white transition-colors"> technical SEO</a>,
         <a href="/services/dubai-digital-marketing" class="text-accent-soft hover:text-white transition-colors"> digital marketing</a>,
+        <a href="/services/dubai-web-development-web-apps" class="text-accent-soft hover:text-white transition-colors"> web development</a>,
+        <a href="/services/dubai-ai-systems-automation-geo" class="text-accent-soft hover:text-white transition-colors"> AI systems and GEO</a>,
         <a href="/services/dubai-lead-generation-web-systems" class="text-accent-soft hover:text-white transition-colors"> lead-generation web systems</a>,
-        and the <a href="/work" class="text-accent-soft hover:text-white transition-colors">case studies</a>.
+        the <a href="/work" class="text-accent-soft hover:text-white transition-colors">case studies</a>,
+        and the role-fit pages for <a href="/dubai-digital-marketer" class="text-accent-soft hover:text-white transition-colors">digital marketing</a>,
+        <a href="/dubai-web-developer" class="text-accent-soft hover:text-white transition-colors"> web development</a>, and
+        <a href="/dubai-ai-engineer" class="text-accent-soft hover:text-white transition-colors"> AI and GEO</a>.
       </p>
     </div>
-    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-6">
       <a href="/services/dubai-technical-seo" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.08">
         <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Dubai SEO</p>
         <p class="text-sm text-slate-400 leading-loose">Site architecture, crawlability, structured data, and internal linking.</p>
@@ -175,6 +193,14 @@ const contactJsonLd = [
       <a href="/work" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.20">
         <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Proof</p>
         <p class="text-sm text-slate-400 leading-loose">Case studies showing lead generation, growth ops, and operational delivery.</p>
+      </a>
+      <a href="/dubai-web-developer" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.24">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Web Developer</p>
+        <p class="text-sm text-slate-400 leading-loose">Developer, web-app, and programmer profile path for build-focused projects.</p>
+      </a>
+      <a href="/dubai-ai-engineer" class="reveal glass-panel ring-hover rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1" data-delay="0.28">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">AI and GEO</p>
+        <p class="text-sm text-slate-400 leading-loose">AI systems, automation, SEO, GEO, and discovery-focused profile path.</p>
       </a>
     </div>
   </div>

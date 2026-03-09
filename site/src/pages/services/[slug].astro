@@ -17,6 +17,31 @@ const { service } = Astro.props;
 const relatedProjects = projects.filter((project) => service.relatedProjectSlugs.includes(project.slug));
 const relatedServices = services.filter((item) => item.slug !== service.slug).slice(0, 2);
 const relatedResources = resources.filter((resource) => resource.relatedServiceSlugs.includes(service.slug)).slice(0, 2);
+const rolePathMap: Record<string, { href: string; label: string }[]> = {
+  "dubai-digital-marketing": [
+    { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
+    { href: "/dubai-ai-engineer", label: "SEO, GEO, and AI-discovery specialist" },
+  ],
+  "dubai-technical-seo": [
+    { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
+    { href: "/dubai-ai-engineer", label: "Dubai AI engineer and GEO specialist" },
+  ],
+  "dubai-web-development-web-apps": [
+    { href: "/dubai-web-developer", label: "Dubai web developer" },
+    { href: "/dubai-digital-marketer", label: "Digital marketer with web systems" },
+  ],
+  "dubai-ai-systems-automation-geo": [
+    { href: "/dubai-ai-engineer", label: "Dubai AI engineer" },
+    { href: "/dubai-digital-marketer", label: "Digital marketer and SEO/GEO operator" },
+  ],
+  "dubai-lead-generation-web-systems": [
+    { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
+    { href: "/dubai-web-developer", label: "Web developer and lead-system builder" },
+  ],
+};
+const rolePaths = rolePathMap[service.slug] ?? [
+  { href: "/about", label: "Official profile" },
+];
 const pageJsonLd = [
   serviceJsonLd(service),
   faqJsonLd(service.faqs),
@@ -74,6 +99,31 @@ const pageJsonLd = [
       <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.10">
         <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Built for Dubai</p>
         <p class="text-sm text-slate-400 leading-loose">{service.localAngle}</p>
+        <div class="mt-6 pt-6 border-t border-white/8 space-y-4">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Operator</p>
+            <p class="text-sm text-white">{profile.name}</p>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Related role pages</p>
+            <div class="flex flex-col gap-2">
+              <a href="/about" class="text-sm text-accent-soft hover:text-white transition-colors">Official profile</a>
+              {rolePaths.map((item) => (
+                <a href={item.href} class="text-sm text-accent-soft hover:text-white transition-colors">{item.label}</a>
+              ))}
+            </div>
+          </div>
+        </div>
       </aside>
     </div>
   </div>

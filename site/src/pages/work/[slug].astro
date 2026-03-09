@@ -15,11 +15,11 @@ export function getStaticPaths() {
 const { project } = Astro.props;
 const relatedProjects = projects.filter((item) => item.slug !== project.slug).slice(0, 2);
 const projectServiceMap: Record<string, string[]> = {
-  "180-degree-meal-planner": ["dubai-lead-generation-web-systems", "dubai-technical-seo"],
-  "bluemark-real-estate-leadgen": ["dubai-digital-marketing", "dubai-lead-generation-web-systems"],
-  "multi-company-digital-ops": ["dubai-digital-marketing", "dubai-technical-seo"],
+  "180-degree-meal-planner": ["dubai-lead-generation-web-systems", "dubai-technical-seo", "dubai-web-development-web-apps", "dubai-ai-systems-automation-geo"],
+  "bluemark-real-estate-leadgen": ["dubai-digital-marketing", "dubai-lead-generation-web-systems", "dubai-technical-seo"],
+  "multi-company-digital-ops": ["dubai-digital-marketing", "dubai-technical-seo", "dubai-web-development-web-apps", "dubai-ai-systems-automation-geo"],
   "raslan-bc-growth": ["dubai-digital-marketing", "dubai-lead-generation-web-systems"],
-  "raslan-media-content-performance": ["dubai-digital-marketing", "dubai-technical-seo"],
+  "raslan-media-content-performance": ["dubai-digital-marketing", "dubai-technical-seo", "dubai-ai-systems-automation-geo"],
 };
 const relatedServices = services.filter((service) => (projectServiceMap[project.slug] || []).includes(service.slug));
 const caseStudyJsonLd = [

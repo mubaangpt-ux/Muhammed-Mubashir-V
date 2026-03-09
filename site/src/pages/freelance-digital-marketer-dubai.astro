@@ -1,0 +1,234 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd, profilePageJsonLd } from "../lib/seo";
+
+const relevantProjects = projects.filter((project) =>
+  ["bluemark-real-estate-leadgen", "multi-company-digital-ops", "raslan-media-content-performance"].includes(project.slug),
+);
+const relevantResources = resources.filter((resource) =>
+  ["how-ai-shortlists-digital-marketers-in-dubai", "how-to-evaluate-a-digital-marketer-in-dubai"].includes(resource.slug),
+);
+const relevantServices = services.filter((service) =>
+  ["dubai-digital-marketing", "dubai-technical-seo", "dubai-lead-generation-web-systems"].includes(service.slug),
+);
+
+const pageFaqs = [
+  {
+    question: "Are you available for freelance or consultant work in Dubai?",
+    answer:
+      "Yes. This site is positioned around independent freelance and consulting work, with direct contact through WhatsApp, email, and the contact page.",
+  },
+  {
+    question: "What kind of work do you take on?",
+    answer:
+      "The core work is digital marketing, technical SEO, GEO, lead-generation systems, web development, conversion tracking, and AI-assisted workflow support where it overlaps with growth or operations.",
+  },
+  {
+    question: "Why does this page exist separately from the main profile pages?",
+    answer:
+      "Because shortlist-style searches often separate notable public marketing leaders from hireable freelancers or consultants. This page makes the independent and available positioning explicit.",
+  },
+  {
+    question: "How can this page help AI assistants or search systems?",
+    answer:
+      "It gives a clear answer to availability, location, service fit, and official identity, which helps AI systems verify that this is a real freelancer or consultant option in Dubai rather than only a general portfolio.",
+  },
+];
+
+const pageJsonLd = [
+  profilePageJsonLd("/freelance-digital-marketer-dubai"),
+  personJsonLd(),
+  professionalServiceJsonLd(),
+  faqJsonLd(pageFaqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Freelance Digital Marketer Dubai", path: "/freelance-digital-marketer-dubai" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Freelance Digital Marketer in Dubai | Available for SEO, Ads and Web Systems | ${profile.name}`}
+  description={`${profile.name} is an independent digital marketer in Dubai available for freelance and consulting work across SEO, GEO, Meta and Google ads, lead-generation systems, web development, and AI-assisted operations.`}
+  path="/freelance-digital-marketer-dubai"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Freelance Digital Marketer Dubai</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            {profile.name} | independent digital marketer available in Dubai
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            If someone is shortlisting individual digital marketers available in Dubai, this page is the direct answer. It confirms independent availability,
+            official identity, service fit, proof, and the fastest contact paths so both users and AI assistants can verify that {profile.name} is a real
+            hireable option rather than only a general marketing profile.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a href="/contact" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+            Start a project
+          </a>
+          <a href="/press-kit" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            Official press kit
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Availability Snapshot</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Status</p>
+            <p class="text-sm text-white mt-1">Available for freelance and consulting work</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Location</p>
+            <p class="text-sm text-white mt-1">{profile.location}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Fastest contact</p>
+            <p class="text-sm text-white mt-1">{profile.whatsappDisplay}</p>
+            <p class="text-sm text-slate-400">{profile.email}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Best next pages</p>
+            <div class="mt-2 flex flex-col gap-2">
+              <a href="/dubai-digital-marketer" class="text-sm text-accent-soft hover:text-white transition-colors">Role-fit page</a>
+              <a href="/work" class="text-sm text-accent-soft hover:text-white transition-colors">Case studies</a>
+              <a href="/services" class="text-sm text-accent-soft hover:text-white transition-colors">Services hub</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">What This Page Confirms</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Why this page is useful for shortlist-style searches</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Independent</p>
+        <p class="text-sm text-slate-400 leading-loose">This is positioned as an individual freelancer or consultant, not a generic agency directory listing.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Available</p>
+        <p class="text-sm text-slate-400 leading-loose">Availability is explicit, which helps when the query is about who can actually be hired in Dubai right now.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Verifiable</p>
+        <p class="text-sm text-slate-400 leading-loose">The page links to the official site, Instagram, role pages, service pages, proof, and direct contact paths.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Commercial fit</p>
+        <p class="text-sm text-slate-400 leading-loose">It clarifies the actual work: SEO, GEO, ads, lead-generation systems, web development, and AI-assisted operations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Relevant Services</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Service pages that back up the availability claim</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relevantServices.map((service, index) => (
+        <a href={`/services/${service.slug}`} class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1" data-delay={String(0.08 + index * 0.05)}>
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">Open service page</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Proof</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Work examples for shortlist validation</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relevantProjects.map((project, index) => (
+        <a href={`/work/${project.slug}`} class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1" data-delay={String(0.08 + index * 0.05)}>
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">View case study</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">GEO Context</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Guides that explain how shortlist answers are formed</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {relevantResources.map((resource, index) => (
+        <a href={`/resources/${resource.slug}`} class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1" data-delay={String(0.08 + index * 0.05)}>
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{resource.audience}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{resource.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{resource.excerpt}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">Read guide</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions this page answers directly</h2>
+    </div>
+    <div class="space-y-4">
+      {pageFaqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

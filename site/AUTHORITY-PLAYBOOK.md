@@ -2,6 +2,18 @@
 
 This file covers the off-site work that cannot be created from the codebase but is required if the site is expected to rank competitively in Dubai.
 
+Execution files added in this repo:
+
+- `OFFSITE-AUTHORITY-KIT.md`
+- `REVIEW-REQUEST-TEMPLATES.md`
+- `AI-SHORTLIST-PLAYBOOK.md`
+- `CITATIONS-LIST.md`
+- `BACKLINK-TARGETS.md`
+- `GOOGLE-BUSINESS-PROFILE-KIT.md`
+- public press page: `/press-kit`
+- availability page: `/freelance-digital-marketer-dubai`
+- IndexNow key file: `/3994b162-5f40-4432-8d6c-463a7afc6e7c.txt`
+
 ## What matters most
 
 1. Google Search Console verification and sitemap submission

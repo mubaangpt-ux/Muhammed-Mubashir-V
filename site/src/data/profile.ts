@@ -30,7 +30,7 @@ export const profile: Profile = {
   roleTitle: "Helping You Build, Optimize, and Grow Your Business",
   headline: "Digital Marketing \u2022 Performance \u2022 Design \u2022 Web Systems",
   summary:
-    "Dubai-based digital marketer focused on Meta and Google ads, technical SEO, conversion funnels, pixel tracking, WordPress systems, and content pipelines built for measurable UAE market outcomes.",
+    "Dubai-based independent digital marketer, web developer, web-app systems builder, SEO and GEO specialist, and AI workflow operator available for freelance and consulting work across Meta and Google ads, technical SEO, conversion funnels, pixel tracking, WordPress systems, automation, and content pipelines built for measurable UAE market outcomes.",
   location: "Dubai, UAE",
   siteUrl,
   email: "mubaan74@gmail.com",

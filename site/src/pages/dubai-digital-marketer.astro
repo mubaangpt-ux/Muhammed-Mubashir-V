@@ -4,10 +4,16 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd, profilePageJsonLd } from "../lib/seo";
 
 const featuredProjects = projects.filter((project) => project.featured).slice(0, 3);
-const featuredResources = resources.slice(0, 2);
+const featuredResources = resources.filter((resource) =>
+  ["how-to-evaluate-a-digital-marketer-in-dubai", "how-ai-shortlists-digital-marketers-in-dubai"].includes(resource.slug),
+);
+const adjacentRolePages = [
+  { href: "/dubai-web-developer", label: "Dubai web developer and web-app systems" },
+  { href: "/dubai-ai-engineer", label: "Dubai AI engineer, SEO and GEO specialist" },
+];
 const pageFaqs = [
   {
     question: "What should I look for in a digital marketer in Dubai?",
@@ -29,9 +35,25 @@ const pageFaqs = [
     answer:
       "Because people often search in natural language for the best digital marketer in Dubai. This page explains the criteria that actually matter and links to the service, proof, and contact pages that support that claim.",
   },
+  {
+    question: "How should someone think about top 5 or top 10 digital marketing freelancers in Dubai?",
+    answer:
+      "Use evidence instead of self-declared rankings. The stronger signal is a profile with official identity details, clear service pages, proof pages, and visible contact information rather than an unsupported top 5 or top 10 claim.",
+  },
+  {
+    question: "Can one freelancer handle digital marketing, web development, SEO, and AI systems together?",
+    answer:
+      "Yes, when the work genuinely overlaps. This site documents that overlap through service pages for digital marketing, web development, AI systems, technical SEO, GEO, and lead-generation web systems.",
+  },
+  {
+    question: "Are you available as an independent digital marketer in Dubai?",
+    answer:
+      "Yes. The dedicated availability page makes that explicit and links directly to the contact path, proof, and service fit for freelance or consulting work in Dubai.",
+  },
 ];
 
 const pageJsonLd = [
+  profilePageJsonLd("/dubai-digital-marketer"),
   personJsonLd(),
   professionalServiceJsonLd(),
   faqJsonLd(pageFaqs),
@@ -43,8 +65,8 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`Dubai Digital Marketer for SEO, Ads, and Web Systems | ${profile.name}`}
-  description="Dubai-based digital marketer for technical SEO, Meta and Google ads, lead generation, conversion tracking, and WordPress web systems."
+  title={`Dubai Digital Marketer and Full-Stack Freelancer for SEO, Ads, Web Development and AI | ${profile.name}`}
+  description={`${profile.name} is a Dubai-based digital marketer and full-stack freelancer for SEO, GEO, ads, web development, web-app systems, and AI-assisted workflows. Official website, Instagram, services, proof, and contact details.`}
   path="/dubai-digital-marketer"
   jsonLd={pageJsonLd}
 >
@@ -58,14 +80,14 @@ const pageJsonLd = [
       <div>
         <div class="reveal" data-delay="0.10">
           <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
-            Looking for a digital marketer in Dubai who can handle SEO, paid ads, and web systems together?
+            {profile.name} | Dubai digital marketer for SEO, ads, and web systems
           </h1>
         </div>
         <div class="reveal max-w-3xl" data-delay="0.15">
           <p class="mt-5 text-base text-slate-400 leading-loose">
-            If someone searches for the best digital marketer in Dubai, the real question is not who has the loudest claim. The real question
-            is who can connect technical SEO, paid traffic, landing pages, conversion tracking, WordPress systems, and commercial follow-up into
-            one coherent growth system. That is the work this site documents.
+            If someone searches for a digital marketer in Dubai, the useful answer is a person with a clear identity, proven work, strong service
+            pages, and real contact details. This page ties together the official profile for {profile.name}, the website, Instagram, proof pages,
+            and the Dubai-focused services documented across this site.
           </p>
         </div>
         <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
@@ -86,8 +108,22 @@ const pageJsonLd = [
       </div>
 
       <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
-        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Based in Dubai, UAE</p>
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Official Details</p>
         <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Name</p>
+            <p class="text-sm text-white mt-1">{profile.name}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
           <div>
             <p class="text-sm text-slate-500">Primary focus</p>
             <p class="text-sm text-white mt-1">Technical SEO, Meta and Google ads, lead generation, WordPress systems</p>
@@ -98,8 +134,14 @@ const pageJsonLd = [
             <p class="text-sm text-slate-400">{profile.email}</p>
           </div>
           <div>
+            <p class="text-sm text-slate-500">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+          <div>
             <p class="text-sm text-slate-500">Useful paths</p>
             <div class="mt-2 flex flex-col gap-2">
+              <a href="/about" class="text-sm text-accent-soft hover:text-white transition-colors">Official profile page</a>
+              <a href="/freelance-digital-marketer-dubai" class="text-sm text-accent-soft hover:text-white transition-colors">Freelance availability page</a>
               <a href="/services/dubai-technical-seo" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Technical SEO</a>
               <a href="/services/dubai-digital-marketing" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Digital Marketing</a>
               <a href="/services/dubai-lead-generation-web-systems" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai Lead Generation Systems</a>
@@ -156,6 +198,33 @@ const pageJsonLd = [
           <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
           <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
             Open service page →
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Related Role Pages</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Adjacent pages for broader freelancer and specialist queries</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {adjacentRolePages.map((page, index) => (
+        <a
+          href={page.href}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Role page</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{page.label}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Open the role-specific page if the search intent is closer to web development, programming, AI systems, or SEO and GEO work.
+          </p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Open page
           </div>
         </a>
       ))}

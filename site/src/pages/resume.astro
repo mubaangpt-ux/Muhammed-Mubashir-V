@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { experience } from "../data/experience";
 import { skillGroups } from "../data/skills";
 import { education } from "../data/education";
-import { absoluteUrl, breadcrumbJsonLd } from "../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, personJsonLd } from "../lib/seo";
 
 const resumeJsonLd = [
   {
@@ -14,6 +14,7 @@ const resumeJsonLd = [
     url: absoluteUrl("/resume"),
     description: `${profile.name} resume, experience, skills, and education.`,
   },
+  personJsonLd(),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Resume", path: "/resume" },
@@ -23,7 +24,7 @@ const resumeJsonLd = [
 
 <BaseLayout
   title={`Resume and Experience | ${profile.name}`}
-  description={`${profile.name} resume, experience, skills, and education in digital marketing, technical SEO, and web systems.`}
+  description={`${profile.name} resume, experience, skills, and education in digital marketing, web development, technical SEO, GEO, AI systems, and web-app operations.`}
   path="/resume"
   jsonLd={resumeJsonLd}
 >
@@ -162,6 +163,24 @@ const resumeJsonLd = [
 
 <section class="py-14 px-4 section-border">
   <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Role Fit</p>
+      <p class="max-w-3xl text-sm text-slate-400 leading-loose">
+        If you reached this page through searches around digital marketer, web developer, web-app developer, programmer, or AI systems specialist in Dubai,
+        use the role pages below for the most direct service, proof, and identity context.
+      </p>
+    </div>
+    <div class="reveal flex flex-wrap gap-3 mb-8" data-delay="0.08">
+      <a href="/dubai-digital-marketer" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        Dubai Digital Marketer
+      </a>
+      <a href="/dubai-web-developer" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        Dubai Web Developer
+      </a>
+      <a href="/dubai-ai-engineer" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+        Dubai AI Engineer
+      </a>
+    </div>
     <div class="reveal flex flex-wrap gap-4" data-delay="0.05">
       <a
         href="/services"

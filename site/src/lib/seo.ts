@@ -27,16 +27,28 @@ export const personJsonLd = () => ({
   "@context": "https://schema.org",
   "@type": "Person",
   name: profile.name,
-  jobTitle: "Digital Marketing, SEO and Web Systems Specialist",
+  alternateName: profile.links.instagramHandle,
+  jobTitle: "Independent Digital Marketer, Web Developer, SEO/GEO and AI Systems Specialist",
   description: profile.summary,
   url: SITE_URL,
   image: absoluteUrl("/profile.png"),
   email: profile.email,
+  telephone: profile.whatsappDisplay,
+  knowsLanguage: ["en", "ar", "hi", "ml"],
   knowsAbout: [
     "Digital Marketing",
+    "Freelance Digital Marketing",
     "Technical SEO",
+    "Generative Engine Optimization",
+    "GEO",
     "Lead Generation",
     "Conversion Tracking",
+    "Web Development",
+    "Web App Development",
+    "Programming",
+    "AI Systems",
+    "AI Automation",
+    "AI Engineering",
     "WordPress Systems",
     "Performance Marketing",
     "Dubai market campaigns",
@@ -47,6 +59,13 @@ export const personJsonLd = () => ({
     addressCountry: "AE",
   },
   sameAs: profile.instagram.map((item) => item.href),
+});
+
+export const profilePageJsonLd = (path: string) => ({
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  url: absoluteUrl(path),
+  mainEntity: personJsonLd(),
 });
 
 export const professionalServiceJsonLd = () => ({
@@ -62,18 +81,33 @@ export const professionalServiceJsonLd = () => ({
   ],
   serviceType: [
     "Digital Marketing",
+    "Freelance Digital Marketing Consulting",
     "Technical SEO",
+    "Generative Engine Optimization",
     "Performance Marketing",
     "Lead Generation",
+    "Web Development",
+    "Web App Development",
+    "Programming",
+    "AI Systems",
+    "AI Automation",
     "Web Systems",
     "Conversion Tracking",
   ],
   knowsAbout: [
     "Dubai digital marketing",
+    "Dubai freelance digital marketer",
+    "Dubai digital marketing consultant",
     "Dubai technical SEO",
+    "Dubai GEO",
     "Dubai lead generation",
+    "Dubai web developer",
+    "Dubai web app developer",
+    "Dubai programmer",
+    "Dubai AI engineer",
     "Meta Ads",
     "Google Ads",
+    "AI search discoverability",
     "WordPress web systems",
     "Conversion tracking",
   ],
@@ -160,6 +194,17 @@ export const serviceJsonLd = (service: Service) => ({
   description: service.summary,
   url: absoluteUrl(`/services/${service.slug}`),
   mainEntityOfPage: absoluteUrl(`/services/${service.slug}`),
+  keywords: [
+    service.title,
+    service.shortTitle,
+    "Dubai",
+    profile.name,
+    "digital marketing",
+    "technical SEO",
+    "GEO",
+    "web development",
+    "AI systems",
+  ].join(", "),
   provider: {
     "@type": "Person",
     name: profile.name,
@@ -184,7 +229,15 @@ export const faqJsonLd = (faqs: ServiceFaq[]) => ({
   })),
 });
 
-export const articleJsonLd = (resource: Resource) => ({
+export const articleJsonLd = (resource: Resource) => {
+  const relatedServiceNames = services
+    .filter((service) => resource.relatedServiceSlugs.includes(service.slug))
+    .map((service) => service.title);
+  const relatedProjectNames = projects
+    .filter((project) => resource.relatedProjectSlugs.includes(project.slug))
+    .map((project) => project.title);
+
+  return {
   "@context": "https://schema.org",
   "@type": "Article",
   headline: resource.title,
@@ -203,13 +256,23 @@ export const articleJsonLd = (resource: Resource) => ({
   dateModified: resource.publishDate,
   mainEntityOfPage: absoluteUrl(`/resources/${resource.slug}`),
   url: absoluteUrl(`/resources/${resource.slug}`),
-  about: resource.audience,
+  about: [resource.audience, ...relatedServiceNames],
+  keywords: [resource.title, ...relatedServiceNames, ...relatedProjectNames, profile.name, "Dubai"].join(", "),
+  mentions: [
+    ...relatedServiceNames.map((name) => ({ "@type": "Service", name })),
+    ...relatedProjectNames.map((name) => ({ "@type": "CreativeWork", name })),
+  ],
   inLanguage: "en-AE",
-});
+  };
+};
 
 export const staticSitemapEntries = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
   { path: "/dubai-digital-marketer", priority: "0.9", changefreq: "monthly" },
+  { path: "/freelance-digital-marketer-dubai", priority: "0.9", changefreq: "monthly" },
+  { path: "/dubai-web-developer", priority: "0.9", changefreq: "monthly" },
+  { path: "/dubai-ai-engineer", priority: "0.9", changefreq: "monthly" },
+  { path: "/press-kit", priority: "0.8", changefreq: "monthly" },
   { path: "/work", priority: "0.9", changefreq: "weekly" },
   { path: "/services", priority: "0.9", changefreq: "weekly" },
   { path: "/about", priority: "0.8", changefreq: "monthly" },

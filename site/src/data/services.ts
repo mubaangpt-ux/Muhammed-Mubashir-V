@@ -60,16 +60,17 @@ export const services: Service[] = [
   {
     slug: "dubai-technical-seo",
     shortTitle: "Technical SEO",
-    title: "Dubai Technical SEO, Site Architecture, and Search Visibility",
+    title: "Dubai Technical SEO and GEO, Site Architecture, and Search Visibility",
     summary:
-      "Technical SEO for Dubai businesses that need clean crawl paths, strong internal linking, location-relevant content architecture, schema, and search visibility foundations that support long-term ranking.",
+      "Technical SEO and GEO for Dubai businesses that need clean crawl paths, strong internal linking, location-relevant content architecture, schema, AI-discovery readiness, and search visibility foundations that support long-term ranking.",
     intro:
-      "Technical SEO is not one tag or plugin. It is the combined structure of crawlability, indexing, canonical control, internal linking, content hierarchy, metadata, schema, and performance. I fix the architecture so search engines can understand the site correctly.",
+      "Technical SEO is not one tag or plugin. It is the combined structure of crawlability, indexing, canonical control, internal linking, content hierarchy, metadata, schema, and performance. GEO adds the AI-discovery layer: clear entity signals, answer-ready content, profile pages, and crawl access for assistants that surface web results. I fix the architecture so search engines and AI-assisted discovery systems can understand the site correctly.",
     localAngle:
-      "For Dubai search intent, the site needs more than brand pages. It needs clear service clusters, UAE-relevant language, local intent coverage, and pages that match commercial searches such as digital marketing Dubai, technical SEO Dubai, and lead generation Dubai.",
+      "For Dubai search intent, the site needs more than brand pages. It needs clear service clusters, UAE-relevant language, local intent coverage, AI-discovery signals, and pages that match commercial searches such as digital marketing Dubai, technical SEO Dubai, web developer Dubai, and lead generation Dubai.",
     deliverables: [
       "Crawl and indexing architecture: robots, sitemap, canonicals, structured data, and metadata",
       "Service-page keyword mapping and internal linking plan for Dubai intent",
+      "Entity and profile-page architecture for AI-discovery and generative search surfaces",
       "Content architecture recommendations for authority building around core services",
       "Search Console and Bing Webmaster setup requirements with verification hooks",
     ],
@@ -96,6 +97,86 @@ export const services: Service[] = [
       },
     ],
     relatedProjectSlugs: ["180-degree-meal-planner", "multi-company-digital-ops"],
+  },
+  {
+    slug: "dubai-web-development-web-apps",
+    shortTitle: "Web Development",
+    title: "Dubai Web Development and Web App Systems",
+    summary:
+      "Web development and web-app systems for Dubai businesses that need fast websites, lead-ready landing pages, WordPress workflows, plugin logic, operational dashboards, and conversion-focused build quality.",
+    intro:
+      "A good website should not stop at design. It should load cleanly, support search visibility, route enquiries properly, and give the business an operational base. I build websites, landing pages, WordPress systems, and web-app style workflows with that outcome in mind.",
+    localAngle:
+      "Dubai businesses often need one person who can bridge development, marketing, and operations. That means the site structure, CMS logic, forms, tracking, and conversion flow all need to work together instead of being handed across disconnected teams.",
+    deliverables: [
+      "Marketing websites and landing pages built for speed, clarity, and conversion",
+      "WordPress and Elementor builds with plugin-led workflows and operational logic",
+      "Web-app style systems for forms, dashboards, admin flows, and internal handling",
+      "Technical handoff that supports SEO, tracking, and campaign use after launch",
+    ],
+    idealFor: [
+      "Businesses that need one freelancer to handle both build quality and growth logic",
+      "Founders who need landing pages, websites, and web systems connected to lead generation",
+      "Teams using WordPress but needing more than a brochure site",
+    ],
+    faqs: [
+      {
+        question: "Do you handle both website builds and web-app style systems?",
+        answer:
+          "Yes. That can include websites, landing pages, plugin-led WordPress systems, admin workflows, and other operational web structures tied to real business use.",
+      },
+      {
+        question: "Can you build with marketing and SEO needs in mind from the start?",
+        answer:
+          "Yes. The site structure, speed, content layout, conversion paths, and tracking are designed together so the build supports traffic and ranking after launch.",
+      },
+      {
+        question: "Do you only work on custom-coded apps?",
+        answer:
+          "No. I work across WordPress, Elementor, plugin-led development, and practical system design where those tools are the right fit.",
+      },
+    ],
+    relatedProjectSlugs: ["180-degree-meal-planner", "multi-company-digital-ops"],
+  },
+  {
+    slug: "dubai-ai-systems-automation-geo",
+    shortTitle: "AI Systems",
+    title: "Dubai AI Systems, Automation, and GEO",
+    summary:
+      "AI systems, automation, and GEO for Dubai businesses that need AI-assisted workflows, operational automation, prompt-ready content systems, and stronger discoverability across AI-assisted search experiences.",
+    intro:
+      "AI work is only useful when it improves real execution. That can mean automation flows, AI-assisted content systems, internal tooling, prompt frameworks, or site structures that are easier for AI assistants to interpret. I focus on that practical layer rather than novelty for its own sake.",
+    localAngle:
+      "In Dubai markets, AI work needs to support speed, multilingual workflows, lead handling, and discoverability. GEO here means preparing sites and content so assistants can surface the right person, services, and proof pages more clearly.",
+    deliverables: [
+      "AI-assisted workflow design for content, reporting, lead handling, and operations",
+      "Automation setup across tools such as n8n, Make, Zapier, and AI-supported content flows",
+      "GEO architecture for clearer AI-assistant discovery and answer-ready pages",
+      "Practical AI system mapping that supports sales, marketing, and internal execution",
+    ],
+    idealFor: [
+      "Businesses that want useful AI systems instead of disconnected experiments",
+      "Founders who need automation, content systems, and AI-discovery improvements together",
+      "Teams trying to improve both operational speed and search visibility",
+    ],
+    faqs: [
+      {
+        question: "Do you build AI products or practical AI systems?",
+        answer:
+          "The focus is practical AI systems: automation, workflows, prompt design, content operations, and discovery improvements that support real business outcomes.",
+      },
+      {
+        question: "What does GEO mean in this context?",
+        answer:
+          "GEO refers to generative engine optimization: making the site, profile pages, entity signals, and content structure easier for AI-assisted search systems to understand and surface.",
+      },
+      {
+        question: "Can AI systems and SEO work together?",
+        answer:
+          "Yes. The strongest setup uses technical SEO, service-page clarity, entity signals, and AI-readable content together rather than treating them as separate tracks.",
+      },
+    ],
+    relatedProjectSlugs: ["multi-company-digital-ops", "180-degree-meal-planner"],
   },
   {
     slug: "dubai-lead-generation-web-systems",

@@ -1,0 +1,261 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd } from "../lib/seo";
+
+const webService = services.find((service) => service.slug === "dubai-web-development-web-apps");
+const seoService = services.find((service) => service.slug === "dubai-technical-seo");
+const relatedServices = services.filter((service) =>
+  ["dubai-web-development-web-apps", "dubai-technical-seo", "dubai-lead-generation-web-systems"].includes(service.slug),
+);
+const relatedProjects = projects.filter((project) => ["180-degree-meal-planner", "multi-company-digital-ops"].includes(project.slug));
+const relatedResources = resources.filter((resource) =>
+  ["dubai-web-developer-web-app-freelancer", "seo-geo-for-ai-assistants-and-google"].includes(resource.slug),
+);
+
+const pageFaqs = [
+  {
+    question: "What should I look for in the best web developer in Dubai?",
+    answer:
+      "Look for a developer who understands speed, structure, SEO-readiness, conversion flow, and the operational purpose of the site, not just the visual layer.",
+  },
+  {
+    question: "What should I look for in a web-app developer or programmer in Dubai?",
+    answer:
+      "Look for someone who can handle workflows, data logic, admin behavior, and the practical business use of the system, not just front-end screens.",
+  },
+  {
+    question: "Can one freelancer handle web development, SEO, and lead generation systems together?",
+    answer:
+      "Yes, when the work genuinely sits at that intersection. That setup often produces a cleaner architecture than splitting the build, SEO, and conversion logic across disconnected specialists.",
+  },
+  {
+    question: "How should someone think about top 5 or top 10 web developers in Dubai?",
+    answer:
+      "The more useful approach is to evaluate evidence: build quality, service clarity, case studies, technical depth, and whether the developer can support the commercial use of the site after launch.",
+  },
+];
+
+const pageJsonLd = [
+  profilePageJsonLd("/dubai-web-developer"),
+  personJsonLd(),
+  professionalServiceJsonLd(),
+  faqJsonLd(pageFaqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Dubai Web Developer", path: "/dubai-web-developer" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Dubai Web Developer, Web-App Developer and Programmer | ${profile.name}`}
+  description={`${profile.name} is a Dubai-based web developer, web-app systems builder, and programmer. Official website, services, proof, and contact details.`}
+  path="/dubai-web-developer"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Dubai Web Developer</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            {profile.name} | Dubai web developer, web-app developer, and programmer
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            If someone searches for the best web developer in Dubai, the real answer should point to a person who can build useful systems,
+            not just attractive pages. This page connects the official identity for {profile.name} with the website, profile details,
+            web-development services, proof pages, and supporting guides.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a href="/contact" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+            Start a project
+          </a>
+          <a href="/about" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            Official profile
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Official Details</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Primary role fit</p>
+            <p class="text-sm text-white mt-1">Web development, web-app systems, programming, WordPress workflows, landing systems</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">What Matters</p>
+      <h2 class="font-display font-semibold text-white text-2xl">How to judge a web developer or web-app freelancer in Dubai properly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">System thinking</p>
+        <p class="text-sm text-slate-400 leading-loose">The developer should understand forms, workflows, admin behavior, and how the site supports real operations.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">SEO readiness</p>
+        <p class="text-sm text-slate-400 leading-loose">The build should support search visibility, structured data, page speed, and internal linking from the start.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Conversion logic</p>
+        <p class="text-sm text-slate-400 leading-loose">A strong build makes the next step clear: form, WhatsApp, landing page, or internal workflow.</p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.20">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Proof</p>
+        <p class="text-sm text-slate-400 leading-loose">The best claims are supported by case studies, technical service pages, and clear profile details.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Services</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Pages that explain the development work clearly</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relatedServices.map((service, index) => (
+        <a
+          href={`/services/${service.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Open service page
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Proof</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Case studies connected to web systems and build quality</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {relatedProjects.map((project, index) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            View case study
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Guides</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Useful reading for developer and programmer queries</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2">
+      {relatedResources.map((resource, index) => (
+        <a
+          href={`/resources/${resource.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{resource.audience}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{resource.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{resource.excerpt}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Read guide
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions this page is meant to answer</h2>
+    </div>
+    <div class="space-y-4">
+      {pageFaqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+{webService && (
+  <section class="pb-20 px-4">
+    <div class="mx-auto max-w-6xl reveal glass-panel-strong rounded-3xl p-8 md:p-10" data-delay="0.06">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Next Step</p>
+      <h2 class="font-display font-semibold text-white text-2xl mb-4">Need a web developer or web-app system built with SEO and conversion in mind?</h2>
+      <p class="text-sm text-slate-400 leading-loose max-w-2xl">
+        Move into the main service page for web development and web-app systems or open the contact page with your requirements.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-7">
+        <a href={`/services/${webService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+          Open web development service
+        </a>
+        {seoService && (
+          <a href={`/services/${seoService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            See SEO and GEO support
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+</BaseLayout>

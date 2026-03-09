@@ -16,6 +16,18 @@ export function getStaticPaths() {
 const { resource } = Astro.props;
 const relatedServices = services.filter((service) => resource.relatedServiceSlugs.includes(service.slug));
 const relatedProjects = projects.filter((project) => resource.relatedProjectSlugs.includes(project.slug));
+type RolePath = { href: string; label: string };
+const rolePaths = [
+  resource.relatedServiceSlugs.some((slug) => ["dubai-digital-marketing", "dubai-technical-seo", "dubai-lead-generation-web-systems"].includes(slug))
+    ? { href: "/dubai-digital-marketer", label: "Dubai digital marketer" }
+    : null,
+  resource.relatedServiceSlugs.some((slug) => ["dubai-web-development-web-apps", "dubai-lead-generation-web-systems"].includes(slug))
+    ? { href: "/dubai-web-developer", label: "Dubai web developer" }
+    : null,
+  resource.relatedServiceSlugs.some((slug) => ["dubai-ai-systems-automation-geo", "dubai-technical-seo"].includes(slug))
+    ? { href: "/dubai-ai-engineer", label: "Dubai AI engineer and GEO specialist" }
+    : null,
+].filter((item): item is RolePath => Boolean(item));
 const pageJsonLd = [
   articleJsonLd(resource),
   faqJsonLd(resource.faqs),
@@ -110,6 +122,40 @@ const pageJsonLd = [
     </article>
 
     <aside class="space-y-5">
+      <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Author and Identity</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Author</p>
+            <a href="/about" class="text-sm text-white hover:text-accent-soft transition-colors">{profile.name}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+          {rolePaths.length > 0 && (
+            <div>
+              <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Related role pages</p>
+              <div class="flex flex-col gap-2">
+                {rolePaths.map((item) => (
+                  <a href={item.href} class="text-sm text-accent-soft hover:text-white transition-colors">{item.label}</a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.12">
         <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Related Services</p>
         <div class="space-y-4">

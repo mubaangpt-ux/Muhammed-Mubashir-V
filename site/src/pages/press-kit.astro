@@ -1,0 +1,179 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from "../lib/seo";
+
+const shortBio =
+  "Muhammed Mubashir V is a Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems operator focused on lead generation, search visibility, conversion tracking, and web systems for UAE businesses.";
+
+const mediumBio =
+  "Muhammed Mubashir V works across digital marketing, technical SEO, GEO, web development, web-app systems, and AI-assisted operations. Based in Dubai, he builds service architecture, campaign systems, landing flows, content structures, and operational web systems designed for qualified enquiries and measurable commercial outcomes.";
+
+const longBio =
+  "Muhammed Mubashir V is a Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems operator. His work connects technical SEO, paid acquisition, lead-generation funnels, WordPress and web-app systems, conversion tracking, and answer-ready content architecture so businesses can rank more clearly, convert more efficiently, and operate with stronger signal. The portfolio at mubaan.online documents the official profile, service pages, proof pages, and supporting resources used to explain that work across Dubai and the UAE.";
+
+const officialLinks = [
+  { label: "Website", href: profile.siteUrl },
+  { label: "About", href: "/about" },
+  { label: "Dubai Digital Marketer", href: "/dubai-digital-marketer" },
+  { label: "Freelance Digital Marketer Dubai", href: "/freelance-digital-marketer-dubai" },
+  { label: "Dubai Web Developer", href: "/dubai-web-developer" },
+  { label: "Dubai AI Engineer", href: "/dubai-ai-engineer" },
+  { label: "Services", href: "/services" },
+  { label: "Work", href: "/work" },
+  { label: "Contact", href: "/contact" },
+];
+
+const mentionGuidelines = [
+  "Use the full name: Muhammed Mubashir V",
+  "Use the primary website: https://mubaan.online",
+  "Use the official Instagram handle: @mubaa.n",
+  "Use Dubai, UAE as the location reference",
+  "If availability matters, use the freelance availability page as the reference URL",
+  "Describe the work truthfully: digital marketing, web development, SEO/GEO, AI systems, and lead-generation web systems",
+  "Avoid unsupported ranking language such as number 1 or top 10 unless an independent source actually published it",
+];
+
+const assetLinks = [
+  { label: "Profile image", href: "/profile.png" },
+  { label: "Resume PDF", href: "/resume.pdf" },
+  { label: "Contact page", href: "/contact" },
+];
+
+const pageJsonLd = [
+  profilePageJsonLd("/press-kit"),
+  personJsonLd(),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Press Kit", path: "/press-kit" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Press Kit and Official Brand Profile | ${profile.name}`}
+  description={`Official press kit, biography, links, and contact details for ${profile.name}, a Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems operator.`}
+  path="/press-kit"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Press Kit</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.1fr,0.9fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            Official brand, bio, and citation page
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            This page is the canonical reference for profile listings, citations, partner mentions, interviews, and media references tied to {profile.name}.
+            Use it when another site needs the official name, website, Instagram, contact details, or approved description.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a href="/contact" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);">
+            Contact
+          </a>
+          <a href="/work" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+            View proof
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <div class="flex items-center gap-4">
+          <img src="/profile.png" alt={profile.name} width="88" height="88" class="rounded-2xl object-cover border border-white/10" loading="lazy" />
+          <div>
+            <p class="text-sm text-white font-semibold">{profile.name}</p>
+            <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mt-2">{profile.location}</p>
+          </div>
+        </div>
+        <div class="mt-6 space-y-4">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">{profile.links.instagramHandle}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">Email</p>
+            <a href={profile.links.email} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.email}</a>
+          </div>
+          <div>
+            <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-1">WhatsApp</p>
+            <a href={profile.links.whatsapp} target="_blank" rel="noreferrer" class="text-sm text-white hover:text-accent-soft transition-colors">{profile.whatsappDisplay}</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14 grid gap-5 lg:grid-cols-3">
+    <div class="reveal glass-panel rounded-3xl p-7 lg:col-span-2" data-delay="0.08">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Approved Bios</p>
+      <div class="space-y-6">
+        <div>
+          <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Short bio</p>
+          <p class="text-sm text-slate-300 leading-loose">{shortBio}</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Medium bio</p>
+          <p class="text-sm text-slate-300 leading-loose">{mediumBio}</p>
+        </div>
+        <div>
+          <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Long bio</p>
+          <p class="text-sm text-slate-300 leading-loose">{longBio}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.12">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Official Links</p>
+      <div class="space-y-3">
+        {officialLinks.map((link) => (
+          <a href={link.href} class="block text-sm text-accent-soft hover:text-white transition-colors">
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14 grid gap-5 lg:grid-cols-2">
+    <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.08">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Mention Guidelines</p>
+      <ul class="space-y-3">
+        {mentionGuidelines.map((item) => (
+          <li class="flex items-start gap-3 text-sm text-slate-300 leading-loose">
+            <span class="text-accent-soft/60 font-mono mt-0.5 shrink-0">+</span>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="reveal glass-panel rounded-3xl p-7" data-delay="0.12">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-4">Assets</p>
+      <div class="space-y-4">
+        {assetLinks.map((item) => (
+          <a href={item.href} class="block rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-sm text-white transition-colors hover:border-blue-500/30 hover:bg-blue-500/[0.05]">
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+</BaseLayout>
