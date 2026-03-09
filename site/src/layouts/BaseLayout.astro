@@ -23,6 +23,12 @@ interface Props {
   description?: string;
   path?: string;
   image?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImageType?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  twitterCard?: "summary" | "summary_large_image";
   noindex?: boolean;
   jsonLd?: JsonLd | JsonLd[];
 }
@@ -31,14 +37,26 @@ const {
   title = `${profile.name} | ${profile.roleTitle}`,
   description = profile.summary,
   path = Astro.url.pathname,
-  image = "/profile.png",
+  image = "/og/site.png",
+  ogTitle = title,
+  ogDescription = description,
+  ogImageType,
+  ogImageWidth,
+  ogImageHeight,
+  twitterCard = "summary_large_image",
   noindex = false,
   jsonLd,
 } = Astro.props;
 
 const siteOrigin = (Astro.site?.toString() || profile.siteUrl).replace(/\/+$/, "");
 const canonical = new URL(path, `${siteOrigin}/`).toString();
-const ogImage = image.startsWith("http") ? image : new URL(image, `${siteOrigin}/`).toString();
+const imagePath = image;
+const ogImage = imagePath.startsWith("http") ? imagePath : new URL(imagePath, `${siteOrigin}/`).toString();
+const ogImageAlt = ogTitle || title;
+const isGeneratedOgImage = imagePath.startsWith("/og/") || ogImage.includes("/og/");
+const resolvedOgImageType = ogImageType ?? (isGeneratedOgImage ? "image/png" : undefined);
+const resolvedOgImageWidth = ogImageWidth ?? (isGeneratedOgImage ? 1200 : undefined);
+const resolvedOgImageHeight = ogImageHeight ?? (isGeneratedOgImage ? 630 : undefined);
 const robotsContent = noindex
   ? "noindex,nofollow"
   : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
@@ -97,17 +115,21 @@ const navItems = [
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={profile.name} />
     <meta property="og:locale" content="en_AE" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:alt" content={title} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    {resolvedOgImageType && <meta property="og:image:type" content={resolvedOgImageType} />}
+    {resolvedOgImageWidth && <meta property="og:image:width" content={String(resolvedOgImageWidth)} />}
+    {resolvedOgImageHeight && <meta property="og:image:height" content={String(resolvedOgImageHeight)} />}
+    <meta property="og:image:alt" content={ogImageAlt} />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={title} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
     <meta name="twitter:creator" content={profile.links.instagramHandle} />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
