@@ -11,7 +11,7 @@ export default function StorySharePanel({
   siteUrl,
   storyImagePath = "/og/story.png",
 }: Props) {
-  const [status, setStatus] = useState<string>("9:16 story card ready for mobile share.");
+  const [status, setStatus] = useState<string>("Story-safe 9:16 card ready.");
   const [isBusy, setIsBusy] = useState(false);
 
   async function loadStoryFile() {
@@ -51,10 +51,10 @@ export default function StorySharePanel({
       if (shareTarget.share && shareTarget.canShare?.({ files: [storyFile] })) {
         await shareTarget.share({
           title: "Muhammed Mubashir V",
-          text: "Premium 9:16 story card from mubaan.online",
+          text: "Story-ready portfolio card from mubaan.online",
           files: [storyFile],
         });
-        setStatus("Share sheet opened. Choose Instagram, WhatsApp, Telegram, or another app from your device.");
+        setStatus("Share sheet opened. Choose the app you want from your device.");
         return;
       }
 
@@ -64,18 +64,18 @@ export default function StorySharePanel({
           text: "Digital operations, growth, and web systems.",
           url: siteUrl,
         });
-        setStatus("Share sheet opened with the site link. Download the story card if you need the full 9:16 image.");
+        setStatus("Share sheet opened with the site link.");
         return;
       }
 
       await downloadStory();
-      setStatus("Direct sharing is not supported on this device. The 9:16 story card was downloaded instead.");
+      setStatus("Direct sharing is not supported on this device. The story card was downloaded instead.");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") {
         setStatus("Share cancelled.");
       } else {
         await downloadStory();
-        setStatus("The story card was downloaded. You can add it to Instagram Stories, WhatsApp Status, or Telegram manually.");
+        setStatus("The story card was downloaded for manual posting.");
       }
     } finally {
       setIsBusy(false);
@@ -86,7 +86,7 @@ export default function StorySharePanel({
     setIsBusy(true);
     try {
       await downloadStory();
-      setStatus("9:16 story card downloaded.");
+      setStatus("Story card downloaded.");
     } catch {
       setStatus("Download failed. Try opening the story image directly.");
     } finally {
@@ -104,7 +104,7 @@ export default function StorySharePanel({
   }
 
   return (
-    <section className="px-4 py-20 section-border">
+    <section className="px-4 py-16 section-border">
       <div className="mx-auto max-w-6xl">
         <div
           className="overflow-hidden rounded-[2rem] border border-white/10"
@@ -130,7 +130,7 @@ export default function StorySharePanel({
                   className="inline-block h-2 w-2 rounded-full"
                   style={{ background: "#93c5fd", boxShadow: "0 0 10px rgba(147,197,253,0.75)" }}
                 />
-                Stories / Status
+                Story Kit
               </div>
 
               <h2
@@ -142,12 +142,11 @@ export default function StorySharePanel({
                   letterSpacing: "-0.04em",
                 }}
               >
-                Premium 9:16 story card built from the home hero and featured work.
+                Vertical brand frame for quick portfolio drops, stories, and status updates.
               </h2>
 
               <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400 md:text-base">
-                The preview is generated automatically from the site theme. Use the mobile share sheet to send the 9:16 card
-                to Instagram, WhatsApp Status, Telegram Stories, or download it for manual posting.
+                A compact share asset built from the same hero, work, and brand language used across the portfolio.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -161,7 +160,7 @@ export default function StorySharePanel({
                     boxShadow: "0 10px 28px rgba(37,99,235,0.30)",
                   }}
                 >
-                  {isBusy ? "Preparing..." : "Share Story"}
+                  {isBusy ? "Preparing..." : "Share Card"}
                 </button>
                 <button
                   type="button"
@@ -176,15 +175,15 @@ export default function StorySharePanel({
                   onClick={handleCopyLink}
                   className="rounded-full border border-white/10 bg-transparent px-5 py-3 text-sm font-medium text-slate-400 transition-colors duration-300 hover:text-white"
                 >
-                  Copy Link
+                  Copy Site Link
                 </button>
               </div>
 
               <div className="mt-5 grid gap-3 text-xs md:grid-cols-3">
                 {[
-                  "Hero portrait, orbit rings, and starfield",
-                  "Featured work and related case cards",
-                  "Native mobile share flow with fallbacks",
+                  "Hero frame with orbit portrait",
+                  "Selected work and brand signals",
+                  "Share, download, or copy link",
                 ].map((item) => (
                   <div
                     key={item}
@@ -212,16 +211,16 @@ export default function StorySharePanel({
               >
                 <div className="mb-3 flex items-center justify-between px-2">
                   <span className="text-[0.7rem] uppercase tracking-[0.22em] text-slate-500" style={{ fontFamily: '"DM Mono", monospace' }}>
-                    Story Preview
+                    Portfolio Story
                   </span>
                   <span className="text-[0.7rem] text-slate-600" style={{ fontFamily: '"DM Mono", monospace' }}>
-                    1080 × 1920
+                    1080 x 1920
                   </span>
                 </div>
                 <div className="overflow-hidden rounded-[2rem] border border-white/8 bg-[#05070d] aspect-[9/16]">
                   <img
                     src={storyImagePath}
-                    alt="Premium 9:16 story card preview"
+                    alt="Story-ready 9:16 brand card preview"
                     loading="lazy"
                     className="h-full w-full object-cover"
                   />

@@ -1,5 +1,6 @@
 ﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import StorySharePanel from "../components/ui/StorySharePanel";
 import { profile } from "../data/profile";
 import { experience } from "../data/experience";
 import { skillGroups, toolsStack } from "../data/skills";
@@ -261,5 +262,7 @@ const aboutJsonLd = [
     </div>
   </div>
 </section>
+
+<StorySharePanel client:load siteUrl={profile.siteUrl} />
 
 </BaseLayout>

@@ -1,7 +1,6 @@
 ﻿---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import AnimatedCounter from "../components/motion/AnimatedCounter";
-import StorySharePanel from "../components/ui/StorySharePanel";
 
 import { profile } from "../data/profile";
 import { projects } from "../data/projects";
@@ -298,9 +297,6 @@ const homeJsonLd = [
 
 
 </section>
-
-<StorySharePanel client:load siteUrl={profile.siteUrl} />
-
 
 <!-- ----------------------------------------------
      TICKER STRIP ï¿½ 3 ROW LOOP

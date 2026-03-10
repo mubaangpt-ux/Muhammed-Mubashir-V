@@ -2,8 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
+import { creativeWorkAssets, companies } from "../../components/CreativeWorks/data";
 import { profile } from "../../data/profile";
-import { projects } from "../../data/projects";
 
 type RootTokens = {
   bgPrimary: string;
@@ -18,6 +18,7 @@ type RootTokens = {
 
 type StoryAssets = RootTokens & {
   portraitDataUri: string;
+  greenInfinityCoverDataUri: string;
   orbitronTtfPath: string;
   interRegularTtfPath: string;
   interMediumTtfPath: string;
@@ -36,14 +37,16 @@ type TextLayerOptions = {
 };
 
 const STAGE = { width: 1080, height: 1920 };
+const SAFE = { left: 72, right: 72, top: 136, bottom: 152 };
+const HERO = { x: SAFE.left, y: SAFE.top, width: 936, height: 786, radius: 54 };
+const FEATURE = { y: 978, width: 448, height: 292, gap: 40, radius: 38 };
+const FOOT = { x: SAFE.left, y: 1324, width: 936, height: 352, radius: 42 };
+
 const DOMAIN_LABEL = new URL(profile.siteUrl).host;
 const ROLE_LABEL = "Digital Operations & Growth Manager";
-const SUPPORT_LABEL = "Helping you build, optimize, and grow your business";
-const DISCIPLINE_LABEL = "DIGITAL MARKETING • PERFORMANCE • WEB SYSTEMS";
-const heroProject = projects.find((project) => project.slug === "bluemark-real-estate-leadgen") ?? projects[0];
-const relatedProjects = projects.filter((project) =>
-  ["180-degree-meal-planner", "multi-company-digital-ops"].includes(project.slug),
-);
+const SUPPORT_LABEL = "Growth systems, premium web experiences, and operational clarity.";
+const DISCIPLINE_LABEL = "WEB • GROWTH • GEO";
+const greenInfinity = companies.find((company) => company.id === "luminary") ?? companies[0];
 
 let cachedAssetsPromise: Promise<StoryAssets> | undefined;
 
@@ -122,57 +125,31 @@ function mulberry32(seed: number) {
   };
 }
 
-function wrapText(text: string, maxCharsPerLine: number) {
-  const words = text.split(/\s+/);
-  const lines: string[] = [];
-  let currentLine = "";
-
-  for (const word of words) {
-    const candidate = currentLine ? `${currentLine} ${word}` : word;
-    if (candidate.length > maxCharsPerLine && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-      continue;
-    }
-    currentLine = candidate;
-  }
-
-  if (currentLine) lines.push(currentLine);
-  return lines;
-}
-
 function nameLines(name: string) {
   const words = name.trim().split(/\s+/);
   if (words.length < 2) return [name.toUpperCase()];
   return [words[0].toUpperCase(), words.slice(1).join(" ").toUpperCase()];
 }
 
-function shortenText(value: string, maxLength: number) {
-  if (value.length <= maxLength) return value;
-  return `${value.slice(0, maxLength - 1).trim()}…`;
-}
-
 function buildStars(tokens: RootTokens) {
-  const random = mulberry32(119);
+  const random = mulberry32(221);
   const stars: string[] = [];
   const palette = [tokens.textMain, tokens.accentSoft, tokens.accent];
 
-  for (let index = 0; index < 520; index += 1) {
+  for (let index = 0; index < 440; index += 1) {
     const x = Math.round(random() * STAGE.width * 10) / 10;
     const y = Math.round(random() * STAGE.height * 10) / 10;
-    const radius = 0.35 + random() * 1.65;
-    const opacity = 0.16 + random() * 0.7;
+    const radius = 0.35 + random() * 1.35;
+    const opacity = 0.18 + random() * 0.58;
     const color = palette[Math.floor(random() * palette.length)] || tokens.textMain;
 
     stars.push(
       `<circle cx="${x}" cy="${y}" r="${radius.toFixed(2)}" fill="${rgba(color, Number(opacity.toFixed(2)))}" />`,
     );
 
-    if (random() > 0.91) {
-      const glowRadius = radius * (2.8 + random() * 2.4);
-      const glowOpacity = 0.03 + random() * 0.08;
+    if (random() > 0.92) {
       stars.push(
-        `<circle cx="${x}" cy="${y}" r="${glowRadius.toFixed(2)}" fill="${rgba(color, Number(glowOpacity.toFixed(2)))}" />`,
+        `<circle cx="${x}" cy="${y}" r="${(radius * 4).toFixed(2)}" fill="${rgba(color, 0.06)}" />`,
       );
     }
   }
@@ -220,15 +197,25 @@ async function loadAssets(): Promise<StoryAssets> {
     cachedAssetsPromise = (async () => {
       const tokens = await readRootTokens();
       const portraitPath = path.resolve(process.cwd(), "public/profile.png");
+      const greenInfinityCoverPath = path.resolve(
+        process.cwd(),
+        `public${creativeWorkAssets.cover(greenInfinity)}`,
+      );
+
       const orbitronTtfPath = path.resolve(process.cwd(), "public/fonts/orbitron-700.ttf");
       const interRegularTtfPath = path.resolve(process.cwd(), "public/fonts/inter-400.ttf");
       const interMediumTtfPath = path.resolve(process.cwd(), "public/fonts/inter-500.ttf");
       const dmMonoRegularTtfPath = path.resolve(process.cwd(), "public/fonts/dm-mono-400.ttf");
-      const portraitDataUri = await readFileAsDataUri(portraitPath, "image/png");
+
+      const [portraitDataUri, greenInfinityCoverDataUri] = await Promise.all([
+        readFileAsDataUri(portraitPath, "image/png"),
+        readFileAsDataUri(greenInfinityCoverPath, "image/jpeg"),
+      ]);
 
       return {
         ...tokens,
         portraitDataUri,
+        greenInfinityCoverDataUri,
         orbitronTtfPath,
         interRegularTtfPath,
         interMediumTtfPath,
@@ -241,23 +228,14 @@ async function loadAssets(): Promise<StoryAssets> {
 }
 
 async function renderTextLayer(options: TextLayerOptions) {
-  const {
-    text,
-    width,
-    font,
-    fontfile,
-    spacing = 0,
-    align = "left",
-  } = options;
-
   const buffer = await sharp({
     text: {
-      text,
-      width,
-      font,
-      fontfile,
-      spacing,
-      align,
+      text: options.text,
+      width: options.width,
+      font: options.font,
+      fontfile: options.fontfile,
+      spacing: options.spacing ?? 0,
+      align: options.align ?? "left",
       rgba: true,
     },
   }).png().toBuffer();
@@ -265,8 +243,10 @@ async function renderTextLayer(options: TextLayerOptions) {
   return { input: buffer, top: options.top, left: options.left };
 }
 
-function buildStoryBackgroundSvg(assets: StoryAssets) {
+function buildStorySvg(assets: StoryAssets) {
   const stars = buildStars(assets);
+  const leftFeatureX = SAFE.left;
+  const rightFeatureX = SAFE.left + FEATURE.width + FEATURE.gap;
 
   return `
 <svg width="${STAGE.width}" height="${STAGE.height}" viewBox="0 0 ${STAGE.width} ${STAGE.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -275,400 +255,329 @@ function buildStoryBackgroundSvg(assets: StoryAssets) {
       <stop offset="0%" stop-color="${assets.bgSecondary}" />
       <stop offset="100%" stop-color="${assets.bgPrimary}" />
     </linearGradient>
-    <radialGradient id="topHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 120) rotate(90) scale(580 820)">
-      <stop offset="0%" stop-color="${rgba(assets.accent, 0.44)}" />
-      <stop offset="42%" stop-color="${rgba(assets.accent, 0.16)}" />
+    <radialGradient id="topHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 140) rotate(90) scale(560 760)">
+      <stop offset="0%" stop-color="${rgba(assets.accent, 0.36)}" />
+      <stop offset="42%" stop-color="${rgba(assets.accent, 0.12)}" />
       <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
     </radialGradient>
-    <radialGradient id="leftNebula" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(180 1160) rotate(90) scale(480 440)">
-      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.16)}" />
-      <stop offset="44%" stop-color="${rgba(assets.accent, 0.08)}" />
+    <radialGradient id="portraitHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(302 426) rotate(90) scale(290 240)">
+      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.18)}" />
+      <stop offset="56%" stop-color="${rgba(assets.accent, 0.10)}" />
       <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
     </radialGradient>
-    <radialGradient id="rightNebula" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(860 960) rotate(90) scale(560 420)">
-      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.12)}" />
-      <stop offset="52%" stop-color="${rgba(assets.accent, 0.06)}" />
-      <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
-    </radialGradient>
-    <linearGradient id="cardTop" x1="58" y1="54" x2="1022" y2="824" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.bgSecondary, 0.88)}" />
-      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.96)}" />
-    </linearGradient>
-    <linearGradient id="cardGlass" x1="58" y1="856" x2="1022" y2="1790" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.bgSecondary, 0.82)}" />
-      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.94)}" />
-    </linearGradient>
-    <linearGradient id="buttonPrimary" x1="114" y1="725" x2="506" y2="798" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.accent, 0.98)}" />
-      <stop offset="100%" stop-color="${rgba(assets.accentSoft, 0.64)}" />
-    </linearGradient>
-    <linearGradient id="buttonSecondary" x1="574" y1="725" x2="966" y2="798" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.bgSecondary, 0.88)}" />
-      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.98)}" />
-    </linearGradient>
-    <linearGradient id="beamLine" x1="222" y1="561" x2="858" y2="561" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0)}" />
-      <stop offset="18%" stop-color="${rgba(assets.accentSoft, 0.28)}" />
-      <stop offset="50%" stop-color="${rgba(assets.textMain, 0.92)}" />
-      <stop offset="82%" stop-color="${rgba(assets.accentSoft, 0.28)}" />
-      <stop offset="100%" stop-color="${rgba(assets.accentSoft, 0)}" />
-    </linearGradient>
     <pattern id="gridPattern" width="72" height="72" patternUnits="userSpaceOnUse">
       <path d="M72 0H0V72" stroke="${rgba(assets.textMain, 0.025)}" stroke-width="1" />
     </pattern>
-    <radialGradient id="gridMaskFill" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 180) rotate(90) scale(860 640)">
+    <radialGradient id="gridMaskFill" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 220) rotate(90) scale(840 660)">
       <stop offset="0%" stop-color="white" />
       <stop offset="100%" stop-color="black" />
     </radialGradient>
     <mask id="gridMask">
       <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#gridMaskFill)" />
     </mask>
-    <linearGradient id="outerGlow" x1="0" y1="0" x2="1080" y2="1920" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.12)}" />
-      <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
+    <linearGradient id="cardFill" x1="${SAFE.left}" y1="${SAFE.top}" x2="${STAGE.width - SAFE.right}" y2="${STAGE.height - SAFE.bottom}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.bgSecondary, 0.84)}" />
+      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.96)}" />
     </linearGradient>
-    <radialGradient id="portraitGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(540 255) rotate(90) scale(228 228)">
-      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.44)}" />
-      <stop offset="54%" stop-color="${rgba(assets.accent, 0.18)}" />
-      <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
-    </radialGradient>
-    <clipPath id="portraitClip">
-      <circle cx="540" cy="255" r="132" />
+    <linearGradient id="buttonFill" x1="120" y1="0" x2="452" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.accent, 0.96)}" />
+      <stop offset="100%" stop-color="${rgba(assets.accentSoft, 0.56)}" />
+    </linearGradient>
+    <linearGradient id="beamLine" x1="470" y1="524" x2="900" y2="524" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0)}" />
+      <stop offset="24%" stop-color="${rgba(assets.accentSoft, 0.2)}" />
+      <stop offset="50%" stop-color="${rgba(assets.textMain, 0.92)}" />
+      <stop offset="76%" stop-color="${rgba(assets.accentSoft, 0.2)}" />
+      <stop offset="100%" stop-color="${rgba(assets.accentSoft, 0)}" />
+    </linearGradient>
+    <linearGradient id="portraitMask" x1="0" y1="230" x2="0" y2="794" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="white" stop-opacity="1" />
+      <stop offset="74%" stop-color="white" stop-opacity="1" />
+      <stop offset="91%" stop-color="white" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+    <mask id="portraitFade">
+      <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#portraitMask)" />
+    </mask>
+    <clipPath id="greenInfinityCoverClip">
+      <rect x="116" y="1434" width="356" height="122" rx="22" />
     </clipPath>
-    <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="18" />
     </filter>
-    <filter id="beamGlowFilter" x="-10%" y="-3000%" width="120%" height="6000%">
-      <feGaussianBlur stdDeviation="4.8" />
+    <filter id="beamGlow" x="-10%" y="-3000%" width="120%" height="6000%">
+      <feGaussianBlur stdDeviation="4.2" />
     </filter>
   </defs>
 
   <rect width="${STAGE.width}" height="${STAGE.height}" fill="${assets.bgPrimary}" />
   <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#bgLinear)" />
   <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#topHalo)" />
-  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#leftNebula)" />
-  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#rightNebula)" />
-  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#outerGlow)" />
-  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#gridPattern)" mask="url(#gridMask)" opacity="0.52" />
+  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#portraitHalo)" />
+  <rect width="${STAGE.width}" height="${STAGE.height}" fill="url(#gridPattern)" mask="url(#gridMask)" opacity="0.56" />
   ${stars}
 
-  <rect x="58" y="54" width="964" height="770" rx="56" fill="url(#cardTop)" stroke="${withOpacity(assets.surfaceBorder, 0.9)}" stroke-width="1.6" />
-  <rect x="74" y="70" width="932" height="738" rx="46" stroke="${rgba(assets.textMain, 0.08)}" stroke-width="1" />
-  <circle cx="540" cy="255" r="172" fill="url(#portraitGlow)" filter="url(#softBlur)" />
-  <circle cx="540" cy="255" r="182" fill="none" stroke="${rgba(assets.accentSoft, 0.20)}" stroke-width="2.1" />
-  <circle cx="540" cy="255" r="150" fill="none" stroke="${rgba(assets.accent, 0.22)}" stroke-width="1.5" />
-  <circle cx="540" cy="255" r="132" fill="${rgba(assets.bgPrimary, 0.82)}" stroke="${rgba(assets.textMain, 0.94)}" stroke-width="4" />
-  <circle cx="540" cy="255" r="146" fill="none" stroke="${rgba(assets.textMain, 0.24)}" stroke-width="1.2" />
-  <image href="${assets.portraitDataUri}" x="408" y="94" width="264" height="330" preserveAspectRatio="xMidYMin slice" clip-path="url(#portraitClip)" />
+  <rect x="${HERO.x}" y="${HERO.y}" width="${HERO.width}" height="${HERO.height}" rx="${HERO.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.74)}" stroke-width="1.5" />
+  <rect x="${HERO.x + 16}" y="${HERO.y + 16}" width="${HERO.width - 32}" height="${HERO.height - 32}" rx="44" stroke="${rgba(assets.textMain, 0.08)}" stroke-width="1" />
 
-  <circle cx="228" cy="218" r="96" fill="${rgba(assets.bgPrimary, 0.32)}" />
-  <circle cx="852" cy="218" r="96" fill="${rgba(assets.bgPrimary, 0.32)}" />
-  <rect x="168" y="545" width="744" height="1.4" rx="1" fill="url(#beamLine)" />
-  <rect x="168" y="544.2" width="744" height="3" rx="2" fill="url(#beamLine)" filter="url(#beamGlowFilter)" opacity="0.66" />
-  <rect x="114" y="724" width="392" height="74" rx="37" fill="url(#buttonPrimary)" />
-  <rect x="114" y="724" width="392" height="74" rx="37" stroke="${rgba(assets.accentSoft, 0.32)}" stroke-width="1.2" />
-  <rect x="574" y="724" width="392" height="74" rx="37" fill="url(#buttonSecondary)" />
-  <rect x="574" y="724" width="392" height="74" rx="37" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.2" />
+  <circle cx="306" cy="416" r="214" fill="${rgba(assets.accentSoft, 0.07)}" filter="url(#softBlur)" />
+  <circle cx="306" cy="416" r="196" fill="none" stroke="${rgba(assets.accentSoft, 0.16)}" stroke-width="1.2" />
+  <circle cx="306" cy="416" r="154" fill="none" stroke="${rgba(assets.accent, 0.22)}" stroke-width="1.1" />
+  <circle cx="306" cy="416" r="116" fill="none" stroke="${rgba(assets.textMain, 0.10)}" stroke-width="1" />
+  <circle cx="110" cy="466" r="4.4" fill="${assets.accentSoft}" />
+  <circle cx="438" cy="334" r="3.2" fill="${assets.textMain}" />
 
-  <rect x="58" y="856" width="426" height="394" rx="44" fill="url(#cardGlass)" stroke="${withOpacity(assets.surfaceBorder, 0.85)}" stroke-width="1.5" />
-  <rect x="516" y="856" width="506" height="394" rx="44" fill="url(#cardGlass)" stroke="${withOpacity(assets.surfaceBorder, 0.85)}" stroke-width="1.5" />
-  <rect x="548" y="956" width="442" height="250" rx="34" fill="${rgba(assets.accent, 0.14)}" stroke="${withOpacity(assets.surfaceBorder, 0.55)}" stroke-width="1.2" />
-  <rect x="578" y="984" width="382" height="194" rx="26" fill="${rgba(assets.bgPrimary, 0.42)}" />
-  <path d="M610 1124C670 1076 724 1052 780 1046C834 1040 892 1056 938 1098" stroke="${rgba(assets.accentSoft, 0.48)}" stroke-width="4.5" stroke-linecap="round" />
-  <path d="M612 1160C678 1110 734 1096 784 1098C852 1100 900 1126 940 1168" stroke="${rgba(assets.textMain, 0.18)}" stroke-width="2.2" stroke-linecap="round" />
-  <circle cx="736" cy="1074" r="10" fill="${rgba(assets.accentSoft, 0.42)}" />
-  <circle cx="868" cy="1128" r="7.5" fill="${rgba(assets.textMain, 0.42)}" />
+  <image href="${assets.portraitDataUri}" x="110" y="250" width="394" height="548" preserveAspectRatio="xMidYMax meet" opacity="0.20" filter="url(#softBlur)" />
+  <g mask="url(#portraitFade)">
+    <image href="${assets.portraitDataUri}" x="122" y="240" width="380" height="556" preserveAspectRatio="xMidYMax meet" />
+  </g>
 
-  <rect x="58" y="1284" width="964" height="534" rx="48" fill="url(#cardGlass)" stroke="${withOpacity(assets.surfaceBorder, 0.85)}" stroke-width="1.5" />
-  <rect x="94" y="1382" width="420" height="344" rx="34" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.48)}" stroke-width="1.1" />
-  <rect x="566" y="1382" width="420" height="344" rx="34" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.48)}" stroke-width="1.1" />
-  <rect x="122" y="1568" width="364" height="126" rx="26" fill="${rgba(assets.accent, 0.12)}" />
-  <rect x="594" y="1568" width="364" height="126" rx="26" fill="${rgba(assets.accent, 0.12)}" />
-  <path d="M152 1610H454" stroke="${rgba(assets.accentSoft, 0.24)}" stroke-width="1.3" />
-  <path d="M624 1610H926" stroke="${rgba(assets.accentSoft, 0.24)}" stroke-width="1.3" />
-  <circle cx="164" cy="1660" r="7" fill="${rgba(assets.accentSoft, 0.7)}" />
-  <circle cx="636" cy="1660" r="7" fill="${rgba(assets.accentSoft, 0.7)}" />
-  <circle cx="876" cy="1764" r="7" fill="${rgba(assets.accentSoft, 0.86)}" />
-  <circle cx="876" cy="1764" r="14" fill="${rgba(assets.accentSoft, 0.16)}" />
+  <rect x="470" y="524" width="430" height="1.4" rx="1" fill="url(#beamLine)" />
+  <rect x="470" y="523.2" width="430" height="2.8" rx="2" fill="url(#beamLine)" filter="url(#beamGlow)" opacity="0.72" />
+
+  <rect x="120" y="814" width="334" height="72" rx="36" fill="url(#buttonFill)" />
+  <rect x="626" y="814" width="292" height="72" rx="36" fill="${rgba(assets.bgPrimary, 0.12)}" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
+
+  <rect x="${leftFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
+  <rect x="${rightFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
+  <rect x="756" y="1100" width="182" height="94" rx="24" fill="${rgba(assets.accent, 0.08)}" stroke="${withOpacity(assets.surfaceBorder, 0.32)}" stroke-width="1" />
+  <path d="M776 1170C810 1136 842 1118 874 1120C902 1122 926 1132 944 1148" stroke="${rgba(assets.accentSoft, 0.42)}" stroke-width="3.4" stroke-linecap="round" />
+  <path d="M778 1194C812 1168 846 1156 876 1158C904 1160 928 1170 946 1188" stroke="${rgba(assets.textMain, 0.14)}" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="876" cy="1148" r="5.6" fill="${rgba(assets.textMain, 0.44)}" />
+
+  <rect x="${FOOT.x}" y="${FOOT.y}" width="${FOOT.width}" height="${FOOT.height}" rx="${FOOT.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
+  <rect x="108" y="1406" width="384" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
+  <image href="${assets.greenInfinityCoverDataUri}" x="116" y="1434" width="356" height="122" preserveAspectRatio="xMidYMid slice" clip-path="url(#greenInfinityCoverClip)" />
+  <rect x="116" y="1434" width="356" height="122" rx="22" fill="url(#bgLinear)" opacity="0.15" />
+  <rect x="586" y="1406" width="386" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
+  <rect x="612" y="1566" width="114" height="42" rx="18" fill="${rgba(assets.accent, 0.10)}" />
+  <rect x="736" y="1566" width="132" height="42" rx="18" fill="${rgba(assets.accent, 0.08)}" />
 </svg>`;
 }
 
 export async function renderStoryPng() {
   const assets = await loadAssets();
   const titleLines = nameLines(profile.name);
-  const storyBackground = buildStoryBackgroundSvg(assets);
-  const background = await sharp(Buffer.from(storyBackground), { density: 144 })
+
+  const backgroundSvg = buildStorySvg(assets);
+  const background = await sharp(Buffer.from(backgroundSvg), { density: 144 })
     .resize(STAGE.width, STAGE.height)
     .png()
     .toBuffer();
 
   const overlays = await Promise.all([
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.88)}" letter_spacing="2200">${escapeMarkup(DOMAIN_LABEL)}</span>`,
-      width: 300,
-      top: 102,
-      left: 112,
-      font: "DM Mono 20",
-      fontfile: assets.dmMonoRegularTtfPath,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(profile.impactMetrics[0]?.value ?? "100+")}</span>`,
-      width: 180,
-      top: 164,
-      left: 138,
-      font: "Inter 36",
-      fontfile: assets.interMediumTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup("AI-assisted\nbuilds")}</span>`,
-      width: 180,
-      top: 224,
-      left: 138,
-      font: "Inter 18",
-      fontfile: assets.interRegularTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(profile.impactMetrics[3]?.value ?? "4+")}</span>`,
-      width: 180,
-      top: 164,
-      left: 762,
-      font: "Inter 36",
-      fontfile: assets.interMediumTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup("years in\ndigital ops")}</span>`,
-      width: 180,
-      top: 224,
-      left: 762,
-      font: "Inter 18",
-      fontfile: assets.interRegularTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="6400">${escapeMarkup(titleLines[0])}</span>`,
-      width: 730,
-      top: 418,
-      left: 175,
-      font: "Orbitron 58",
-      fontfile: assets.orbitronTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="6400">${escapeMarkup(titleLines[1] ?? "")}</span>`,
-      width: 760,
-      top: 500,
-      left: 160,
-      font: "Orbitron 64",
-      fontfile: assets.orbitronTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.90)}">${escapeMarkup(ROLE_LABEL)}</span>`,
-      width: 720,
-      top: 610,
-      left: 180,
-      font: "Inter 25",
-      fontfile: assets.interMediumTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.76)}" letter_spacing="1600">${escapeMarkup(DISCIPLINE_LABEL)}</span>`,
-      width: 720,
-      top: 650,
-      left: 180,
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.84)}" letter_spacing="1800">${escapeMarkup(DOMAIN_LABEL)}</span>`,
+      width: 240,
+      top: 190,
+      left: 122,
       font: "DM Mono 16",
       fontfile: assets.dmMonoRegularTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("100+")}</span>`,
+      width: 100,
+      top: 236,
+      left: 124,
+      font: "Inter 38",
+      fontfile: assets.interMediumTtfPath,
       align: "center",
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.78)}">${escapeMarkup(wrapText(SUPPORT_LABEL, 38).join("\n"))}</span>`,
-      width: 620,
-      top: 682,
-      left: 230,
-      font: "Inter 18",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup("builds")}</span>`,
+      width: 100,
+      top: 290,
+      left: 124,
+      font: "Inter 16",
       fontfile: assets.interRegularTtfPath,
       align: "center",
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("4+")}</span>`,
+      width: 100,
+      top: 236,
+      left: 850,
+      font: "Inter 38",
+      fontfile: assets.interMediumTtfPath,
+      align: "center",
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup("years")}</span>`,
+      width: 100,
+      top: 290,
+      left: 850,
+      font: "Inter 16",
+      fontfile: assets.interRegularTtfPath,
+      align: "center",
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[0])}</span>`,
+      width: 480,
+      top: 304,
+      left: 450,
+      font: "Orbitron 54",
+      fontfile: assets.orbitronTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[1] ?? "")}</span>`,
+      width: 500,
+      top: 378,
+      left: 450,
+      font: "Orbitron 60",
+      fontfile: assets.orbitronTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.88)}">${escapeMarkup(ROLE_LABEL)}</span>`,
+      width: 440,
+      top: 564,
+      left: 450,
+      font: "Inter 22",
+      fontfile: assets.interMediumTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.70)}" letter_spacing="1200">${escapeMarkup(DISCIPLINE_LABEL)}</span>`,
+      width: 280,
+      top: 608,
+      left: 450,
+      font: "DM Mono 12",
+      fontfile: assets.dmMonoRegularTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.74)}">${escapeMarkup(SUPPORT_LABEL)}</span>`,
+      width: 316,
+      top: 648,
+      left: 450,
+      font: "Inter 15",
+      fontfile: assets.interRegularTtfPath,
       spacing: 4,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.bgPrimary, 0.98)}">${escapeMarkup("View Work")}</span>`,
-      width: 392,
-      top: 746,
-      left: 114,
-      font: "Inter 22",
+      width: 334,
+      top: 838,
+      left: 120,
+      font: "Inter 21",
       fontfile: assets.interMediumTtfPath,
       align: "center",
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("WhatsApp")}</span>`,
-      width: 392,
-      top: 746,
-      left: 574,
-      font: "Inter 22",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("WhatsApp")}</span>`,
+      width: 292,
+      top: 838,
+      left: 626,
+      font: "Inter 20",
       fontfile: assets.interMediumTtfPath,
       align: "center",
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.78)}" letter_spacing="1800">${escapeMarkup("HOME HERO")}</span>`,
-      width: 190,
-      top: 906,
-      left: 96,
-      font: "DM Mono 15",
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("REACT SYSTEMS")}</span>`,
+      width: 200,
+      top: 1020,
+      left: 108,
+      font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup("Cinematic home system")}</span>`,
-      width: 260,
-      top: 972,
-      left: 96,
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("Antigravity\nfrontend")}</span>`,
+      width: 256,
+      top: 1076,
+      left: 108,
       font: "Inter 30",
       fontfile: assets.interMediumTtfPath,
+      spacing: 2,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.70)}">${escapeMarkup("Orbit rings, glass UI, and a branded hero frame built to feel premium in motion and static.")}</span>`,
-      width: 286,
-      top: 1040,
-      left: 96,
-      font: "Inter 18",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.72)}">${escapeMarkup("Cinematic UI and premium webapp surfaces.")}</span>`,
+      width: 260,
+      top: 1182,
+      left: 108,
+      font: "Inter 15",
       fontfile: assets.interRegularTtfPath,
       spacing: 4,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.86)}">${escapeMarkup(DOMAIN_LABEL)}</span>`,
-      width: 286,
-      top: 1188,
-      left: 96,
-      font: "Inter 22",
-      fontfile: assets.interMediumTtfPath,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.78)}" letter_spacing="1800">${escapeMarkup("WORK HIGHLIGHT")}</span>`,
-      width: 250,
-      top: 906,
-      left: 548,
-      font: "DM Mono 15",
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("PLUGIN CASE")}</span>`,
+      width: 180,
+      top: 1020,
+      left: 560,
+      font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(shortenText(heroProject.client, 26))}</span>`,
-      width: 330,
-      top: 968,
-      left: 548,
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("Meal-plan\nplugin")}</span>`,
+      width: 220,
+      top: 1076,
+      left: 560,
       font: "Inter 30",
       fontfile: assets.interMediumTtfPath,
+      spacing: 2,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup(heroProject.category.toUpperCase())}</span>`,
-      width: 260,
-      top: 1014,
-      left: 548,
-      font: "DM Mono 14",
-      fontfile: assets.dmMonoRegularTtfPath,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.80)}">${escapeMarkup(shortenText(heroProject.results[0] ?? heroProject.overview, 74))}</span>`,
-      width: 330,
-      top: 1062,
-      left: 548,
-      font: "Inter 18",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.72)}">${escapeMarkup("Admin UX and structured workflow logic.")}</span>`,
+      width: 210,
+      top: 1182,
+      left: 560,
+      font: "Inter 15",
       fontfile: assets.interRegularTtfPath,
       spacing: 4,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("Performance Marketing")}</span>`,
-      width: 160,
-      top: 1180,
-      left: 548,
-      font: "Inter 15",
-      fontfile: assets.interMediumTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("WhatsApp Funnel")}</span>`,
-      width: 160,
-      top: 1180,
-      left: 726,
-      font: "Inter 15",
-      fontfile: assets.interMediumTtfPath,
-      align: "center",
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.78)}" letter_spacing="1800">${escapeMarkup("RELATED CASES")}</span>`,
-      width: 260,
-      top: 1328,
-      left: 96,
-      font: "DM Mono 15",
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("SELECTED WORK")}</span>`,
+      width: 180,
+      top: 1370,
+      left: 108,
+      font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(shortenText(relatedProjects[0]?.client ?? "180 Degree", 24))}</span>`,
-      width: 308,
-      top: 1432,
-      left: 122,
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(greenInfinity.name)}</span>`,
+      width: 220,
+      top: 1578,
+      left: 132,
+      font: "Inter 24",
+      fontfile: assets.interMediumTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup("Brand identity")}</span>`,
+      width: 160,
+      top: 1618,
+      left: 132,
+      font: "DM Mono 12",
+      fontfile: assets.dmMonoRegularTtfPath,
+    }),
+    renderTextLayer({
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup("Dubai GEO")}</span>`,
+      width: 220,
+      top: 1470,
+      left: 612,
       font: "Inter 28",
       fontfile: assets.interMediumTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup((relatedProjects[0]?.category ?? "Web App / Growth Ops").toUpperCase())}</span>`,
-      width: 308,
-      top: 1478,
-      left: 122,
-      font: "DM Mono 13",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup("5+ brand builds")}</span>`,
+      width: 180,
+      top: 1516,
+      left: 612,
+      font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.74)}">${escapeMarkup(shortenText(relatedProjects[0]?.overview ?? "", 96))}</span>`,
-      width: 304,
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("SEO / GEO")}</span>`,
+      width: 114,
       top: 1568,
-      left: 146,
-      font: "Inter 17",
-      fontfile: assets.interRegularTtfPath,
-      spacing: 4,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(shortenText(relatedProjects[1]?.client ?? "Multi-Company Ops", 24))}</span>`,
-      width: 308,
-      top: 1432,
-      left: 594,
-      font: "Inter 28",
+      left: 612,
+      font: "Inter 14",
       fontfile: assets.interMediumTtfPath,
+      align: "center",
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup((relatedProjects[1]?.category ?? "Digital Operations").toUpperCase())}</span>`,
-      width: 308,
-      top: 1478,
-      left: 594,
-      font: "DM Mono 13",
-      fontfile: assets.dmMonoRegularTtfPath,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.74)}">${escapeMarkup(shortenText(relatedProjects[1]?.overview ?? "", 94))}</span>`,
-      width: 304,
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("Dubai intent")}</span>`,
+      width: 132,
       top: 1568,
-      left: 618,
-      font: "Inter 17",
-      fontfile: assets.interRegularTtfPath,
-      spacing: 4,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.82)}">${escapeMarkup(DOMAIN_LABEL)}</span>`,
-      width: 280,
-      top: 1752,
-      left: 122,
-      font: "Inter 20",
+      left: 736,
+      font: "Inter 14",
       fontfile: assets.interMediumTtfPath,
-    }),
-    renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.84)}">${escapeMarkup("Open to New Mandates")}</span>`,
-      width: 280,
-      top: 1752,
-      left: 700,
-      font: "Inter 20",
-      fontfile: assets.interMediumTtfPath,
-      align: "right",
+      align: "center",
     }),
   ]);
 
