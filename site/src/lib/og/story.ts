@@ -248,6 +248,8 @@ function buildStorySvg(assets: StoryAssets) {
   const stars = buildStars(assets);
   const leftFeatureX = SAFE.left;
   const rightFeatureX = SAFE.left + FEATURE.width + FEATURE.gap;
+  const leftFootCardX = 108;
+  const rightFootCardX = 586;
 
   return `
 <svg width="${STAGE.width}" height="${STAGE.height}" viewBox="0 0 ${STAGE.width} ${STAGE.height}" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -279,6 +281,31 @@ function buildStorySvg(assets: StoryAssets) {
     <linearGradient id="cardFill" x1="${SAFE.left}" y1="${SAFE.top}" x2="${STAGE.width - SAFE.right}" y2="${STAGE.height - SAFE.bottom}" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="${rgba(assets.bgSecondary, 0.84)}" />
       <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.96)}" />
+    </linearGradient>
+    <linearGradient id="glassHeroFill" x1="${HERO.x}" y1="${HERO.y}" x2="${HERO.x + HERO.width}" y2="${HERO.y + HERO.height}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.textMain, 0.08)}" />
+      <stop offset="24%" stop-color="${rgba(assets.accentSoft, 0.07)}" />
+      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.22)}" />
+    </linearGradient>
+    <linearGradient id="glassFeatureFill" x1="${SAFE.left}" y1="${FEATURE.y}" x2="${STAGE.width - SAFE.right}" y2="${FEATURE.y + FEATURE.height}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.textMain, 0.06)}" />
+      <stop offset="32%" stop-color="${rgba(assets.accentSoft, 0.05)}" />
+      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.16)}" />
+    </linearGradient>
+    <linearGradient id="glassFootFill" x1="${FOOT.x}" y1="${FOOT.y}" x2="${FOOT.x + FOOT.width}" y2="${FOOT.y + FOOT.height}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="${rgba(assets.textMain, 0.05)}" />
+      <stop offset="40%" stop-color="${rgba(assets.accentSoft, 0.04)}" />
+      <stop offset="100%" stop-color="${rgba(assets.bgPrimary, 0.16)}" />
+    </linearGradient>
+    <linearGradient id="glassSheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${rgba(assets.textMain, 0.16)}" />
+      <stop offset="28%" stop-color="${rgba(assets.textMain, 0.07)}" />
+      <stop offset="100%" stop-color="${rgba(assets.textMain, 0)}" />
+    </linearGradient>
+    <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${rgba(assets.textMain, 0.36)}" />
+      <stop offset="22%" stop-color="${rgba(assets.textMain, 0.12)}" />
+      <stop offset="100%" stop-color="${rgba(assets.accentSoft, 0.08)}" />
     </linearGradient>
     <linearGradient id="buttonFill" x1="120" y1="0" x2="452" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="${rgba(assets.accent, 0.96)}" />
@@ -319,7 +346,11 @@ function buildStorySvg(assets: StoryAssets) {
   ${stars}
 
   <rect x="${HERO.x}" y="${HERO.y}" width="${HERO.width}" height="${HERO.height}" rx="${HERO.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.74)}" stroke-width="1.5" />
+  <rect x="${HERO.x}" y="${HERO.y}" width="${HERO.width}" height="${HERO.height}" rx="${HERO.radius}" fill="url(#glassHeroFill)" />
+  <rect x="${HERO.x + 10}" y="${HERO.y + 10}" width="${HERO.width - 20}" height="${190}" rx="40" fill="url(#glassSheen)" opacity="0.52" />
   <rect x="${HERO.x + 16}" y="${HERO.y + 16}" width="${HERO.width - 32}" height="${HERO.height - 32}" rx="44" stroke="${rgba(assets.textMain, 0.08)}" stroke-width="1" />
+  <rect x="${HERO.x + 3}" y="${HERO.y + 3}" width="${HERO.width - 6}" height="${HERO.height - 6}" rx="${HERO.radius - 3}" stroke="url(#glassEdge)" stroke-width="1" opacity="0.52" />
+  <ellipse cx="${HERO.x + 240}" cy="${HERO.y + 74}" rx="220" ry="68" fill="${rgba(assets.textMain, 0.07)}" filter="url(#softBlur)" />
 
   <circle cx="104" cy="199" r="4.6" fill="#22c55e" />
   <circle cx="104" cy="199" r="8.4" fill="${rgba("#22c55e", 0.18)}" />
@@ -343,19 +374,37 @@ function buildStorySvg(assets: StoryAssets) {
   <rect x="646" y="808" width="272" height="72" rx="36" fill="${rgba(assets.bgPrimary, 0.12)}" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
 
   <rect x="${leftFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
+  <rect x="${leftFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#glassFeatureFill)" />
+  <rect x="${leftFeatureX + 10}" y="${FEATURE.y + 10}" width="${FEATURE.width - 20}" height="86" rx="28" fill="url(#glassSheen)" opacity="0.42" />
+  <rect x="${leftFeatureX + 3}" y="${FEATURE.y + 3}" width="${FEATURE.width - 6}" height="${FEATURE.height - 6}" rx="${FEATURE.radius - 3}" stroke="url(#glassEdge)" stroke-width="1" opacity="0.48" />
+  <ellipse cx="${leftFeatureX + 164}" cy="${FEATURE.y + 56}" rx="132" ry="42" fill="${rgba(assets.textMain, 0.05)}" filter="url(#softBlur)" />
   <rect x="${rightFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
+  <rect x="${rightFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#glassFeatureFill)" />
+  <rect x="${rightFeatureX + 10}" y="${FEATURE.y + 10}" width="${FEATURE.width - 20}" height="86" rx="28" fill="url(#glassSheen)" opacity="0.42" />
+  <rect x="${rightFeatureX + 3}" y="${FEATURE.y + 3}" width="${FEATURE.width - 6}" height="${FEATURE.height - 6}" rx="${FEATURE.radius - 3}" stroke="url(#glassEdge)" stroke-width="1" opacity="0.48" />
+  <ellipse cx="${rightFeatureX + 164}" cy="${FEATURE.y + 56}" rx="132" ry="42" fill="${rgba(assets.textMain, 0.05)}" filter="url(#softBlur)" />
   <rect x="784" y="1098" width="152" height="92" rx="22" fill="${rgba(assets.accent, 0.08)}" stroke="${withOpacity(assets.surfaceBorder, 0.32)}" stroke-width="1" />
+  <rect x="788" y="1102" width="144" height="34" rx="16" fill="url(#glassSheen)" opacity="0.34" />
   <path d="M802 1168C830 1140 858 1126 886 1128C908 1130 926 1138 942 1150" stroke="${rgba(assets.accentSoft, 0.42)}" stroke-width="3.2" stroke-linecap="round" />
   <path d="M804 1190C832 1170 860 1160 886 1162C908 1164 926 1172 942 1186" stroke="${rgba(assets.textMain, 0.14)}" stroke-width="1.8" stroke-linecap="round" />
   <circle cx="886" cy="1148" r="5.2" fill="${rgba(assets.textMain, 0.44)}" />
 
   <rect x="${FOOT.x}" y="${FOOT.y}" width="${FOOT.width}" height="${FOOT.height}" rx="${FOOT.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
-  <rect x="108" y="1406" width="384" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
+  <rect x="${FOOT.x}" y="${FOOT.y}" width="${FOOT.width}" height="${FOOT.height}" rx="${FOOT.radius}" fill="url(#glassFootFill)" />
+  <rect x="${FOOT.x + 10}" y="${FOOT.y + 10}" width="${FOOT.width - 20}" height="78" rx="28" fill="url(#glassSheen)" opacity="0.34" />
+  <rect x="${FOOT.x + 3}" y="${FOOT.y + 3}" width="${FOOT.width - 6}" height="${FOOT.height - 6}" rx="${FOOT.radius - 3}" stroke="url(#glassEdge)" stroke-width="1" opacity="0.48" />
+  <rect x="${leftFootCardX}" y="1406" width="384" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.26)}" stroke="${withOpacity(assets.surfaceBorder, 0.40)}" stroke-width="1.1" />
+  <rect x="${leftFootCardX + 6}" y="1412" width="372" height="56" rx="24" fill="url(#glassSheen)" opacity="0.36" />
+  <rect x="${leftFootCardX + 3}" y="1409" width="378" height="230" rx="27" stroke="url(#glassEdge)" stroke-width="1" opacity="0.46" />
   <image href="${assets.greenInfinityCoverDataUri}" x="116" y="1434" width="356" height="122" preserveAspectRatio="xMidYMid slice" clip-path="url(#greenInfinityCoverClip)" />
   <rect x="116" y="1434" width="356" height="122" rx="22" fill="url(#bgLinear)" opacity="0.15" />
-  <rect x="586" y="1406" width="386" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
-  <rect x="620" y="1552" width="114" height="42" rx="18" fill="${rgba(assets.accent, 0.10)}" />
-  <rect x="746" y="1552" width="132" height="42" rx="18" fill="${rgba(assets.accent, 0.08)}" />
+  <rect x="${rightFootCardX}" y="1406" width="386" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.26)}" stroke="${withOpacity(assets.surfaceBorder, 0.40)}" stroke-width="1.1" />
+  <rect x="${rightFootCardX + 6}" y="1412" width="374" height="56" rx="24" fill="url(#glassSheen)" opacity="0.36" />
+  <rect x="${rightFootCardX + 3}" y="1409" width="380" height="230" rx="27" stroke="url(#glassEdge)" stroke-width="1" opacity="0.46" />
+  <rect x="620" y="1552" width="114" height="42" rx="18" fill="${rgba(assets.accent, 0.12)}" stroke="${rgba(assets.textMain, 0.10)}" stroke-width="0.8" />
+  <rect x="746" y="1552" width="132" height="42" rx="18" fill="${rgba(assets.accent, 0.10)}" stroke="${rgba(assets.textMain, 0.10)}" stroke-width="0.8" />
+  <rect x="624" y="1556" width="106" height="16" rx="8" fill="url(#glassSheen)" opacity="0.28" />
+  <rect x="750" y="1556" width="124" height="16" rx="8" fill="url(#glassSheen)" opacity="0.24" />
 </svg>`;
 }
 
@@ -417,7 +466,7 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[0])}</span>`,
       width: 456,
-      top: 324,
+      top: 352,
       left: 472,
       font: "Orbitron 54",
       fontfile: assets.orbitronTtfPath,
@@ -425,7 +474,7 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[1] ?? "")}</span>`,
       width: 474,
-      top: 398,
+      top: 426,
       left: 472,
       font: "Orbitron 60",
       fontfile: assets.orbitronTtfPath,
@@ -433,7 +482,7 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.88)}">${escapeMarkup(ROLE_LABEL)}</span>`,
       width: 404,
-      top: 602,
+      top: 612,
       left: 486,
       font: "Inter 22",
       fontfile: assets.interMediumTtfPath,
@@ -441,7 +490,7 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.70)}" letter_spacing="1200">${escapeMarkup(DISCIPLINE_ROW)}</span>`,
       width: 280,
-      top: 652,
+      top: 662,
       left: 486,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
@@ -449,7 +498,7 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.74)}">${escapeMarkup(SUPPORT_LABEL)}</span>`,
       width: 318,
-      top: 698,
+      top: 710,
       left: 486,
       font: "Inter 15",
       fontfile: assets.interRegularTtfPath,

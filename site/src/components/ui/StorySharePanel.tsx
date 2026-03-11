@@ -14,8 +14,12 @@ export default function StorySharePanel({
   const [status, setStatus] = useState<string>("Story-safe 9:16 card ready.");
   const [isBusy, setIsBusy] = useState(false);
 
+  function getAbsoluteStoryImageUrl() {
+    return new URL(storyImagePath, window.location.origin).toString();
+  }
+
   async function loadStoryFile() {
-    const absoluteImageUrl = new URL(storyImagePath, window.location.origin).toString();
+    const absoluteImageUrl = getAbsoluteStoryImageUrl();
     const response = await fetch(absoluteImageUrl, { cache: "no-store" });
 
     if (!response.ok) {
@@ -24,6 +28,45 @@ export default function StorySharePanel({
 
     const blob = await response.blob();
     return new File([blob], STORY_FILENAME, { type: "image/png" });
+  }
+
+  async function openNativeShare(
+    shareTarget: Navigator & {
+      canShare?: (data?: ShareData) => boolean;
+    },
+    absoluteImageUrl: string,
+  ) {
+    if (!shareTarget.share) {
+      return false;
+    }
+
+    try {
+      await shareTarget.share({
+        title: "Muhammed Mubashir V",
+        text: "Digital operations, growth, and web systems.",
+        url: absoluteImageUrl,
+      });
+      return true;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw error;
+      }
+    }
+
+    try {
+      await shareTarget.share({
+        title: "Muhammed Mubashir V",
+        text: "Digital operations, growth, and web systems.",
+        url: siteUrl,
+      });
+      return true;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw error;
+      }
+    }
+
+    return false;
   }
 
   async function downloadStory() {
@@ -43,6 +86,7 @@ export default function StorySharePanel({
     setStatus("Preparing story card...");
 
     try {
+      const absoluteImageUrl = getAbsoluteStoryImageUrl();
       const storyFile = await loadStoryFile();
       const shareTarget = navigator as Navigator & {
         canShare?: (data?: ShareData) => boolean;
@@ -59,13 +103,13 @@ export default function StorySharePanel({
       }
 
       if (shareTarget.share) {
-        await shareTarget.share({
-          title: "Muhammed Mubashir V",
-          text: "Digital operations, growth, and web systems.",
-          url: siteUrl,
-        });
-        setStatus("Share sheet opened with the site link.");
-        return;
+        await downloadStory();
+        const didOpenShare = await openNativeShare(shareTarget, absoluteImageUrl);
+
+        if (didOpenShare) {
+          setStatus("Story card downloaded and share options opened.");
+          return;
+        }
       }
 
       await downloadStory();
@@ -75,7 +119,15 @@ export default function StorySharePanel({
         setStatus("Share cancelled.");
       } else {
         await downloadStory();
-        setStatus("The story card was downloaded for manual posting.");
+        const shareTarget = navigator as Navigator & {
+          canShare?: (data?: ShareData) => boolean;
+        };
+        const didOpenShare = await openNativeShare(shareTarget, getAbsoluteStoryImageUrl());
+        setStatus(
+          didOpenShare
+            ? "Story card downloaded and share options opened."
+            : "The story card was downloaded for manual posting.",
+        );
       }
     } finally {
       setIsBusy(false);
