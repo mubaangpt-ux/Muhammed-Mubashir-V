@@ -47,6 +47,7 @@ const ROLE_LABEL = "Digital Operations & Growth Manager";
 const SUPPORT_LABEL = "Growth systems, premium web experiences, and operational clarity.";
 const DISCIPLINE_LABEL = "WEB • GROWTH • GEO";
 const greenInfinity = companies.find((company) => company.id === "luminary") ?? companies[0];
+const DISCIPLINE_ROW = "WEB / GROWTH / GEO";
 
 let cachedAssetsPromise: Promise<StoryAssets> | undefined;
 
@@ -260,7 +261,7 @@ function buildStorySvg(assets: StoryAssets) {
       <stop offset="42%" stop-color="${rgba(assets.accent, 0.12)}" />
       <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
     </radialGradient>
-    <radialGradient id="portraitHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(302 426) rotate(90) scale(290 240)">
+    <radialGradient id="portraitHalo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(322 438) rotate(90) scale(272 228)">
       <stop offset="0%" stop-color="${rgba(assets.accentSoft, 0.18)}" />
       <stop offset="56%" stop-color="${rgba(assets.accent, 0.10)}" />
       <stop offset="100%" stop-color="${rgba(assets.accent, 0)}" />
@@ -320,38 +321,41 @@ function buildStorySvg(assets: StoryAssets) {
   <rect x="${HERO.x}" y="${HERO.y}" width="${HERO.width}" height="${HERO.height}" rx="${HERO.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.74)}" stroke-width="1.5" />
   <rect x="${HERO.x + 16}" y="${HERO.y + 16}" width="${HERO.width - 32}" height="${HERO.height - 32}" rx="44" stroke="${rgba(assets.textMain, 0.08)}" stroke-width="1" />
 
-  <circle cx="306" cy="416" r="214" fill="${rgba(assets.accentSoft, 0.07)}" filter="url(#softBlur)" />
-  <circle cx="306" cy="416" r="196" fill="none" stroke="${rgba(assets.accentSoft, 0.16)}" stroke-width="1.2" />
-  <circle cx="306" cy="416" r="154" fill="none" stroke="${rgba(assets.accent, 0.22)}" stroke-width="1.1" />
-  <circle cx="306" cy="416" r="116" fill="none" stroke="${rgba(assets.textMain, 0.10)}" stroke-width="1" />
-  <circle cx="110" cy="466" r="4.4" fill="${assets.accentSoft}" />
-  <circle cx="438" cy="334" r="3.2" fill="${assets.textMain}" />
+  <circle cx="104" cy="199" r="4.6" fill="#22c55e" />
+  <circle cx="104" cy="199" r="8.4" fill="${rgba("#22c55e", 0.18)}" />
 
-  <image href="${assets.portraitDataUri}" x="110" y="250" width="394" height="548" preserveAspectRatio="xMidYMax meet" opacity="0.20" filter="url(#softBlur)" />
+  <circle cx="322" cy="432" r="198" fill="${rgba(assets.accentSoft, 0.07)}" filter="url(#softBlur)" />
+  <circle cx="322" cy="432" r="182" fill="none" stroke="${rgba(assets.accentSoft, 0.16)}" stroke-width="1.2" />
+  <circle cx="322" cy="432" r="146" fill="none" stroke="${rgba(assets.accent, 0.22)}" stroke-width="1.1" />
+  <circle cx="322" cy="432" r="110" fill="none" stroke="${rgba(assets.textMain, 0.10)}" stroke-width="1" />
+  <circle cx="132" cy="486" r="4.4" fill="${assets.accentSoft}" />
+  <circle cx="424" cy="360" r="3.2" fill="${assets.textMain}" />
+
+  <image href="${assets.portraitDataUri}" x="122" y="266" width="376" height="530" preserveAspectRatio="xMidYMax meet" opacity="0.20" filter="url(#softBlur)" />
   <g mask="url(#portraitFade)">
-    <image href="${assets.portraitDataUri}" x="122" y="240" width="380" height="556" preserveAspectRatio="xMidYMax meet" />
+    <image href="${assets.portraitDataUri}" x="136" y="254" width="360" height="540" preserveAspectRatio="xMidYMax meet" />
   </g>
 
-  <rect x="470" y="524" width="430" height="1.4" rx="1" fill="url(#beamLine)" />
-  <rect x="470" y="523.2" width="430" height="2.8" rx="2" fill="url(#beamLine)" filter="url(#beamGlow)" opacity="0.72" />
+  <rect x="492" y="548" width="398" height="1.4" rx="1" fill="url(#beamLine)" />
+  <rect x="492" y="547.2" width="398" height="2.8" rx="2" fill="url(#beamLine)" filter="url(#beamGlow)" opacity="0.72" />
 
-  <rect x="120" y="814" width="334" height="72" rx="36" fill="url(#buttonFill)" />
-  <rect x="626" y="814" width="292" height="72" rx="36" fill="${rgba(assets.bgPrimary, 0.12)}" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
+  <rect x="126" y="808" width="312" height="72" rx="36" fill="url(#buttonFill)" />
+  <rect x="646" y="808" width="272" height="72" rx="36" fill="${rgba(assets.bgPrimary, 0.12)}" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
 
   <rect x="${leftFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
   <rect x="${rightFeatureX}" y="${FEATURE.y}" width="${FEATURE.width}" height="${FEATURE.height}" rx="${FEATURE.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.7)}" stroke-width="1.4" />
-  <rect x="756" y="1100" width="182" height="94" rx="24" fill="${rgba(assets.accent, 0.08)}" stroke="${withOpacity(assets.surfaceBorder, 0.32)}" stroke-width="1" />
-  <path d="M776 1170C810 1136 842 1118 874 1120C902 1122 926 1132 944 1148" stroke="${rgba(assets.accentSoft, 0.42)}" stroke-width="3.4" stroke-linecap="round" />
-  <path d="M778 1194C812 1168 846 1156 876 1158C904 1160 928 1170 946 1188" stroke="${rgba(assets.textMain, 0.14)}" stroke-width="1.8" stroke-linecap="round" />
-  <circle cx="876" cy="1148" r="5.6" fill="${rgba(assets.textMain, 0.44)}" />
+  <rect x="784" y="1098" width="152" height="92" rx="22" fill="${rgba(assets.accent, 0.08)}" stroke="${withOpacity(assets.surfaceBorder, 0.32)}" stroke-width="1" />
+  <path d="M802 1168C830 1140 858 1126 886 1128C908 1130 926 1138 942 1150" stroke="${rgba(assets.accentSoft, 0.42)}" stroke-width="3.2" stroke-linecap="round" />
+  <path d="M804 1190C832 1170 860 1160 886 1162C908 1164 926 1172 942 1186" stroke="${rgba(assets.textMain, 0.14)}" stroke-width="1.8" stroke-linecap="round" />
+  <circle cx="886" cy="1148" r="5.2" fill="${rgba(assets.textMain, 0.44)}" />
 
   <rect x="${FOOT.x}" y="${FOOT.y}" width="${FOOT.width}" height="${FOOT.height}" rx="${FOOT.radius}" fill="url(#cardFill)" stroke="${withOpacity(assets.surfaceBorder, 0.72)}" stroke-width="1.4" />
   <rect x="108" y="1406" width="384" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
   <image href="${assets.greenInfinityCoverDataUri}" x="116" y="1434" width="356" height="122" preserveAspectRatio="xMidYMid slice" clip-path="url(#greenInfinityCoverClip)" />
   <rect x="116" y="1434" width="356" height="122" rx="22" fill="url(#bgLinear)" opacity="0.15" />
   <rect x="586" y="1406" width="386" height="236" rx="30" fill="${rgba(assets.bgPrimary, 0.42)}" stroke="${withOpacity(assets.surfaceBorder, 0.42)}" stroke-width="1.1" />
-  <rect x="612" y="1566" width="114" height="42" rx="18" fill="${rgba(assets.accent, 0.10)}" />
-  <rect x="736" y="1566" width="132" height="42" rx="18" fill="${rgba(assets.accent, 0.08)}" />
+  <rect x="620" y="1552" width="114" height="42" rx="18" fill="${rgba(assets.accent, 0.10)}" />
+  <rect x="746" y="1552" width="132" height="42" rx="18" fill="${rgba(assets.accent, 0.08)}" />
 </svg>`;
 }
 
@@ -368,27 +372,27 @@ export async function renderStoryPng() {
   const overlays = await Promise.all([
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.84)}" letter_spacing="1800">${escapeMarkup(DOMAIN_LABEL)}</span>`,
-      width: 240,
+      width: 250,
       top: 190,
-      left: 122,
+      left: 120,
       font: "DM Mono 16",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("100+")}</span>`,
-      width: 100,
-      top: 236,
-      left: 124,
+      width: 128,
+      top: 232,
+      left: 106,
       font: "Inter 38",
       fontfile: assets.interMediumTtfPath,
       align: "center",
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.54)}">${escapeMarkup("builds")}</span>`,
-      width: 100,
-      top: 290,
-      left: 124,
-      font: "Inter 16",
+      text: `<span foreground="${hexWithAlpha(assets.textMain, 0.60)}">${escapeMarkup("AI-assisted\nbuilds")}</span>`,
+      width: 138,
+      top: 292,
+      left: 102,
+      font: "Inter 17",
       fontfile: assets.interRegularTtfPath,
       align: "center",
     }),
@@ -412,85 +416,83 @@ export async function renderStoryPng() {
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[0])}</span>`,
-      width: 480,
-      top: 304,
-      left: 450,
+      width: 456,
+      top: 324,
+      left: 472,
       font: "Orbitron 54",
       fontfile: assets.orbitronTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}" letter_spacing="2000">${escapeMarkup(titleLines[1] ?? "")}</span>`,
-      width: 500,
-      top: 378,
-      left: 450,
+      width: 474,
+      top: 398,
+      left: 472,
       font: "Orbitron 60",
       fontfile: assets.orbitronTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.88)}">${escapeMarkup(ROLE_LABEL)}</span>`,
-      width: 440,
-      top: 564,
-      left: 450,
+      width: 404,
+      top: 602,
+      left: 486,
       font: "Inter 22",
       fontfile: assets.interMediumTtfPath,
     }),
     renderTextLayer({
-      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.70)}" letter_spacing="1200">${escapeMarkup(DISCIPLINE_LABEL)}</span>`,
+      text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.70)}" letter_spacing="1200">${escapeMarkup(DISCIPLINE_ROW)}</span>`,
       width: 280,
-      top: 608,
-      left: 450,
+      top: 652,
+      left: 486,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.74)}">${escapeMarkup(SUPPORT_LABEL)}</span>`,
-      width: 316,
-      top: 648,
-      left: 450,
+      width: 318,
+      top: 698,
+      left: 486,
       font: "Inter 15",
       fontfile: assets.interRegularTtfPath,
       spacing: 4,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.bgPrimary, 0.98)}">${escapeMarkup("View Work")}</span>`,
-      width: 334,
-      top: 838,
-      left: 120,
+      width: 120,
+      top: 832,
+      left: 222,
       font: "Inter 21",
       fontfile: assets.interMediumTtfPath,
-      align: "center",
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("WhatsApp")}</span>`,
-      width: 292,
-      top: 838,
-      left: 626,
+      width: 128,
+      top: 832,
+      left: 718,
       font: "Inter 20",
       fontfile: assets.interMediumTtfPath,
-      align: "center",
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("REACT SYSTEMS")}</span>`,
       width: 200,
-      top: 1020,
-      left: 108,
+      top: 1024,
+      left: 116,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("Antigravity\nfrontend")}</span>`,
-      width: 256,
-      top: 1076,
-      left: 108,
+      width: 240,
+      top: 1086,
+      left: 116,
       font: "Inter 30",
       fontfile: assets.interMediumTtfPath,
       spacing: 2,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.72)}">${escapeMarkup("Cinematic UI and premium webapp surfaces.")}</span>`,
-      width: 260,
-      top: 1182,
-      left: 108,
+      width: 232,
+      top: 1202,
+      left: 116,
       font: "Inter 15",
       fontfile: assets.interRegularTtfPath,
       spacing: 4,
@@ -498,25 +500,25 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("PLUGIN CASE")}</span>`,
       width: 180,
-      top: 1020,
-      left: 560,
+      top: 1024,
+      left: 594,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.96)}">${escapeMarkup("Meal-plan\nplugin")}</span>`,
-      width: 220,
-      top: 1076,
-      left: 560,
+      width: 190,
+      top: 1086,
+      left: 594,
       font: "Inter 30",
       fontfile: assets.interMediumTtfPath,
       spacing: 2,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.72)}">${escapeMarkup("Admin UX and structured workflow logic.")}</span>`,
-      width: 210,
-      top: 1182,
-      left: 560,
+      width: 184,
+      top: 1202,
+      left: 594,
       font: "Inter 15",
       fontfile: assets.interRegularTtfPath,
       spacing: 4,
@@ -525,47 +527,47 @@ export async function renderStoryPng() {
       text: `<span foreground="${hexWithAlpha(assets.accentSoft, 0.72)}" letter_spacing="1400">${escapeMarkup("SELECTED WORK")}</span>`,
       width: 180,
       top: 1370,
-      left: 108,
+      left: 116,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup(greenInfinity.name)}</span>`,
       width: 220,
-      top: 1578,
-      left: 132,
+      top: 1584,
+      left: 140,
       font: "Inter 24",
       fontfile: assets.interMediumTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup("Brand identity")}</span>`,
       width: 160,
-      top: 1618,
-      left: 132,
+      top: 1626,
+      left: 140,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.98)}">${escapeMarkup("Dubai GEO")}</span>`,
       width: 220,
-      top: 1470,
-      left: 612,
+      top: 1482,
+      left: 620,
       font: "Inter 28",
       fontfile: assets.interMediumTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.56)}">${escapeMarkup("5+ brand builds")}</span>`,
       width: 180,
-      top: 1516,
-      left: 612,
+      top: 1526,
+      left: 620,
       font: "DM Mono 12",
       fontfile: assets.dmMonoRegularTtfPath,
     }),
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("SEO / GEO")}</span>`,
       width: 114,
-      top: 1568,
-      left: 612,
+      top: 1564,
+      left: 620,
       font: "Inter 14",
       fontfile: assets.interMediumTtfPath,
       align: "center",
@@ -573,8 +575,8 @@ export async function renderStoryPng() {
     renderTextLayer({
       text: `<span foreground="${hexWithAlpha(assets.textMain, 0.92)}">${escapeMarkup("Dubai intent")}</span>`,
       width: 132,
-      top: 1568,
-      left: 736,
+      top: 1564,
+      left: 746,
       font: "Inter 14",
       fontfile: assets.interMediumTtfPath,
       align: "center",

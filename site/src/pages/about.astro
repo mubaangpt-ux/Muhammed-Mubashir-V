@@ -21,6 +21,8 @@ const aboutJsonLd = [
     { name: "About", path: "/about" },
   ]),
 ];
+
+const storyImagePath = `/og/story.png?v=${Date.now()}`;
 ---
 
 <BaseLayout
@@ -263,6 +265,6 @@ const aboutJsonLd = [
   </div>
 </section>
 
-<StorySharePanel client:load siteUrl={profile.siteUrl} />
+<StorySharePanel client:load siteUrl={profile.siteUrl} storyImagePath={storyImagePath} />
 
 </BaseLayout>
