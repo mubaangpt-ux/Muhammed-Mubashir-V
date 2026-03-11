@@ -12,6 +12,11 @@ const workJsonLd = [
     { name: "Work", path: "/work" },
   ]),
 ];
+
+const featuredProjects = projects.filter((project) => project.featured);
+const leadProject = featuredProjects[0];
+const secondaryFeaturedProjects = featuredProjects.slice(1);
+const supportingProjects = projects.filter((project) => !project.featured);
 ---
 
 <BaseLayout
@@ -46,44 +51,127 @@ const workJsonLd = [
       </div>
     </div>
 
-    <div class="grid gap-5 md:grid-cols-2">
-      {projects.map((project, i) => (
+    {leadProject && (
+      <div class="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.95fr)]">
         <a
-          href={`/work/${project.slug}`}
-          class="reveal glass-panel ring-hover rounded-2xl p-7 group flex flex-col hover:-translate-y-1 transition-all duration-300"
-          data-delay={String(0.05 + i * 0.07)}
+          href={`/work/${leadProject.slug}`}
+          class="reveal glass-panel ring-hover rounded-[1.75rem] p-8 group flex flex-col justify-between min-h-[26rem] hover:-translate-y-1 transition-all duration-300"
+          data-delay="0.05"
         >
-          <div class="flex items-center justify-between mb-5">
-            <span class="text-xs font-mono uppercase tracking-widest text-accent-soft/70">{project.category}</span>
-            <span class="text-xs font-mono text-slate-700">{String(i + 1).padStart(2, "0")}</span>
-          </div>
-
-          {project.featured && (
-            <span class="self-start text-xs font-mono px-2.5 py-1 rounded-full mb-4"
-              style="border: 1px solid rgba(37,99,235,0.35); background: rgba(37,99,235,0.12); color: #93c5fd;">
-              Featured
-            </span>
-          )}
-
-          <h2 class="font-display font-semibold text-white text-lg leading-snug mb-2">{project.title}</h2>
-          <p class="text-xs font-mono text-slate-600 mb-4">{project.client} · {project.period}</p>
-          <p class="text-sm text-slate-400 leading-relaxed flex-1">{project.overview}</p>
-
-          <div class="mt-6 flex flex-wrap gap-2">
-            {project.tools.slice(0, 4).map((tool) => (
-              <span class="text-xs px-2.5 py-1 rounded-full text-slate-600 font-mono"
-                style="border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03);">
-                {tool}
+          <div>
+            <div class="flex items-center justify-between gap-3 mb-6">
+              <span class="text-xs font-mono uppercase tracking-[0.28em] text-accent-soft/70">{leadProject.category}</span>
+              <span class="rounded-full px-3 py-1 text-[11px] font-mono"
+                style="border: 1px solid rgba(37,99,235,0.30); background: rgba(37,99,235,0.10); color: #93c5fd;">
+                Lead case study
               </span>
-            ))}
+            </div>
+            <h2 class="font-display font-semibold text-white text-2xl md:text-[2rem] leading-tight max-w-xl">
+              {leadProject.title}
+            </h2>
+            <p class="mt-3 text-xs font-mono uppercase tracking-[0.24em] text-slate-600">
+              {leadProject.client} · {leadProject.period}
+            </p>
+            <p class="mt-6 max-w-2xl text-base leading-relaxed text-slate-400">
+              {leadProject.overview}
+            </p>
           </div>
 
-          <div class="mt-5 flex items-center gap-1.5 text-xs text-accent-soft/50 group-hover:text-accent-soft transition-colors font-mono">
+          <div class="mt-8 grid gap-5 md:grid-cols-[1.05fr_0.95fr]">
+            <div class="rounded-2xl border border-white/6 bg-white/[0.025] p-5">
+              <p class="text-[11px] font-mono uppercase tracking-[0.24em] text-slate-600 mb-4">Outcome Signals</p>
+              <div class="space-y-3">
+                {leadProject.results.slice(0, 3).map((result) => (
+                  <p class="text-sm leading-relaxed text-slate-300">{result}</p>
+                ))}
+              </div>
+            </div>
+            <div class="rounded-2xl border border-white/6 bg-white/[0.025] p-5">
+              <p class="text-[11px] font-mono uppercase tracking-[0.24em] text-slate-600 mb-4">Delivery Stack</p>
+              <div class="flex flex-wrap gap-2">
+                {leadProject.tools.slice(0, 5).map((tool) => (
+                  <span class="text-xs px-2.5 py-1 rounded-full text-slate-500 font-mono"
+                    style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);">
+                    {tool}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-7 flex items-center gap-1.5 text-xs text-accent-soft/60 group-hover:text-accent-soft transition-colors font-mono">
             View case study <span class="group-hover:translate-x-1 transition-transform">→</span>
           </div>
         </a>
-      ))}
-    </div>
+
+        <div class="grid gap-5">
+          {secondaryFeaturedProjects.map((project, index) => (
+            <a
+              href={`/work/${project.slug}`}
+              class="reveal glass-panel ring-hover rounded-[1.5rem] p-6 group flex flex-col justify-between min-h-[12.5rem] hover:-translate-y-1 transition-all duration-300"
+              data-delay={String(0.10 + index * 0.06)}
+            >
+              <div>
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <span class="text-xs font-mono uppercase tracking-[0.24em] text-accent-soft/70">{project.category}</span>
+                  <span class="text-xs font-mono text-slate-700">{String(index + 2).padStart(2, "0")}</span>
+                </div>
+                <h3 class="font-display font-semibold text-white text-xl leading-snug">{project.title}</h3>
+                <p class="mt-3 text-xs font-mono uppercase tracking-[0.24em] text-slate-600">
+                  {project.client} · {project.period}
+                </p>
+                <p class="mt-4 text-sm leading-relaxed text-slate-400">{project.overview}</p>
+              </div>
+
+              <div class="mt-5 flex items-center gap-1.5 text-xs text-accent-soft/50 group-hover:text-accent-soft transition-colors font-mono">
+                View case study <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {supportingProjects.length > 0 && (
+      <div class="mt-12">
+        <div class="reveal mb-8" data-delay="0.18">
+          <p class="text-xs font-mono uppercase tracking-[0.24em] text-slate-600 mb-3">More Work</p>
+          <h2 class="font-display font-semibold text-white text-2xl">Supporting case studies</h2>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          {supportingProjects.map((project, index) => (
+            <a
+              href={`/work/${project.slug}`}
+              class="reveal glass-panel ring-hover rounded-2xl p-6 group flex flex-col hover:-translate-y-1 transition-all duration-300"
+              data-delay={String(0.22 + index * 0.06)}
+            >
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <span class="text-xs font-mono uppercase tracking-[0.24em] text-accent-soft/70">{project.category}</span>
+                <span class="text-xs font-mono text-slate-700">{project.client}</span>
+              </div>
+
+              <h3 class="font-display font-semibold text-white text-lg leading-snug">{project.title}</h3>
+              <p class="mt-2 text-xs font-mono uppercase tracking-[0.24em] text-slate-600">{project.period}</p>
+              <p class="mt-4 text-sm text-slate-400 leading-relaxed flex-1">{project.overview}</p>
+
+              <div class="mt-5 flex flex-wrap gap-2">
+                {project.tools.slice(0, 3).map((tool) => (
+                  <span class="text-xs px-2.5 py-1 rounded-full text-slate-600 font-mono"
+                    style="border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03);">
+                    {tool}
+                  </span>
+                ))}
+              </div>
+
+              <div class="mt-5 flex items-center gap-1.5 text-xs text-accent-soft/50 group-hover:text-accent-soft transition-colors font-mono">
+                View case study <span class="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
   </div>
 </section>
 
