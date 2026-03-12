@@ -70,6 +70,7 @@ const robotsContent = noindex
   : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1";
 const googleSiteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingSiteVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION;
+const googleAnalyticsMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID || "G-XYR2TYT2QS";
 const isDev = import.meta.env.DEV;
 
 const navItems = [
@@ -110,6 +111,39 @@ const navItems = [
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     {googleSiteVerification && <meta name="google-site-verification" content={googleSiteVerification} />}
     {bingSiteVerification && <meta name="msvalidate.01" content={bingSiteVerification} />}
+    {!isDev && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsMeasurementId}`}></script>
+        <script define:vars={{ googleAnalyticsMeasurementId }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          window.gtag = window.gtag || gtag;
+          gtag('js', new Date());
+          gtag('config', googleAnalyticsMeasurementId, { send_page_view: false });
+
+          const currentTrackedPath = () => `${window.location.pathname}${window.location.search}${window.location.hash}`;
+          const trackPageView = () => {
+            const pagePath = currentTrackedPath();
+            if (window.__mubaanLastTrackedPath === pagePath) return;
+            window.__mubaanLastTrackedPath = pagePath;
+            gtag('event', 'page_view', {
+              send_to: googleAnalyticsMeasurementId,
+              page_title: document.title,
+              page_location: window.location.href,
+              page_path: pagePath,
+            });
+          };
+
+          if (document.readyState === 'complete') {
+            trackPageView();
+          } else {
+            window.addEventListener('load', trackPageView, { once: true });
+          }
+
+          document.addEventListener('astro:page-load', trackPageView);
+        </script>
+      </>
+    )}
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content={robotsContent} />
@@ -685,7 +719,8 @@ const navItems = [
       <div class="mx-auto max-w-7xl px-6 grid grid-cols-[1fr_auto_1fr] items-center h-12">
 
         <!-- Left: subtle home link only -->
-        <a href="/" class="flex items-center group justify-self-start">
+        <a href="/" class="flex items-center group justify-self-start" aria-label="Mubaan home">
+          <span class="sr-only">Mubaan home</span>
           <span class="items-center justify-center transition-colors duration-200 hidden lg:inline-flex"
             style="color: rgba(147,197,253,0.34); width: 18px; height: 18px;"
             onmouseover="this.style.color='rgba(147,197,253,0.65)'"
