@@ -1665,6 +1665,11 @@ const homeJsonLd = [
   const rows = [];
   let lastScrollY = window.scrollY;
   let animFrame = null;
+  let sectionObserver = null;
+  let rowsActive = false;
+  let testiLastFrame = 0;
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function initRows() {
     rows.length = 0;
@@ -1674,24 +1679,36 @@ const homeJsonLd = [
       const direction = i % 2 === 0 ? 1 : -1;
       const cardW = 314; // card width + gap
       const singleW = el.children.length / 3 * cardW;
-      rows.push({ el, direction, x: i % 2 === 0 ? 0 : -singleW, singleW, speed: 0.28 + i * 0.06 });
+      const baseSpeed = isMobile ? 0.16 : 0.28;
+      rows.push({ el, direction, x: i % 2 === 0 ? 0 : -singleW, singleW, speed: baseSpeed + i * (isMobile ? 0.04 : 0.06) });
     });
   }
 
   function tick() {
+    if (!rowsActive) return;
+
+    if (document.hidden) {
+      animFrame = requestAnimationFrame(tick);
+      return;
+    }
+
+    if (testiLastFrame && isMobile && performance.now() - testiLastFrame < 32) {
+      animFrame = requestAnimationFrame(tick);
+      return;
+    }
+    testiLastFrame = performance.now();
+
     const currentScrollY = window.scrollY;
     const scrollDelta = currentScrollY - lastScrollY;
     lastScrollY = currentScrollY;
 
-    // Check if in viewport
     const section = document.getElementById('testi-section');
     if (section) {
-      const rect = section.getBoundingClientRect();
       rows.forEach(row => {
         // Auto-scroll: slow constant drift
         row.x += row.direction * row.speed;
         // Scroll parallax: extra push based on scroll direction
-        row.x += row.direction * scrollDelta * 0.4;
+        row.x += row.direction * scrollDelta * (isMobile ? 0.18 : 0.4);
 
         // Seamless loop
         if (row.direction > 0 && row.x > 0) row.x -= row.singleW;
@@ -1701,6 +1718,21 @@ const homeJsonLd = [
       });
     }
 
+    animFrame = requestAnimationFrame(tick);
+  }
+
+  function stopRows() {
+    rowsActive = false;
+    if (animFrame) {
+      cancelAnimationFrame(animFrame);
+      animFrame = null;
+    }
+  }
+
+  function startRows() {
+    if (rowsActive || prefersReducedMotion) return;
+    rowsActive = true;
+    testiLastFrame = 0;
     animFrame = requestAnimationFrame(tick);
   }
 
@@ -1783,8 +1815,18 @@ const homeJsonLd = [
   function initTestimonials() {
     populateRows();
     initRows();
-    animFrame = requestAnimationFrame(tick);
     initPhotoUpload();
+
+    const section = document.getElementById('testi-section');
+    if (!prefersReducedMotion && section) {
+      sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) startRows();
+          else stopRows();
+        });
+      }, { threshold: 0.05, rootMargin: '220px 0px 220px 0px' });
+      sectionObserver.observe(section);
+    }
 
     const openBtn   = document.getElementById('testi-open-btn');
     const closeBtn  = document.getElementById('testi-close-btn');
@@ -1832,7 +1874,8 @@ const homeJsonLd = [
   initTestimonials();
 
   window.__testiRowsCleanup = () => {
-    if (animFrame) cancelAnimationFrame(animFrame);
+    stopRows();
+    if (sectionObserver) sectionObserver.disconnect();
   };
 
 })();

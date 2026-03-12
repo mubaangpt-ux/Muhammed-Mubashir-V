@@ -271,6 +271,6 @@ const storyImagePath = `/og/story.png?v=${Date.now()}`;
   </div>
 </section>
 
-<StorySharePanel client:load siteUrl={profile.siteUrl} storyImagePath={storyImagePath} />
+<StorySharePanel client:visible siteUrl={profile.siteUrl} storyImagePath={storyImagePath} />
 
 </BaseLayout>

@@ -911,10 +911,21 @@ const navItems = [
     <!-- Cursor JS -->
     <script is:inline>
       (() => {
+        if (window.__mubCursorInit) return;
+
         function initCursor() {
+        const supportsFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!supportsFinePointer || prefersReducedMotion) {
+          window.__mubCursorInit = true;
+          document.documentElement.classList.add('cursor-disabled');
+          return;
+        }
+
         const dot = document.getElementById("cursor-dot");
         const ring = document.getElementById("cursor-ring");
         if (!dot || !ring) return;
+        window.__mubCursorInit = true;
 
         let mx = -100, my = -100, rx = -100, ry = -100;
         let rafId;
@@ -1077,11 +1088,23 @@ const navItems = [
     <!-- Preload all pages after first paint — instant navigation -->
     <script is:inline>
     (() => {
-      function prefetchAll() {
-        const pages = ['/work', '/about', '/contact', '/resume'];
-        const assets = ['/profile.png', '/favicon.svg'];
+      if (window.__mubIdlePrefetchInit) return;
+      window.__mubIdlePrefetchInit = true;
 
-        const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 300));
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const saveData = Boolean(connection && connection.saveData);
+      const effectiveType = connection && connection.effectiveType ? connection.effectiveType : "";
+      const isSlowConnection = ["slow-2g", "2g"].includes(effectiveType);
+      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+
+      if (saveData || isSlowConnection) return;
+
+      function prefetchAll() {
+        const pages = isCoarsePointer
+          ? ['/work/', '/contact/']
+          : ['/work/', '/about/', '/contact/', '/resume/'];
+
+        const schedule = window.requestIdleCallback || ((cb) => setTimeout(cb, 600));
 
         schedule(() => {
           pages.forEach(href => {
@@ -1093,26 +1116,7 @@ const navItems = [
             link.as = 'document';
             document.head.appendChild(link);
           });
-
-          assets.forEach(href => {
-            const existing = document.querySelector(`link[href="${href}"][rel="preload"]`);
-            if (existing) return;
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.href = href;
-            link.as = href.endsWith('.png') || href.endsWith('.jpg') ? 'image' : 'image';
-            document.head.appendChild(link);
-          });
         }, { timeout: 2000 });
-
-        schedule(() => {
-          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            pages.forEach(page => {
-              fetch(page, { method: 'GET', mode: 'no-cors', cache: 'force-cache' })
-                .catch(() => {});
-            });
-          }
-        }, { timeout: 3000 });
       }
 
       if (document.readyState === 'complete') {
@@ -1125,42 +1129,45 @@ const navItems = [
 
     <script is:inline>
     (() => {
-      document.addEventListener('click', (e) => {
-        const link = e.target.closest('a[href]');
-        if (!link) return;
+      if (window.__mubIntentPrefetchInit) return;
+      window.__mubIntentPrefetchInit = true;
 
-        const href = link.getAttribute('href');
-        if (!href) return;
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const saveData = Boolean(connection && connection.saveData);
+      const effectiveType = connection && connection.effectiveType ? connection.effectiveType : "";
+      const isSlowConnection = ["slow-2g", "2g"].includes(effectiveType);
+      const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (saveData || isSlowConnection) return;
 
-        const isInternal = href.startsWith('/') && !href.startsWith('//');
-        const isHash = href.startsWith('#');
+      const prefetched = new Set();
+      function prefetchHref(href) {
+        if (!href || !href.startsWith('/')) return;
+        if (href.startsWith('//') || href.startsWith('/#')) return;
+        if (prefetched.has(href)) return;
+        if (document.querySelector(`link[href="${href}"][rel="prefetch"]`)) {
+          prefetched.add(href);
+          return;
+        }
+        const pl = document.createElement('link');
+        pl.rel = 'prefetch';
+        pl.href = href;
+        pl.as = 'document';
+        document.head.appendChild(pl);
+        prefetched.add(href);
+      }
 
-        if (!isInternal || isHash) return;
-        if (link.target === '_blank') return;
-
-        link.addEventListener('mouseover', () => {
-          const pl = document.createElement('link');
-          pl.rel = 'prefetch';
-          pl.href = href;
-          pl.as = 'document';
-          if (!document.querySelector(`link[href="${href}"][rel="prefetch"]`)) {
-            document.head.appendChild(pl);
-          }
-        }, { once: true });
-      }, { passive: true });
-
-      document.querySelectorAll('nav a[href]').forEach(link => {
-        link.addEventListener('mouseenter', () => {
-          const href = link.getAttribute('href');
-          if (!href || !href.startsWith('/')) return;
-          const existing = document.querySelector(`link[href="${href}"][rel="prefetch"]`);
-          if (existing) return;
-          const pl = document.createElement('link');
-          pl.rel = 'prefetch';
-          pl.href = href;
-          pl.as = 'document';
-          document.head.appendChild(pl);
+      if (supportsHover) {
+        document.addEventListener('mouseover', (e) => {
+          const link = e.target.closest('a[href]');
+          if (!link || link.target === '_blank') return;
+          prefetchHref(link.getAttribute('href'));
         }, { passive: true });
+      }
+
+      document.addEventListener('focusin', (e) => {
+        const link = e.target.closest && e.target.closest('a[href]');
+        if (!link || link.target === '_blank') return;
+        prefetchHref(link.getAttribute('href'));
       });
     })();
     </script>

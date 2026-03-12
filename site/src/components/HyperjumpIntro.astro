@@ -89,12 +89,30 @@
   let bgEventsBound = false;
   let backgroundSnapshot = null;
   let revealTimers = [];
+  let starCount = C.N;
+  let staticBackgroundMode = false;
+  let lowPowerMode = false;
+  let backgroundFrameInterval = 1000 / 45;
+  let lastBgFrame = 0;
 
   const x3 = new Float32Array(C.N), y3 = new Float32Array(C.N), z3 = new Float32Array(C.N);
   const ci = new Uint8Array(C.N), bsz = new Float32Array(C.N);
   const sx = new Float32Array(C.N), sy = new Float32Array(C.N), psx = new Float32Array(C.N), psy = new Float32Array(C.N);
   const hx = new Float32Array(C.N), hy = new Float32Array(C.N), vx = new Float32Array(C.N), vy = new Float32Array(C.N);
   const sa = new Float32Array(C.N), sr = new Float32Array(C.N);
+
+  function detectPerformanceProfile() {
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const memory = navigator.deviceMemory || 8;
+    const cores = navigator.hardwareConcurrency || 8;
+    const narrowViewport = Math.min(window.innerWidth, window.innerHeight) < 768;
+
+    lowPowerMode = reducedMotion || memory <= 4 || cores <= 4 || narrowViewport;
+    staticBackgroundMode = reducedMotion || coarsePointer;
+    starCount = staticBackgroundMode ? 1200 : lowPowerMode ? 1800 : C.N;
+    backgroundFrameInterval = staticBackgroundMode ? 1000 / 18 : lowPowerMode ? 1000 / 30 : 1000 / 45;
+  }
 
   function createSeededRandom(seed) {
     let state = seed >>> 0;
@@ -123,7 +141,7 @@
   }
 
   function resetIntroScene() {
-    for (let i = 0; i < C.N; i++) initStar(i, true);
+    for (let i = 0; i < starCount; i++) initStar(i, true);
     backgroundPrepared = false;
   }
 
@@ -135,8 +153,8 @@
       const parsed = JSON.parse(raw);
       if (!parsed || (parsed.v !== 1 && parsed.v !== 2)) return null;
       if (!Array.isArray(parsed.x) || !Array.isArray(parsed.y) || !Array.isArray(parsed.s) || !Array.isArray(parsed.c)) return null;
-      if (parsed.x.length !== C.N || parsed.y.length !== C.N || parsed.s.length !== C.N || parsed.c.length !== C.N) return null;
-      if (parsed.a && (!Array.isArray(parsed.a) || parsed.a.length !== C.N)) return null;
+      if (parsed.x.length < starCount || parsed.y.length < starCount || parsed.s.length < starCount || parsed.c.length < starCount) return null;
+      if (parsed.a && (!Array.isArray(parsed.a) || parsed.a.length < starCount)) return null;
       backgroundSnapshot = parsed;
       return backgroundSnapshot;
     } catch {
@@ -147,11 +165,12 @@
   function saveBackgroundSnapshot() {
     const snapshot = {
       v: 2,
-      x: Array.from({ length: C.N }, (_, i) => Math.round((hx[i] / W) * BG_POS_SCALE)),
-      y: Array.from({ length: C.N }, (_, i) => Math.round((hy[i] / H) * BG_POS_SCALE)),
-      s: Array.from({ length: C.N }, (_, i) => Math.round(sr[i] * BG_SIZE_SCALE)),
-      a: Array.from({ length: C.N }, (_, i) => Math.round(sa[i] * BG_ALPHA_SCALE)),
-      c: Array.from(ci),
+      n: starCount,
+      x: Array.from({ length: starCount }, (_, i) => Math.round((hx[i] / W) * BG_POS_SCALE)),
+      y: Array.from({ length: starCount }, (_, i) => Math.round((hy[i] / H) * BG_POS_SCALE)),
+      s: Array.from({ length: starCount }, (_, i) => Math.round(sr[i] * BG_SIZE_SCALE)),
+      a: Array.from({ length: starCount }, (_, i) => Math.round(sa[i] * BG_ALPHA_SCALE)),
+      c: Array.from(ci.slice(0, starCount)),
     };
     backgroundSnapshot = snapshot;
     try {
@@ -162,7 +181,7 @@
   function restoreBackgroundSnapshot(snapshot = loadBackgroundSnapshot()) {
     if (!snapshot) return false;
     const legacySnapshot = snapshot.v === 1;
-    for (let i = 0; i < C.N; i++) {
+    for (let i = 0; i < starCount; i++) {
       const px = (snapshot.x[i] / BG_POS_SCALE) * W;
       const py = (snapshot.y[i] / BG_POS_SCALE) * H;
       hx[i] = sx[i] = psx[i] = px;
@@ -185,7 +204,7 @@
   }
 
   function freezeCurrentBackgroundFrame() {
-    for (let i = 0; i < C.N; i++) {
+    for (let i = 0; i < starCount; i++) {
       hx[i] = sx[i];
       hy[i] = sy[i];
       psx[i] = sx[i];
@@ -208,7 +227,7 @@
     const wideY = H * 0.78;
     const orbitRadius = Math.min(W, H) * 0.46;
 
-    for (let i = 0; i < C.N; i++) {
+    for (let i = 0; i < starCount; i++) {
       const layer = random();
       let px;
       let py;
@@ -371,13 +390,14 @@
   }
 
   function bindBackgroundEvents() {
-    if (bgEventsBound) return;
+    if (bgEventsBound || staticBackgroundMode) return;
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('mouseleave', onMouseLeave, { passive: true });
     bgEventsBound = true;
   }
 
   function resize() {
+    detectPerformanceProfile();
     W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
     cx = W * 0.5; cy = H * 0.5;
     prepareCachedBackdrop();
@@ -391,6 +411,9 @@
       }
     }
     ctx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`; ctx.fillRect(0, 0, W, H);
+    if (mode === 'background' && staticBackgroundMode) {
+      bgLoop(performance.now());
+    }
   }
 
   const eIn = t => t * t * t * t * t, eOut = t => 1 - Math.pow(1 - t, 5);
@@ -420,7 +443,7 @@
     expFactor = (phase === 'decel' || phase === 'done') ? 1.0 + eOut(el / C.T_DECEL) * 6.0 : 1.0;
     const dz = curSpd * dt;
 
-    for (let i = 0; i < C.N; i++) {
+    for (let i = 0; i < starCount; i++) {
       if (phase !== 'done') {
         z3[i] -= dz; if (z3[i] < C.Z_NEAR) { 
           initStar(i, false); const sc2 = C.FOCAL / z3[i]; psx[i] = cx + x3[i]*sc2*expFactor; psy[i] = cy + y3[i]*sc2*expFactor; 
@@ -469,17 +492,33 @@
     bindBackgroundEvents();
     document.dispatchEvent(new CustomEvent('hyperjump-complete'));
     if (rafId) cancelAnimationFrame(rafId);
+    lastBgFrame = 0;
+    if (staticBackgroundMode) {
+      bgLoop(performance.now());
+      return;
+    }
     rafId = requestAnimationFrame(bgLoop);
   }
 
   function bgLoop(ts) {
+    if (document.hidden) {
+      rafId = requestAnimationFrame(bgLoop);
+      return;
+    }
+
+    if (lastBgFrame && ts - lastBgFrame < backgroundFrameInterval) {
+      rafId = requestAnimationFrame(bgLoop);
+      return;
+    }
+    lastBgFrame = ts;
+
     drawBackgroundBackdrop();
 
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
-    for (let i = 0; i < C.N; i++) {
+    for (let i = 0; i < starCount; i++) {
         const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
-        if (d2 < r2 && d2 > 0.1) {
+        if (!staticBackgroundMode && d2 < r2 && d2 > 0.1) {
             const t = 1 - d2/r2, f = t*t*C.RIPPLE_F, inv = 1/Math.sqrt(d2);
             vx[i] += dx*inv*f*0.05; vy[i] += dy*inv*f*0.05;
         }
@@ -487,6 +526,7 @@
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
         drawStarDot(sx[i], sy[i], ci[i], sr[i], sa[i]);
     }
+    if (staticBackgroundMode) return;
     rafId = requestAnimationFrame(bgLoop);
   }
 
@@ -537,7 +577,10 @@
 
   function start() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
-    if (!canvas) return; ctx = canvas.getContext('2d', { alpha: false }); resize();
+    if (!canvas) return;
+    detectPerformanceProfile();
+    ctx = canvas.getContext('2d', { alpha: false });
+    resize();
     clearRevealTimers();
     
     const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
