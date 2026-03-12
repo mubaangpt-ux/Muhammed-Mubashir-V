@@ -58,10 +58,10 @@ export default function CreativeWorks() {
   }
 
   return (
-    <section className="relative overflow-hidden bg-transparent px-4 py-24 md:px-6">
+    <section className="relative overflow-hidden bg-transparent px-4 py-16 md:px-6 md:py-18">
       <div className="relative mx-auto max-w-7xl">
-        <div className="mb-14 max-w-2xl">
-          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.36em] text-[#93c5fd]/75">
+        <div className="mb-10 max-w-2xl md:mb-12">
+          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.36em] text-[#93c5fd]/75">
             Creative Works
           </p>
           <h2
@@ -75,14 +75,14 @@ export default function CreativeWorks() {
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {rows.map((row, rowIndex) => {
             const expandedInRow = row.find((company) => company.id === expandedId) ?? null;
             const rowStart = rowIndex * columns;
 
             return (
-              <div key={`row-${rowIndex}`} className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div key={`row-${rowIndex}`} className="space-y-5">
+                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                   {row.map((company, cardIndex) => {
                     const globalIndex = rowStart + cardIndex;
 
