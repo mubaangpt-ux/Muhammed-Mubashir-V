@@ -8,6 +8,7 @@ import { resources } from "../data/resources";
 import { services } from "../data/services";
 import { testimonials } from "../data/testimonials";
 import {
+  buildPageTitle,
   breadcrumbJsonLd,
   personJsonLd,
   professionalServiceJsonLd,
@@ -91,7 +92,7 @@ const homeJsonLd = [
 ---
 
 <BaseLayout
-  title={`Dubai Digital Marketer, Web Developer, SEO/GEO and AI Systems | ${profile.name}`}
+  title={buildPageTitle("Dubai Digital Marketer, Web Developer & SEO/GEO")}
   description="Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems builder for lead generation, Meta and Google ads, conversion tracking, and WordPress web systems."
   ogTitle="Muhammed Mubashir V — Digital Operations & Growth Manager"
   ogDescription="Helping you build, optimize, and grow your business through design, performance, and web systems."

@@ -4,6 +4,7 @@ import "../styles/global.css";
 import { profile } from "../data/profile";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
+import { absoluteUrl } from "../lib/seo";
 import HyperjumpIntro from "../components/HyperjumpIntro.astro";
 import {
   ArrowUpRight,
@@ -49,7 +50,7 @@ const {
 } = Astro.props;
 
 const siteOrigin = (Astro.site?.toString() || profile.siteUrl).replace(/\/+$/, "");
-const canonical = new URL(path, `${siteOrigin}/`).toString();
+const canonical = absoluteUrl(path);
 const imagePath = image;
 const ogImage = imagePath.startsWith("http") ? imagePath : new URL(imagePath, `${siteOrigin}/`).toString();
 const ogImageAlt = ogTitle || title;
@@ -87,8 +88,8 @@ const navItems = [
     <link rel="preload" as="image" href="/profile.png" fetchpriority="high" />
 
     <!-- Prefetch next likely pages -->
-    <link rel="prefetch" href="/work" />
-    <link rel="prefetch" href="/contact" />
+    <link rel="prefetch" href="/work/" />
+    <link rel="prefetch" href="/contact/" />
 
     <!-- DNS prefetch for external services -->
     <link rel="dns-prefetch" href="https://wa.me" />
@@ -114,9 +115,6 @@ const navItems = [
     <meta name="robots" content={robotsContent} />
     <meta name="googlebot" content={robotsContent} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hrefLang="en" href={canonical} />
-    <link rel="alternate" hrefLang="en-AE" href={canonical} />
-    <link rel="alternate" hrefLang="x-default" href={canonical} />
     <link rel="manifest" href="/manifest.json" />
 
     <meta property="og:type" content="website" />
@@ -709,7 +707,7 @@ const navItems = [
             </li>
 
             <li class="mub-item">
-              <a href="/work" class="mub-link" aria-label="Work" data-active-path="/work">
+              <a href="/work/" class="mub-link" aria-label="Work" data-active-path="/work">
                 <span class="mub-icon">
                   <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path><line x1="12" y1="12" x2="12" y2="16"></line><line x1="10" y1="14" x2="14" y2="14"></line></svg>
                 </span>
@@ -718,7 +716,7 @@ const navItems = [
             </li>
 
             <li class="mub-item">
-              <a href="/about" class="mub-link" aria-label="About" data-active-path="/about">
+              <a href="/about/" class="mub-link" aria-label="About" data-active-path="/about">
                 <span class="mub-icon">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
                 </span>
@@ -727,7 +725,7 @@ const navItems = [
             </li>
 
             <li class="mub-item">
-              <a href="/resume" class="mub-link" aria-label="Resume" data-active-path="/resume">
+              <a href="/resume/" class="mub-link" aria-label="Resume" data-active-path="/resume">
                 <span class="mub-icon">
                   <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg>
                 </span>
@@ -736,7 +734,7 @@ const navItems = [
             </li>
 
             <li class="mub-item">
-              <a href="/contact" class="mub-link" aria-label="Contact" data-active-path="/contact">
+              <a href="/contact/" class="mub-link" aria-label="Contact" data-active-path="/contact">
                 <span class="mub-icon">
                   <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </span>
@@ -780,15 +778,15 @@ const navItems = [
             </p>
             <p class="text-xs text-slate-500">{profile.location}</p>
             <div class="flex flex-wrap gap-2 pt-1">
-              <a href="/work"
+              <a href="/work/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
                 Case Studies
               </a>
-              <a href="/services"
+              <a href="/services/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
                 Services
               </a>
-              <a href="/resources"
+              <a href="/resources/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
                 Resources
               </a>
@@ -830,9 +828,9 @@ const navItems = [
             ))}
             <div class="pt-4 mt-4 border-t border-white/6 space-y-2">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Services</p>
-              <a href="/services" class="block text-sm text-slate-400 hover:text-white transition-colors">Services Hub</a>
+              <a href="/services/" class="block text-sm text-slate-400 hover:text-white transition-colors">Services Hub</a>
               {services.slice(0, 4).map((service) => (
-                <a href={`/services/${service.slug}`}
+                <a href={`/services/${service.slug}/`}
                   class="block text-sm text-slate-400 hover:text-white transition-colors">
                   {service.shortTitle}
                 </a>
@@ -843,17 +841,17 @@ const navItems = [
           <div class="space-y-5">
             <div class="space-y-2">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Guides</p>
-              <a href="/dubai-digital-marketer" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Digital Marketer</a>
-              <a href="/freelance-digital-marketer-dubai" class="block text-sm text-slate-400 hover:text-white transition-colors">Freelance Digital Marketer</a>
-              <a href="/dubai-web-developer" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Web Developer</a>
-              <a href="/dubai-ai-engineer" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai AI Engineer</a>
+              <a href="/dubai-digital-marketer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Digital Marketer</a>
+              <a href="/freelance-digital-marketer-dubai/" class="block text-sm text-slate-400 hover:text-white transition-colors">Freelance Digital Marketer</a>
+              <a href="/dubai-web-developer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Web Developer</a>
+              <a href="/dubai-ai-engineer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai AI Engineer</a>
             </div>
             <div class="space-y-2 pt-4 border-t border-white/6">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Resources</p>
-              <a href="/press-kit" class="block text-sm text-slate-400 hover:text-white transition-colors">Press Kit</a>
-              <a href="/resources" class="block text-sm text-slate-400 hover:text-white transition-colors">Resources Hub</a>
+              <a href="/press-kit/" class="block text-sm text-slate-400 hover:text-white transition-colors">Press Kit</a>
+              <a href="/resources/" class="block text-sm text-slate-400 hover:text-white transition-colors">Resources Hub</a>
               {resources.slice(0, 3).map((resource) => (
-                <a href={`/resources/${resource.slug}`}
+                <a href={`/resources/${resource.slug}/`}
                   class="block text-sm text-slate-400 hover:text-white transition-colors">
                   {resource.title}
                 </a>

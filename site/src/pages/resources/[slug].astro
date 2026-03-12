@@ -4,7 +4,7 @@ import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
 import { resources } from "../../data/resources";
 import { services } from "../../data/services";
-import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from "../../lib/seo";
+import { articleJsonLd, breadcrumbJsonLd, faqJsonLd, buildPageTitle } from "../../lib/seo";
 
 export function getStaticPaths() {
   return resources.map((resource) => ({
@@ -40,7 +40,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`${resource.title} | ${profile.name}`}
+  title={buildPageTitle(resource.title, 62)}
   description={resource.description}
   path={`/resources/${resource.slug}`}
   jsonLd={pageJsonLd}

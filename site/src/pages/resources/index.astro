@@ -2,14 +2,20 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { profile } from "../../data/profile";
 import { resources } from "../../data/resources";
-import { breadcrumbJsonLd } from "../../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, buildPageTitle } from "../../lib/seo";
 
 const resourcesJsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `Resources | ${profile.name}`,
+    url: absoluteUrl("/resources"),
     description: "Guides on Dubai technical SEO, digital marketing, content depth, and lead generation systems.",
+    hasPart: resources.map((resource) => ({
+      "@type": "Article",
+      headline: resource.title,
+      url: absoluteUrl(`/resources/${resource.slug}`),
+    })),
   },
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
@@ -19,7 +25,7 @@ const resourcesJsonLd = [
 ---
 
 <BaseLayout
-  title={`Resources and Guides | ${profile.name}`}
+  title={buildPageTitle("Dubai SEO, GEO & Growth Guides")}
   description="Dubai-focused guides on digital marketing, web development, technical SEO, GEO, AI discovery, content depth, and lead generation systems."
   path="/resources"
   jsonLd={resourcesJsonLd}

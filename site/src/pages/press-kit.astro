@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
-import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const shortBio =
   "Muhammed Mubashir V is a Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems operator focused on lead generation, search visibility, conversion tracking, and web systems for UAE businesses.";
@@ -51,7 +51,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`Press Kit and Official Brand Profile | ${profile.name}`}
+  title={buildPageTitle("Press Kit & Official Brand Profile")}
   description={`Official press kit, biography, links, and contact details for ${profile.name}, a Dubai-based digital marketer, web developer, SEO/GEO specialist, and AI systems operator.`}
   path="/press-kit"
   jsonLd={pageJsonLd}

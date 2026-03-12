@@ -7,24 +7,29 @@ const DEFAULT_SITE_URL = "https://mubaan.online";
 
 export const SITE_URL = (import.meta.env.PUBLIC_SITE_URL || profile.siteUrl || DEFAULT_SITE_URL).replace(/\/+$/, "");
 
-export const absoluteUrl = (path = "/") => new URL(path, `${SITE_URL}/`).toString();
+const FILE_PATH_PATTERN = /\/[^/?#]+\.[a-z0-9]+$/i;
+
+export const normalizeSitePath = (input = "/") => {
+  const value = input || "/";
+  const match = value.match(/^([^?#]*)([?#].*)?$/);
+  const rawPathname = match?.[1] || "/";
+  const suffix = match?.[2] || "";
+  const pathname = rawPathname.startsWith("/") ? rawPathname : `/${rawPathname}`;
+
+  if (pathname === "/") return `/${suffix}`;
+  if (FILE_PATH_PATTERN.test(pathname)) return `${pathname.replace(/\/+$/, "")}${suffix}`;
+
+  return `${pathname.replace(/\/+$/, "")}/${suffix}`;
+};
+
+export const absoluteUrl = (path = "/") => new URL(normalizeSitePath(path), `${SITE_URL}/`).toString();
 
 type BreadcrumbItem = {
   name: string;
   path: string;
 };
 
-export const websiteJsonLd = () => ({
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: profile.name,
-  url: SITE_URL,
-  description: profile.summary,
-  inLanguage: "en-AE",
-});
-
-export const personJsonLd = () => ({
-  "@context": "https://schema.org",
+const personEntity = () => ({
   "@type": "Person",
   name: profile.name,
   alternateName: profile.links.instagramHandle,
@@ -61,11 +66,25 @@ export const personJsonLd = () => ({
   sameAs: profile.instagram.map((item) => item.href),
 });
 
+export const websiteJsonLd = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: profile.name,
+  url: SITE_URL,
+  description: profile.summary,
+  inLanguage: "en-AE",
+});
+
+export const personJsonLd = () => ({
+  "@context": "https://schema.org",
+  ...personEntity(),
+});
+
 export const profilePageJsonLd = (path: string) => ({
   "@context": "https://schema.org",
   "@type": "ProfilePage",
   url: absoluteUrl(path),
-  mainEntity: personJsonLd(),
+  mainEntity: personEntity(),
 });
 
 export const professionalServiceJsonLd = () => ({
@@ -206,9 +225,7 @@ export const serviceJsonLd = (service: Service) => ({
     "AI systems",
   ].join(", "),
   provider: {
-    "@type": "Person",
-    name: profile.name,
-    url: SITE_URL,
+    ...personEntity(),
   },
   areaServed: [
     { "@type": "City", name: "Dubai" },
@@ -243,14 +260,16 @@ export const articleJsonLd = (resource: Resource) => {
   headline: resource.title,
   description: resource.description,
   author: {
-    "@type": "Person",
-    name: profile.name,
-    url: SITE_URL,
+    ...personEntity(),
   },
   publisher: {
-    "@type": "Person",
+    "@type": "Organization",
     name: profile.name,
     url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: absoluteUrl("/profile.png"),
+    },
   },
   datePublished: resource.publishDate,
   dateModified: resource.publishDate,
@@ -264,6 +283,23 @@ export const articleJsonLd = (resource: Resource) => {
   ],
   inLanguage: "en-AE",
   };
+};
+
+const trimTitleToWordBoundary = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength + 1).replace(/\s+\S*$/, "").trim();
+  return truncated.length >= 24 ? truncated : text.slice(0, maxLength).trim();
+};
+
+export const buildPageTitle = (primary: string, maxLength = 60) => {
+  const suffix = profile.name;
+  const separator = " | ";
+  const full = `${primary}${separator}${suffix}`;
+
+  if (full.length <= maxLength) return full;
+
+  const maxPrimaryLength = Math.max(24, maxLength - suffix.length - separator.length);
+  return `${trimTitleToWordBoundary(primary, maxPrimaryLength)}${separator}${suffix}`;
 };
 
 export const staticSitemapEntries = [

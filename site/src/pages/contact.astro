@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
-import { absoluteUrl, breadcrumbJsonLd, personJsonLd } from "../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, personJsonLd, buildPageTitle } from "../lib/seo";
 
 const contactJsonLd = [
   {
@@ -10,6 +10,11 @@ const contactJsonLd = [
     name: `Contact ${profile.name}`,
     url: absoluteUrl("/contact"),
     description: `Contact ${profile.name} for digital marketing, SEO, and web systems work in Dubai and the UAE.`,
+    mainEntity: {
+      "@type": "Person",
+      name: profile.name,
+      url: profile.siteUrl,
+    },
   },
   personJsonLd(),
   breadcrumbJsonLd([
@@ -20,7 +25,7 @@ const contactJsonLd = [
 ---
 
 <BaseLayout
-  title={`Contact ${profile.name} | Dubai Growth and Web Systems`}
+  title={buildPageTitle("Contact for Dubai SEO, Growth & Web Systems")}
   description={`Start a project with ${profile.name} for digital marketing, technical SEO, lead generation, and web systems in Dubai.`}
   path="/contact"
   jsonLd={contactJsonLd}

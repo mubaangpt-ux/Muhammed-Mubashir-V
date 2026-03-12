@@ -5,7 +5,7 @@ import { profile } from "../data/profile";
 import { experience } from "../data/experience";
 import { skillGroups, toolsStack } from "../data/skills";
 import { education } from "../data/education";
-import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd } from "../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, personJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const aboutJsonLd = [
   profilePageJsonLd("/about"),
@@ -13,7 +13,13 @@ const aboutJsonLd = [
     "@context": "https://schema.org",
     "@type": "AboutPage",
     name: `About ${profile.name}`,
+    url: absoluteUrl("/about"),
     description: `About ${profile.name}, a Dubai-based digital marketing, SEO, and web systems specialist.`,
+    mainEntity: {
+      "@type": "Person",
+      name: profile.name,
+      url: profile.siteUrl,
+    },
   },
   personJsonLd(),
   breadcrumbJsonLd([
@@ -26,7 +32,7 @@ const storyImagePath = `/og/story.png?v=${Date.now()}`;
 ---
 
 <BaseLayout
-  title={`${profile.name} | Dubai Digital Marketer, Web Developer and SEO/GEO Profile`}
+  title={buildPageTitle("About: Dubai Digital Marketer & Web Developer")}
   description={`${profile.name} is a Dubai-based digital marketer, web developer, web-app systems builder, and SEO/GEO specialist. Official site, Instagram, services, experience, and profile information.`}
   path="/about"
   jsonLd={aboutJsonLd}

@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd, buildPageTitle } from "../lib/seo";
 
 const webService = services.find((service) => service.slug === "dubai-web-development-web-apps");
 const seoService = services.find((service) => service.slug === "dubai-technical-seo");
@@ -52,7 +52,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`Dubai Web Developer, Web-App Developer and Programmer | ${profile.name}`}
+  title={buildPageTitle("Dubai Web Developer & Web-App Builder")}
   description={`${profile.name} is a Dubai-based web developer, web-app systems builder, and programmer. Official website, services, proof, and contact details.`}
   path="/dubai-web-developer"
   jsonLd={pageJsonLd}

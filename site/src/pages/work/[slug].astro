@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
 import { services } from "../../data/services";
-import { breadcrumbJsonLd, projectJsonLd } from "../../lib/seo";
+import { breadcrumbJsonLd, projectJsonLd, buildPageTitle } from "../../lib/seo";
 
 export function getStaticPaths() {
   return projects.map((project) => ({
@@ -33,7 +33,7 @@ const caseStudyJsonLd = [
 ---
 
 <BaseLayout
-  title={`${project.title} | Case Study | ${profile.name}`}
+  title={buildPageTitle(`${project.title} Case Study`, 62)}
   description={project.overview}
   path={`/work/${project.slug}`}
   jsonLd={caseStudyJsonLd}

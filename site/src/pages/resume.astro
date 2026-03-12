@@ -4,16 +4,10 @@ import { profile } from "../data/profile";
 import { experience } from "../data/experience";
 import { skillGroups } from "../data/skills";
 import { education } from "../data/education";
-import { absoluteUrl, breadcrumbJsonLd, personJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, personJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const resumeJsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    name: `${profile.name} Resume`,
-    url: absoluteUrl("/resume"),
-    description: `${profile.name} resume, experience, skills, and education.`,
-  },
+  profilePageJsonLd("/resume"),
   personJsonLd(),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
@@ -23,7 +17,7 @@ const resumeJsonLd = [
 ---
 
 <BaseLayout
-  title={`Resume and Experience | ${profile.name}`}
+  title={buildPageTitle("Resume & Experience")}
   description={`${profile.name} resume, experience, skills, and education in digital marketing, web development, technical SEO, GEO, AI systems, and web-app operations.`}
   path="/resume"
   jsonLd={resumeJsonLd}

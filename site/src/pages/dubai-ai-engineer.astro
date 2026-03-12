@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd, buildPageTitle } from "../lib/seo";
 
 const aiService = services.find((service) => service.slug === "dubai-ai-systems-automation-geo");
 const seoService = services.find((service) => service.slug === "dubai-technical-seo");
@@ -52,7 +52,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`Dubai AI Engineer, SEO and GEO Specialist | ${profile.name}`}
+  title={buildPageTitle("Dubai AI Engineer & SEO/GEO Specialist")}
   description={`${profile.name} is a Dubai-based AI systems builder, SEO and GEO specialist, and digital operator. Official website, services, proof, and contact details.`}
   path="/dubai-ai-engineer"
   jsonLd={pageJsonLd}

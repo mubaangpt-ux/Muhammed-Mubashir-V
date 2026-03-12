@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd, profilePageJsonLd } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const relevantProjects = projects.filter((project) =>
   ["bluemark-real-estate-leadgen", "multi-company-digital-ops", "raslan-media-content-performance"].includes(project.slug),
@@ -52,7 +52,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={`Freelance Digital Marketer in Dubai | Available for SEO, Ads and Web Systems | ${profile.name}`}
+  title={buildPageTitle("Freelance Digital Marketer in Dubai")}
   description={`${profile.name} is an independent digital marketer in Dubai available for freelance and consulting work across SEO, GEO, Meta and Google ads, lead-generation systems, web development, and AI-assisted operations.`}
   path="/freelance-digital-marketer-dubai"
   jsonLd={pageJsonLd}

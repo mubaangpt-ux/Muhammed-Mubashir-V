@@ -10,6 +10,7 @@ const site = (process.env.PUBLIC_SITE_URL || "https://mubaan.online").replace(/\
 // https://astro.build/config
 export default defineConfig({
   site,
+  trailingSlash: "always",
   vite: {
     plugins: [tailwindcss()],
     build: {
