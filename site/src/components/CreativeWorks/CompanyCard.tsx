@@ -38,7 +38,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
   return (
     <div
       ref={ref}
-      className={`group relative h-[404px] w-full overflow-hidden rounded-[32px] border transition-[opacity,transform,border-color,box-shadow] duration-[650ms,650ms,300ms,300ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`group relative h-[396px] w-full overflow-hidden rounded-[30px] border transition-[opacity,transform,border-color,box-shadow] duration-[650ms,650ms,300ms,300ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         isExpanded
           ? "border-[#93c5fd]/30 shadow-[0_30px_80px_rgba(2,8,23,0.55),0_0_0_1px_rgba(147,197,253,0.12)]"
           : "border-white/10 shadow-[0_26px_65px_rgba(2,8,23,0.48)] hover:-translate-y-1.5 hover:border-white/14 hover:shadow-[0_34px_85px_rgba(2,8,23,0.58),0_0_0_1px_rgba(147,197,253,0.08)]"
@@ -74,13 +74,13 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         }}
       />
 
-      <div className="pointer-events-none absolute inset-[8px] rounded-[26px] border border-white/10 bg-white/[0.01] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-18px_40px_rgba(7,9,15,0.08)]" />
-      <div className="pointer-events-none absolute inset-[2px] rounded-[30px] border border-white/6 opacity-90" />
+      <div className="pointer-events-none absolute inset-[7px] rounded-[24px] border border-white/10 bg-white/[0.01] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-18px_40px_rgba(7,9,15,0.08)]" />
+      <div className="pointer-events-none absolute inset-[2px] rounded-[28px] border border-white/6 opacity-90" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/12 via-white/[0.03] to-transparent opacity-75" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/8 via-black/[0.02] to-transparent" />
       <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
-      <div className="absolute right-4 top-4">
+      <div className="absolute right-3.5 top-3.5">
         <span
           className="inline-flex rounded-full px-3 py-1.5 font-mono text-[10px] text-white/78"
           style={{
@@ -94,7 +94,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </span>
       </div>
 
-      <div className="absolute inset-x-0 top-[32%] flex justify-center">
+      <div className="absolute inset-x-0 top-[31%] flex justify-center">
         <div className="flex gap-1.5 rounded-full border border-white/8 bg-[rgba(255,255,255,0.06)] px-3 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
           {[0, 1, 2].map((index) => (
             <span
@@ -105,10 +105,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </div>
       </div>
 
-      <div className="absolute inset-x-4 bottom-4 top-[34%]">
+      <div className="absolute inset-x-3 bottom-3 top-[33%]">
         <div className="relative flex h-full flex-col justify-end">
           <div
-            className="relative overflow-hidden rounded-[24px] border px-3.5 py-3 shadow-[0_18px_40px_rgba(2,8,23,0.16)]"
+            className="relative overflow-hidden rounded-[22px] border px-3 py-2.5 shadow-[0_18px_40px_rgba(2,8,23,0.16)]"
             style={{
               background: "rgba(7,9,15,0.40)",
               borderColor: "rgba(255,255,255,0.16)",
@@ -118,26 +118,26 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
                 "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -10px 20px rgba(255,255,255,0.02), 0 18px 40px rgba(2,8,23,0.14)",
             }}
           >
-            <div className="pointer-events-none absolute inset-0 rounded-[24px] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34%,rgba(255,255,255,0.015)_100%)]" />
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/55 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 rounded-[22px] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.04),transparent_34%,rgba(255,255,255,0.015)_100%)]" />
+            <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/55 to-transparent" />
 
-            <div className="relative mb-2.5">
+            <div className="relative mb-2">
               <h3
                 className="max-w-[10ch] text-[1.5rem] font-semibold leading-none text-white [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]"
                 style={{ fontFamily: "Orbitron, sans-serif", letterSpacing: "-0.04em" }}
               >
                 {company.name}
               </h3>
-              <p className="mt-1.5 font-mono text-[9px] uppercase tracking-[0.26em] text-white/82 [text-shadow:0_2px_14px_rgba(2,6,23,0.75)]">
+              <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.26em] text-white/82 [text-shadow:0_2px_14px_rgba(2,6,23,0.75)]">
                 {company.industry}
               </p>
             </div>
 
-            <p className="relative mb-2.5 max-w-[24ch] text-[0.8rem] leading-[1.34] text-white/92 [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]">
+            <p className="relative mb-2 max-w-[24ch] text-[0.8rem] leading-[1.32] text-white/92 [text-shadow:0_3px_18px_rgba(2,6,23,0.85)]">
               {getCardSummary(company)}
             </p>
 
-            <div className="relative mb-2.5 flex flex-nowrap items-center gap-1 overflow-visible">
+            <div className="relative mb-2 flex flex-nowrap items-center gap-1 overflow-visible">
               {company.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
@@ -158,7 +158,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             <button
               type="button"
               onClick={onToggle}
-              className={`relative inline-flex min-w-[108px] items-center justify-center self-start rounded-full border px-3.5 py-1.5 text-[0.82rem] font-semibold text-white transition-all duration-300 ${
+              className={`relative inline-flex min-w-[106px] items-center justify-center self-start rounded-full border px-3 py-1.5 text-[0.82rem] font-semibold text-white transition-all duration-300 ${
                 isExpanded
                   ? "border-[#93c5fd]/35 bg-[#2563eb]/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_12px_28px_rgba(37,99,235,0.18)]"
                   : "border-white/18 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_14px_30px_rgba(2,8,23,0.18)] hover:bg-white/14"

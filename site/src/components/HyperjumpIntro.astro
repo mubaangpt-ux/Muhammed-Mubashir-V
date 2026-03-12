@@ -247,6 +247,47 @@
   }
 
   let bgCanvas = null;
+  let starSpriteCache = new Map();
+
+  function getStarSprite(colorIndex, radius, alpha) {
+    const [r, g, b] = C.COLS[colorIndex];
+    const bucketRadius = Math.max(0.35, Math.round(radius * 4) / 4);
+    const bucketAlpha = Math.max(0.12, Math.round(alpha * 12) / 12);
+    const key = `${colorIndex}:${bucketRadius}:${bucketAlpha}`;
+
+    if (starSpriteCache.has(key)) return starSpriteCache.get(key);
+
+    const glowRadius = Math.max(2.4, bucketRadius * 3.2);
+    const size = Math.max(8, Math.ceil(glowRadius * 2 + 4));
+    const sprite = document.createElement('canvas');
+    sprite.width = size;
+    sprite.height = size;
+
+    const sCtx = sprite.getContext('2d');
+    const mid = size / 2;
+    const gradient = sCtx.createRadialGradient(mid, mid, 0, mid, mid, glowRadius);
+    gradient.addColorStop(0, `rgba(${r},${g},${b},${bucketAlpha})`);
+    gradient.addColorStop(0.45, `rgba(${r},${g},${b},${bucketAlpha * 0.55})`);
+    gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    sCtx.fillStyle = gradient;
+    sCtx.beginPath();
+    sCtx.arc(mid, mid, glowRadius, 0, Math.PI * 2);
+    sCtx.fill();
+
+    sCtx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, bucketAlpha * 1.08)})`;
+    sCtx.beginPath();
+    sCtx.arc(mid, mid, Math.max(0.55, bucketRadius), 0, Math.PI * 2);
+    sCtx.fill();
+
+    starSpriteCache.set(key, sprite);
+    return sprite;
+  }
+
+  function drawStarDot(x, y, colorIndex, radius, alpha) {
+    const sprite = getStarSprite(colorIndex, radius, alpha);
+    const offset = sprite.width * 0.5;
+    ctx.drawImage(sprite, x - offset, y - offset);
+  }
 
   function prepareCachedBackdrop() {
     if (!bgCanvas) bgCanvas = document.createElement('canvas');
@@ -394,9 +435,7 @@
         ctx.beginPath(); ctx.strokeStyle = `rgba(${r},${g},${b},${a})`; ctx.lineWidth = Math.max(0.6, s*0.5);
         ctx.moveTo(psx[i], psy[i]); ctx.lineTo(x, y); ctx.stroke();
       } else {
-        ctx.fillStyle = `rgba(${r},${g},${b},${fillAlpha})`;
-        const sSize = sr[i] * 2;
-        ctx.fillRect(x - sr[i], y - sr[i], sSize, sSize);
+        drawStarDot(x, y, ci[i], sr[i], fillAlpha);
       }
       psx[i] = x; psy[i] = y; sx[i] = x; sy[i] = y;
     }
@@ -446,10 +485,7 @@
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
-        const [rc, gc, bc] = C.COLS[ci[i]];
-        ctx.fillStyle = `rgba(${rc},${gc},${bc},${sa[i]})`;
-        const sSize = sr[i] * 2;
-        ctx.fillRect(sx[i] - sr[i], sy[i] - sr[i], sSize, sSize);
+        drawStarDot(sx[i], sy[i], ci[i], sr[i], sa[i]);
     }
     rafId = requestAnimationFrame(bgLoop);
   }
