@@ -75,14 +75,14 @@ export default function CreativeWorks() {
           </p>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           {rows.map((row, rowIndex) => {
             const expandedInRow = row.find((company) => company.id === expandedId) ?? null;
             const rowStart = rowIndex * columns;
 
             return (
-              <div key={`row-${rowIndex}`} className="space-y-5">
-                <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <div key={`row-${rowIndex}`} className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {row.map((company, cardIndex) => {
                     const globalIndex = rowStart + cardIndex;
 
