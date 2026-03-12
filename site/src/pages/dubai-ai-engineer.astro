@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, profilePageJsonLd, professionalServiceJsonLd, buildPageTitle } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, organizationJsonLd, personJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const aiService = services.find((service) => service.slug === "dubai-ai-systems-automation-geo");
 const seoService = services.find((service) => service.slug === "dubai-technical-seo");
@@ -42,7 +42,7 @@ const pageFaqs = [
 const pageJsonLd = [
   profilePageJsonLd("/dubai-ai-engineer"),
   personJsonLd(),
-  professionalServiceJsonLd(),
+  organizationJsonLd(),
   faqJsonLd(pageFaqs),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },

@@ -10,8 +10,8 @@ import { testimonials } from "../data/testimonials";
 import {
   buildPageTitle,
   breadcrumbJsonLd,
+  organizationJsonLd,
   personJsonLd,
-  professionalServiceJsonLd,
   websiteJsonLd,
 } from "../lib/seo";
 
@@ -86,7 +86,7 @@ const tickerRow3 = [
 const homeJsonLd = [
   websiteJsonLd(),
   personJsonLd(),
-  professionalServiceJsonLd(),
+  organizationJsonLd(),
   breadcrumbJsonLd([{ name: "Home", path: "/" }]),
 ];
 ---

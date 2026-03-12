@@ -4,7 +4,7 @@ import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { resources } from "../data/resources";
 import { services } from "../data/services";
-import { breadcrumbJsonLd, faqJsonLd, personJsonLd, professionalServiceJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
+import { breadcrumbJsonLd, faqJsonLd, organizationJsonLd, personJsonLd, profilePageJsonLd, buildPageTitle } from "../lib/seo";
 
 const featuredProjects = projects.filter((project) => project.featured).slice(0, 3);
 const featuredResources = resources.filter((resource) =>
@@ -55,7 +55,7 @@ const pageFaqs = [
 const pageJsonLd = [
   profilePageJsonLd("/dubai-digital-marketer"),
   personJsonLd(),
-  professionalServiceJsonLd(),
+  organizationJsonLd(),
   faqJsonLd(pageFaqs),
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
