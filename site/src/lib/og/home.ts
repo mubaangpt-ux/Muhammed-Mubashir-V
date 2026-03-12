@@ -480,3 +480,15 @@ export async function renderHomeOgPng() {
     .png({ compressionLevel: 9, palette: false, quality: 100 })
     .toBuffer();
 }
+
+export async function renderHomeOgJpeg() {
+  const pngBuffer = await renderHomeOgPng();
+
+  return sharp(pngBuffer)
+    .jpeg({
+      quality: 84,
+      mozjpeg: true,
+      chromaSubsampling: "4:4:4",
+    })
+    .toBuffer();
+}

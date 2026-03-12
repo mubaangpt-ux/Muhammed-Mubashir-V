@@ -37,7 +37,7 @@ const {
   title = `${profile.name} | ${profile.roleTitle}`,
   description = profile.summary,
   path = Astro.url.pathname,
-  image = "/og/site.png",
+  image = "/og/site.jpg",
   ogTitle = title,
   ogDescription = description,
   ogImageType,
@@ -54,7 +54,14 @@ const imagePath = image;
 const ogImage = imagePath.startsWith("http") ? imagePath : new URL(imagePath, `${siteOrigin}/`).toString();
 const ogImageAlt = ogTitle || title;
 const isGeneratedOgImage = imagePath.startsWith("/og/") || ogImage.includes("/og/");
-const resolvedOgImageType = ogImageType ?? (isGeneratedOgImage ? "image/png" : undefined);
+const normalizedImagePath = imagePath.split("?")[0].toLowerCase();
+const resolvedOgImageType = ogImageType ?? (
+  normalizedImagePath.endsWith(".jpg") || normalizedImagePath.endsWith(".jpeg")
+    ? "image/jpeg"
+    : isGeneratedOgImage
+      ? "image/png"
+      : undefined
+);
 const resolvedOgImageWidth = ogImageWidth ?? (isGeneratedOgImage ? 1200 : undefined);
 const resolvedOgImageHeight = ogImageHeight ?? (isGeneratedOgImage ? 630 : undefined);
 const robotsContent = noindex
@@ -119,6 +126,7 @@ const navItems = [
     <meta property="og:description" content={ogDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:url" content={ogImage} />
     <meta property="og:image:secure_url" content={ogImage} />
     {resolvedOgImageType && <meta property="og:image:type" content={resolvedOgImageType} />}
     {resolvedOgImageWidth && <meta property="og:image:width" content={String(resolvedOgImageWidth)} />}
@@ -131,6 +139,8 @@ const navItems = [
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
     <meta name="twitter:creator" content={profile.links.instagramHandle} />
+    <meta itemprop="image" content={ogImage} />
+    <link rel="image_src" href={ogImage} />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
