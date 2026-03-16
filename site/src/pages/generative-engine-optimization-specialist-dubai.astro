@@ -1,0 +1,300 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+import { projects } from "../data/projects";
+import { resources } from "../data/resources";
+import { services } from "../data/services";
+import {
+  breadcrumbJsonLd,
+  faqJsonLd,
+  organizationJsonLd,
+  personJsonLd,
+  profilePageJsonLd,
+  buildPageTitle,
+} from "../lib/seo";
+
+const geoService = services.find((service) => service.slug === "dubai-ai-systems-automation-geo");
+const technicalSeoService = services.find((service) => service.slug === "dubai-technical-seo");
+const relatedServices = services.filter((service) =>
+  ["dubai-technical-seo", "dubai-ai-systems-automation-geo", "dubai-digital-marketing"].includes(service.slug),
+);
+const relatedProjects = projects.filter((project) =>
+  ["multi-company-digital-ops", "180-degree-meal-planner", "bluemark-real-estate-leadgen"].includes(project.slug),
+);
+const relatedResources = resources.filter((resource) =>
+  ["seo-geo-for-ai-assistants-and-google", "how-ai-shortlists-digital-marketers-in-dubai", "dubai-technical-seo-checklist"].includes(resource.slug),
+);
+
+const pageFaqs = [
+  {
+    question: "What does a generative engine optimization specialist in Dubai actually do?",
+    answer:
+      "The work combines technical SEO, entity clarity, answer-ready service pages, crawlable site architecture, structured data, and AI-discovery preparation so search engines and AI assistants can understand who you are, what you do, and which pages to surface.",
+  },
+  {
+    question: "Is generative engine optimization different from technical SEO?",
+    answer:
+      "Yes, but they overlap. Technical SEO handles crawlability, canonicals, indexing, internal links, and performance. Generative engine optimization adds the AI-discovery layer: profile pages, service clarity, proof, entity consistency, and content written to answer natural-language queries clearly.",
+  },
+  {
+    question: "Can one freelancer handle GEO, technical SEO, and web development together?",
+    answer:
+      "Yes. GEO works best when the same person can connect site architecture, content structure, internal links, schema, and the operational web systems behind the pages.",
+  },
+  {
+    question: "Can this page guarantee first-page rankings for GEO-related searches?",
+    answer:
+      "No. No page can honestly guarantee first position. What it can do is improve relevance, crawlability, entity clarity, and internal linking so the site has a better chance to rank for the right searches over time.",
+  },
+];
+
+const pageJsonLd = [
+  profilePageJsonLd("/generative-engine-optimization-specialist-dubai"),
+  personJsonLd(),
+  organizationJsonLd(),
+  faqJsonLd(pageFaqs),
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Generative Engine Optimization Specialist in Dubai", path: "/generative-engine-optimization-specialist-dubai" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={buildPageTitle("Generative Engine Optimization Specialist in Dubai", 72)}
+  description={`${profile.name} is a Dubai-based generative engine optimization specialist for AI assistants, technical SEO, entity architecture, service pages, web systems, and search visibility built for discoverability.`}
+  path="/generative-engine-optimization-specialist-dubai"
+  jsonLd={pageJsonLd}
+>
+
+<section class="py-20 px-4">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-3" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Generative Engine Optimization Specialist in Dubai</p>
+    </div>
+    <div class="grid gap-8 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <div>
+        <div class="reveal" data-delay="0.10">
+          <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
+            {profile.name} | generative engine optimization specialist in Dubai
+          </h1>
+        </div>
+        <div class="reveal max-w-3xl" data-delay="0.15">
+          <p class="mt-5 text-base text-slate-400 leading-loose">
+            If someone searches for a generative engine optimization specialist in Dubai, they usually need more than a blog post about AI search.
+            They need a person who can connect technical SEO, entity architecture, service-page structure, crawlable proof pages, internal links,
+            and AI-discovery signals into one coherent system. This page ties that role directly to the official profile, services, proof, and contact paths for {profile.name}.
+          </p>
+        </div>
+        <div class="reveal flex flex-wrap gap-3 mt-8" data-delay="0.20">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+            style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+          >
+            Start a GEO project
+          </a>
+          <a
+            href="/services/dubai-technical-seo"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
+          >
+            Explore technical SEO service
+          </a>
+        </div>
+      </div>
+
+      <aside class="reveal glass-panel rounded-3xl p-7" data-delay="0.18">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-4">Official Details</p>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-slate-500">Website</p>
+            <a href={profile.siteUrl} class="text-sm text-white hover:text-accent-soft transition-colors">{profile.siteUrl}</a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Instagram</p>
+            <a href={profile.links.instagram} target="_blank" rel="noreferrer me" class="text-sm text-white hover:text-accent-soft transition-colors">
+              {profile.links.instagramHandle}
+            </a>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Primary GEO focus</p>
+            <p class="text-sm text-white mt-1">Technical SEO, entity clarity, service architecture, AI discovery, and answer-ready content</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Location</p>
+            <p class="text-sm text-slate-300">{profile.location}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Fastest contact</p>
+            <p class="text-sm text-white mt-1">{profile.whatsappDisplay}</p>
+            <p class="text-sm text-slate-400">{profile.email}</p>
+          </div>
+          <div>
+            <p class="text-sm text-slate-500">Best next pages</p>
+            <div class="mt-2 flex flex-col gap-2">
+              <a href="/services/dubai-technical-seo" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai technical SEO and GEO service</a>
+              <a href="/services/dubai-ai-systems-automation-geo" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai AI systems and GEO service</a>
+              <a href="/work" class="text-sm text-accent-soft hover:text-white transition-colors">Case studies</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl pt-14">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">What GEO Means</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Generative engine optimization needs architecture, not just prompts</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.08">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Entity clarity</p>
+        <p class="text-sm text-slate-400 leading-loose">
+          The site needs a clear identity, role pages, official profile paths, and connected proof so assistants can tell who is behind the work.
+        </p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.12">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Search architecture</p>
+        <p class="text-sm text-slate-400 leading-loose">
+          Canonicals, crawl paths, schema, internal links, title targeting, and service clusters still matter because AI systems often depend on standard search and crawl signals.
+        </p>
+      </div>
+      <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.16">
+        <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">Answer readiness</p>
+        <p class="text-sm text-slate-400 leading-loose">
+          Pages should answer natural-language questions directly, then connect the answer to service pages, case studies, and contact paths without vague filler.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Related Services</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Service pages that support generative engine optimization</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relatedServices.map((service, index) => (
+        <a
+          href={`/services/${service.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{service.shortTitle}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{service.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{service.summary}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Explore service
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Proof</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Projects connected to discoverability, systems, and operational clarity</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relatedProjects.map((project, index) => (
+        <a
+          href={`/work/${project.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{project.category}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{project.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{project.overview}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Open case study
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Guides</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Useful reading for GEO, AI assistants, and technical SEO</h2>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {relatedResources.map((resource, index) => (
+        <a
+          href={`/resources/${resource.slug}`}
+          class="reveal glass-panel ring-hover rounded-2xl p-7 group transition-all duration-300 hover:-translate-y-1"
+          data-delay={String(0.08 + index * 0.05)}
+        >
+          <p class="text-xs font-mono uppercase tracking-widest text-accent-soft/70 mb-3">{resource.audience}</p>
+          <h3 class="font-display font-semibold text-white text-lg mb-2">{resource.title}</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">{resource.excerpt}</p>
+          <div class="mt-4 text-xs font-mono text-accent-soft/60 group-hover:text-accent-soft transition-colors">
+            Read guide
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="py-20 px-4 section-border">
+  <div class="mx-auto max-w-6xl">
+    <div class="reveal mb-8" data-delay="0.05">
+      <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">FAQ</p>
+      <h2 class="font-display font-semibold text-white text-2xl">Questions this page is meant to answer</h2>
+    </div>
+    <div class="space-y-4">
+      {pageFaqs.map((faq, index) => (
+        <details class="reveal glass-panel rounded-2xl p-6 group" data-delay={String(0.08 + index * 0.04)}>
+          <summary class="list-none cursor-pointer text-white font-medium flex items-center justify-between gap-4">
+            <span>{faq.question}</span>
+            <span class="text-accent-soft/70 text-xs font-mono group-open:rotate-45 transition-transform">+</span>
+          </summary>
+          <p class="mt-4 text-sm text-slate-400 leading-loose">{faq.answer}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="pb-20 px-4">
+  <div class="mx-auto max-w-6xl reveal glass-panel-strong rounded-3xl p-8 md:p-10" data-delay="0.06">
+    <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70 mb-3">Next Step</p>
+    <h2 class="font-display font-semibold text-white text-2xl mb-4">Need generative engine optimization tied to real search and web systems?</h2>
+    <p class="text-sm text-slate-400 leading-loose max-w-2xl">
+      The work usually overlaps technical SEO, service architecture, web development, entity consistency, and answer-ready content.
+      If that is the problem, the cleanest next step is to review the technical SEO and AI systems services, then start a scoped conversation.
+    </p>
+    <div class="flex flex-wrap gap-3 mt-7">
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
+        style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
+      >
+        Start a project
+      </a>
+      {technicalSeoService && (
+        <a href={`/services/${technicalSeoService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+          Technical SEO service
+        </a>
+      )}
+      {geoService && (
+        <a href={`/services/${geoService.slug}`} class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors">
+          AI systems and GEO service
+        </a>
+      )}
+    </div>
+  </div>
+</section>
+
+</BaseLayout>

@@ -22,9 +22,9 @@ export const services: Service[] = [
     shortTitle: "Digital Marketing",
     title: "Dubai Digital Marketing Strategy and Campaign Execution",
     summary:
-      "Performance-focused digital marketing for Dubai businesses that need stronger lead generation, cleaner funnels, and better conversion quality across Meta, Google, landing pages, and reporting.",
+      "Dubai digital marketing service for businesses that need stronger lead generation, cleaner funnels, and better conversion quality across Meta, Google, landing pages, and reporting.",
     intro:
-      "I build campaign systems around commercial outcomes, not vanity metrics. That includes ad strategy, landing flow, audience testing, attribution, creative feedback loops, and reporting that a business owner can actually use to make decisions.",
+      "This Dubai digital marketing service is built around commercial outcomes, not vanity metrics. That includes ad strategy, landing flow, audience testing, attribution, creative feedback loops, and reporting that a business owner can actually use to make decisions.",
     localAngle:
       "Dubai campaigns behave differently across real estate, services, hospitality, and multi-market UAE audiences. Messaging, language mix, platform intent, and follow-up speed all affect lead quality. The service is structured around those local realities rather than generic global playbooks.",
     deliverables: [
@@ -64,7 +64,7 @@ export const services: Service[] = [
     summary:
       "Technical SEO and GEO for Dubai businesses that need clean crawl paths, strong internal linking, location-relevant content architecture, schema, AI-discovery readiness, and search visibility foundations that support long-term ranking.",
     intro:
-      "Technical SEO is not one tag or plugin. It is the combined structure of crawlability, indexing, canonical control, internal linking, content hierarchy, metadata, schema, and performance. GEO adds the AI-discovery layer: clear entity signals, answer-ready content, profile pages, and crawl access for assistants that surface web results. I fix the architecture so search engines and AI-assisted discovery systems can understand the site correctly.",
+      "This Dubai technical SEO and GEO service is not one tag or plugin. It is the combined structure of crawlability, indexing, canonical control, internal linking, content hierarchy, metadata, schema, and performance. GEO adds the AI-discovery layer: clear entity signals, answer-ready content, profile pages, and crawl access for assistants that surface web results. I fix the architecture so search engines and AI-assisted discovery systems can understand the site correctly.",
     localAngle:
       "For Dubai search intent, the site needs more than brand pages. It needs clear service clusters, UAE-relevant language, local intent coverage, AI-discovery signals, and pages that match commercial searches such as digital marketing Dubai, technical SEO Dubai, web developer Dubai, and lead generation Dubai.",
     deliverables: [
@@ -103,9 +103,9 @@ export const services: Service[] = [
     shortTitle: "Web Development",
     title: "Dubai Web Development and Web App Systems",
     summary:
-      "Web development and web-app systems for Dubai businesses that need fast websites, lead-ready landing pages, WordPress workflows, plugin logic, operational dashboards, and conversion-focused build quality.",
+      "Dubai web development and web-app systems for businesses that need fast websites, lead-ready landing pages, WordPress workflows, plugin logic, operational dashboards, and conversion-focused build quality.",
     intro:
-      "A good website should not stop at design. It should load cleanly, support search visibility, route enquiries properly, and give the business an operational base. I build websites, landing pages, WordPress systems, and web-app style workflows with that outcome in mind.",
+      "This Dubai web development service goes beyond design. The website should load cleanly, support search visibility, route enquiries properly, and give the business an operational base. I build websites, landing pages, WordPress systems, and web-app style workflows with that outcome in mind.",
     localAngle:
       "Dubai businesses often need one person who can bridge development, marketing, and operations. That means the site structure, CMS logic, forms, tracking, and conversion flow all need to work together instead of being handed across disconnected teams.",
     deliverables: [
@@ -145,7 +145,7 @@ export const services: Service[] = [
     summary:
       "AI systems, automation, and GEO for Dubai businesses that need AI-assisted workflows, operational automation, prompt-ready content systems, and stronger discoverability across AI-assisted search experiences.",
     intro:
-      "AI work is only useful when it improves real execution. That can mean automation flows, AI-assisted content systems, internal tooling, prompt frameworks, or site structures that are easier for AI assistants to interpret. I focus on that practical layer rather than novelty for its own sake.",
+      "This Dubai AI systems, automation, and GEO service is only useful when it improves real execution. That can mean automation flows, AI-assisted content systems, internal tooling, prompt frameworks, or site structures that are easier for AI assistants to interpret. I focus on that practical layer rather than novelty for its own sake.",
     localAngle:
       "In Dubai markets, AI work needs to support speed, multilingual workflows, lead handling, and discoverability. GEO here means preparing sites and content so assistants can surface the right person, services, and proof pages more clearly.",
     deliverables: [
@@ -185,7 +185,7 @@ export const services: Service[] = [
     summary:
       "Lead-generation systems for Dubai brands that need landing pages, qualification flows, CRM-ready tracking, WhatsApp conversion paths, and operational web systems that support revenue instead of just traffic.",
     intro:
-      "A site should not stop at presentation. It should qualify traffic, route leads cleanly, capture intent data, and give the team operational control. I build those systems across landing pages, plugins, CRM handoff, and campaign-specific flows.",
+      "This Dubai lead generation service should not stop at presentation. The site should qualify traffic, route leads cleanly, capture intent data, and give the team operational control. I build those systems across landing pages, plugins, CRM handoff, and campaign-specific flows.",
     localAngle:
       "Dubai lead generation often breaks at handoff: ad traffic lands, but follow-up, qualification, or channel routing is weak. This service focuses on the full path from click to qualified enquiry so the website supports actual sales activity.",
     deliverables: [

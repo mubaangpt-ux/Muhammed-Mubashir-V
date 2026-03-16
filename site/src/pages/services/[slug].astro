@@ -21,10 +21,12 @@ const rolePathMap: Record<string, { href: string; label: string }[]> = {
   "dubai-digital-marketing": [
     { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
     { href: "/dubai-ai-engineer", label: "SEO, GEO, and AI-discovery specialist" },
+    { href: "/generative-engine-optimization-specialist-dubai", label: "Generative engine optimization specialist in Dubai" },
   ],
   "dubai-technical-seo": [
     { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
     { href: "/dubai-ai-engineer", label: "Dubai AI engineer and GEO specialist" },
+    { href: "/generative-engine-optimization-specialist-dubai", label: "Generative engine optimization specialist in Dubai" },
   ],
   "dubai-web-development-web-apps": [
     { href: "/dubai-web-developer", label: "Dubai web developer" },
@@ -33,6 +35,7 @@ const rolePathMap: Record<string, { href: string; label: string }[]> = {
   "dubai-ai-systems-automation-geo": [
     { href: "/dubai-ai-engineer", label: "Dubai AI engineer" },
     { href: "/dubai-digital-marketer", label: "Digital marketer and SEO/GEO operator" },
+    { href: "/generative-engine-optimization-specialist-dubai", label: "Generative engine optimization specialist in Dubai" },
   ],
   "dubai-lead-generation-web-systems": [
     { href: "/dubai-digital-marketer", label: "Dubai digital marketer" },
@@ -54,7 +57,7 @@ const pageJsonLd = [
 ---
 
 <BaseLayout
-  title={buildPageTitle(service.shortTitle || service.title)}
+  title={buildPageTitle(service.title, 72)}
   description={service.summary}
   path={`/services/${service.slug}`}
   jsonLd={pageJsonLd}
@@ -85,13 +88,13 @@ const pageJsonLd = [
             class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02]"
             style="background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 24px rgba(37,99,235,0.4);"
           >
-            Enquire about this service
+            Enquire about {service.shortTitle}
           </a>
           <a
             href="/work"
             class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-slate-300 glass-panel ring-hover hover:text-white transition-colors"
           >
-            View proof in work
+            View related case studies
           </a>
         </div>
       </div>
@@ -117,7 +120,7 @@ const pageJsonLd = [
           <div>
             <p class="text-xs font-mono uppercase tracking-widest text-slate-600 mb-2">Related role pages</p>
             <div class="flex flex-col gap-2">
-              <a href="/about" class="text-sm text-accent-soft hover:text-white transition-colors">Official profile</a>
+              <a href="/about" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai freelancer profile</a>
               {rolePaths.map((item) => (
                 <a href={item.href} class="text-sm text-accent-soft hover:text-white transition-colors">{item.label}</a>
               ))}

@@ -815,15 +815,15 @@ const navItems = [
             <div class="flex flex-wrap gap-2 pt-1">
               <a href="/work/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
-                Case Studies
+                Dubai Case Studies
               </a>
               <a href="/services/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
-                Services
+                SEO & Web Services
               </a>
               <a href="/resources/"
                 class="inline-flex items-center rounded-full border border-white/8 bg-white/4 px-3 py-1.5 text-xs font-mono text-slate-400 transition-colors hover:text-white hover:border-white/14">
-                Resources
+                SEO & GEO Guides
               </a>
             </div>
           </div>
@@ -863,11 +863,11 @@ const navItems = [
             ))}
             <div class="pt-4 mt-4 border-t border-white/6 space-y-2">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Services</p>
-              <a href="/services/" class="block text-sm text-slate-400 hover:text-white transition-colors">Services Hub</a>
+              <a href="/services/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai SEO, web development & AI services</a>
               {services.slice(0, 4).map((service) => (
                 <a href={`/services/${service.slug}/`}
                   class="block text-sm text-slate-400 hover:text-white transition-colors">
-                  {service.shortTitle}
+                  {service.title}
                 </a>
               ))}
             </div>
@@ -876,15 +876,16 @@ const navItems = [
           <div class="space-y-5">
             <div class="space-y-2">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Guides</p>
-              <a href="/dubai-digital-marketer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Digital Marketer</a>
-              <a href="/freelance-digital-marketer-dubai/" class="block text-sm text-slate-400 hover:text-white transition-colors">Freelance Digital Marketer</a>
-              <a href="/dubai-web-developer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai Web Developer</a>
-              <a href="/dubai-ai-engineer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai AI Engineer</a>
+              <a href="/dubai-digital-marketer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai digital marketer profile</a>
+              <a href="/freelance-digital-marketer-dubai/" class="block text-sm text-slate-400 hover:text-white transition-colors">Freelance digital marketer Dubai</a>
+              <a href="/dubai-web-developer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai web developer profile</a>
+              <a href="/dubai-ai-engineer/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai AI engineer and GEO specialist</a>
+              <a href="/generative-engine-optimization-specialist-dubai/" class="block text-sm text-slate-400 hover:text-white transition-colors">Generative engine optimization specialist in Dubai</a>
             </div>
             <div class="space-y-2 pt-4 border-t border-white/6">
               <p class="text-[11px] uppercase tracking-[0.24em] text-slate-600 mb-3">Resources</p>
               <a href="/press-kit/" class="block text-sm text-slate-400 hover:text-white transition-colors">Press Kit</a>
-              <a href="/resources/" class="block text-sm text-slate-400 hover:text-white transition-colors">Resources Hub</a>
+              <a href="/resources/" class="block text-sm text-slate-400 hover:text-white transition-colors">Dubai SEO & GEO resources</a>
               {resources.slice(0, 3).map((resource) => (
                 <a href={`/resources/${resource.slug}/`}
                   class="block text-sm text-slate-400 hover:text-white transition-colors">

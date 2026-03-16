@@ -25,8 +25,8 @@ const servicesJsonLd = [
 ---
 
 <BaseLayout
-  title={buildPageTitle("Dubai SEO, Web Development & AI Services")}
-  description="Dubai-focused digital marketing, web development, web-app systems, technical SEO, GEO, AI systems, and lead-generation services for UAE businesses."
+  title={buildPageTitle("Dubai Digital Marketing, SEO & Web Development Services", 72)}
+  description="Dubai digital marketing, web development, web-app systems, technical SEO, GEO, AI systems, and lead-generation services for UAE businesses that need stronger search visibility and better conversion systems."
   path="/services"
   jsonLd={servicesJsonLd}
 >
@@ -38,7 +38,7 @@ const servicesJsonLd = [
     </div>
     <div class="reveal max-w-3xl" data-delay="0.08">
       <h1 class="font-display font-bold text-white text-balance" style="font-size: clamp(2.2rem, 5vw, 4rem); letter-spacing: -0.035em;">
-        Dubai growth systems built for ranking, web development, AI discovery, lead flow, and operational clarity
+        Dubai digital marketing, web development, technical SEO, GEO, AI systems, and lead-generation services
       </h1>
       <p class="mt-5 text-base text-slate-400 leading-loose">
         This service stack is built for Dubai businesses that need more than a brochure site. The work combines technical SEO and GEO,
@@ -62,9 +62,10 @@ const servicesJsonLd = [
       </a>
     </div>
     <div class="reveal mt-6 flex flex-wrap gap-3" data-delay="0.15">
-      <a href="/dubai-digital-marketer" class="text-sm text-accent-soft hover:text-white transition-colors">Digital marketer role page</a>
-      <a href="/dubai-web-developer" class="text-sm text-accent-soft hover:text-white transition-colors">Web developer role page</a>
-      <a href="/dubai-ai-engineer" class="text-sm text-accent-soft hover:text-white transition-colors">AI engineer and GEO role page</a>
+      <a href="/dubai-digital-marketer" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai digital marketer profile</a>
+      <a href="/dubai-web-developer" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai web developer profile</a>
+      <a href="/dubai-ai-engineer" class="text-sm text-accent-soft hover:text-white transition-colors">Dubai AI engineer and GEO profile</a>
+      <a href="/generative-engine-optimization-specialist-dubai" class="text-sm text-accent-soft hover:text-white transition-colors">Generative engine optimization specialist in Dubai</a>
     </div>
   </div>
 </section>
@@ -93,7 +94,7 @@ const servicesJsonLd = [
           href={`/services/${service.slug}`}
           class="mt-7 inline-flex items-center gap-2 text-sm font-medium text-accent-soft/70 hover:text-accent-soft transition-colors"
         >
-          Explore service →
+          {`Explore ${service.shortTitle} service →`}
         </a>
       </article>
     ))}
