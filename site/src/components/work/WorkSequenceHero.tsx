@@ -43,6 +43,16 @@ const findNearestLoadedFrame = (frames: Array<HTMLImageElement | null>, target: 
   return -1;
 };
 
+const pickRenderableFrame = (
+  frames: Array<HTMLImageElement | null>,
+  target: number,
+  lastVisible: number,
+) => {
+  if (frames[target]) return target;
+  if (lastVisible >= 0 && frames[lastVisible]) return lastVisible;
+  return findNearestLoadedFrame(frames, target);
+};
+
 export default function WorkSequenceHero() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -85,8 +95,11 @@ export default function WorkSequenceHero() {
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
 
-    const nearestFrame = findNearestLoadedFrame(framesRef.current, frameIndex);
-    const fallbackIndex = nearestFrame >= 0 ? nearestFrame : lastVisibleFrameRef.current;
+    const fallbackIndex = pickRenderableFrame(
+      framesRef.current,
+      frameIndex,
+      lastVisibleFrameRef.current,
+    );
 
     if (fallbackIndex < 0) return;
     if (!force && lastDrawnFrameRef.current === fallbackIndex) return;
@@ -98,6 +111,7 @@ export default function WorkSequenceHero() {
     const height = canvas.height / dprRef.current;
     const rootStyles = getComputedStyle(document.documentElement);
     const background = rootStyles.getPropertyValue("--bg-primary").trim() || "#07090f";
+    const backgroundSoft = rootStyles.getPropertyValue("--bg-secondary").trim() || "#0c1220";
     const accent = rootStyles.getPropertyValue("--accent").trim() || "#3b82f6";
     const accentSoft = rootStyles.getPropertyValue("--accent-soft").trim() || "#93c5fd";
 
@@ -113,25 +127,50 @@ export default function WorkSequenceHero() {
     const drawWidth = imageWidth * scale;
     const drawHeight = imageHeight * scale;
     const offsetX = (width - drawWidth) * 0.5;
-    const offsetY = (height - drawHeight) * 0.5;
+    const offsetY = Math.max(0, height - drawHeight - height * 0.018);
 
-    const coverScale = Math.max(width / imageWidth, height / imageHeight);
-    const coverWidth = imageWidth * coverScale * 1.16;
-    const coverHeight = imageHeight * coverScale * 1.16;
-    const coverX = (width - coverWidth) * 0.5;
-    const coverY = (height - coverHeight) * 0.5;
-
-    const outerCoverWidth = imageWidth * coverScale * 1.28;
-    const outerCoverHeight = imageHeight * coverScale * 1.28;
-    const outerCoverX = (width - outerCoverWidth) * 0.5;
-    const outerCoverY = (height - outerCoverHeight) * 0.5;
+    const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
+    const bottomBleedTop = offsetY + drawHeight * 0.84;
+    const bottomBleedHeight = Math.max(0, height - bottomBleedTop + 40);
 
     ctx.save();
-    ctx.globalAlpha = 0.18;
-    ctx.drawImage(image, outerCoverX, outerCoverY, outerCoverWidth, outerCoverHeight);
-    ctx.globalAlpha = 0.44;
-    ctx.filter = "brightness(0.86) saturate(1.08)";
-    ctx.drawImage(image, coverX, coverY, coverWidth, coverHeight);
+    ctx.globalAlpha = 0.34;
+    ctx.filter = "blur(22px) brightness(0.7) saturate(0.92)";
+    ctx.drawImage(
+      image,
+      imageWidth * 0.02,
+      imageHeight * 0.05,
+      imageWidth * 0.12,
+      imageHeight * 0.86,
+      0,
+      offsetY - 10,
+      sideBleedWidth,
+      drawHeight + 20,
+    );
+    ctx.drawImage(
+      image,
+      imageWidth * 0.86,
+      imageHeight * 0.05,
+      imageWidth * 0.12,
+      imageHeight * 0.86,
+      width - sideBleedWidth,
+      offsetY - 10,
+      sideBleedWidth,
+      drawHeight + 20,
+    );
+    if (bottomBleedHeight > 0) {
+      ctx.drawImage(
+        image,
+        imageWidth * 0.08,
+        imageHeight * 0.8,
+        imageWidth * 0.84,
+        imageHeight * 0.16,
+        offsetX - drawWidth * 0.03,
+        bottomBleedTop,
+        drawWidth * 1.06,
+        bottomBleedHeight,
+      );
+    }
     ctx.restore();
 
     let blendCanvas = blendCanvasRef.current;
@@ -154,16 +193,17 @@ export default function WorkSequenceHero() {
 
       const horizontalMask = blendCtx.createLinearGradient(offsetX, 0, offsetX + drawWidth, 0);
       horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
-      horizontalMask.addColorStop(0.12, "rgba(255,255,255,0.94)");
-      horizontalMask.addColorStop(0.88, "rgba(255,255,255,0.94)");
+      horizontalMask.addColorStop(0.1, "rgba(255,255,255,0.94)");
+      horizontalMask.addColorStop(0.9, "rgba(255,255,255,0.94)");
       horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
       blendCtx.fillStyle = horizontalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
 
       const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
       verticalMask.addColorStop(0, "rgba(255,255,255,0.97)");
-      verticalMask.addColorStop(0.7, "rgba(255,255,255,0.92)");
-      verticalMask.addColorStop(0.9, "rgba(255,255,255,0.22)");
+      verticalMask.addColorStop(0.66, "rgba(255,255,255,0.92)");
+      verticalMask.addColorStop(0.84, "rgba(255,255,255,0.36)");
+      verticalMask.addColorStop(0.94, "rgba(255,255,255,0.08)");
       verticalMask.addColorStop(1, "rgba(255,255,255,0)");
       blendCtx.fillStyle = verticalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
@@ -180,27 +220,28 @@ export default function WorkSequenceHero() {
     ctx.fillStyle = topFade;
     ctx.fillRect(0, 0, width, height * 0.18);
 
-    const leftFade = ctx.createLinearGradient(0, 0, width * 0.18, 0);
-    leftFade.addColorStop(0, `${background}f2`);
-    leftFade.addColorStop(0.38, `${background}78`);
+    const leftFade = ctx.createLinearGradient(0, 0, width * 0.14, 0);
+    leftFade.addColorStop(0, `${background}e6`);
+    leftFade.addColorStop(0.34, `${backgroundSoft}40`);
     leftFade.addColorStop(1, `${background}00`);
     ctx.fillStyle = leftFade;
-    ctx.fillRect(0, 0, width * 0.18, height);
+    ctx.fillRect(0, 0, width * 0.14, height);
 
-    const rightFade = ctx.createLinearGradient(width, 0, width - width * 0.18, 0);
-    rightFade.addColorStop(0, `${background}f2`);
-    rightFade.addColorStop(0.38, `${background}78`);
+    const rightFade = ctx.createLinearGradient(width, 0, width - width * 0.14, 0);
+    rightFade.addColorStop(0, `${background}e6`);
+    rightFade.addColorStop(0.34, `${backgroundSoft}40`);
     rightFade.addColorStop(1, `${background}00`);
     ctx.fillStyle = rightFade;
-    ctx.fillRect(width - width * 0.18, 0, width * 0.18, height);
+    ctx.fillRect(width - width * 0.14, 0, width * 0.14, height);
 
-    const bottomFade = ctx.createLinearGradient(0, height * 0.54, 0, height);
+    const bottomFade = ctx.createLinearGradient(0, height * 0.48, 0, height);
     bottomFade.addColorStop(0, `${background}00`);
-    bottomFade.addColorStop(0.34, `${background}54`);
-    bottomFade.addColorStop(0.62, `${background}a8`);
-    bottomFade.addColorStop(1, `${background}f5`);
+    bottomFade.addColorStop(0.28, `${background}18`);
+    bottomFade.addColorStop(0.52, `${backgroundSoft}70`);
+    bottomFade.addColorStop(0.82, `${background}d8`);
+    bottomFade.addColorStop(1, `${background}ff`);
     ctx.fillStyle = bottomFade;
-    ctx.fillRect(0, height * 0.54, width, height * 0.46);
+    ctx.fillRect(0, height * 0.48, width, height * 0.52);
 
     const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
     skyHalo.addColorStop(0, `${accentSoft}20`);
@@ -209,12 +250,12 @@ export default function WorkSequenceHero() {
     ctx.fillStyle = skyHalo;
     ctx.fillRect(0, 0, width, height * 0.56);
 
-    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.01, 0, width * 0.5, height * 0.98, width * 0.46);
-    bottomHalo.addColorStop(0, `${background}ec`);
-    bottomHalo.addColorStop(0.55, `${background}5a`);
+    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.02, 0, width * 0.5, height * 0.97, width * 0.52);
+    bottomHalo.addColorStop(0, `${backgroundSoft}de`);
+    bottomHalo.addColorStop(0.46, `${background}86`);
     bottomHalo.addColorStop(1, `${background}00`);
     ctx.fillStyle = bottomHalo;
-    ctx.fillRect(0, height * 0.74, width, height * 0.3);
+    ctx.fillRect(0, height * 0.7, width, height * 0.34);
     ctx.restore();
 
     lastDrawnFrameRef.current = fallbackIndex;
@@ -251,10 +292,10 @@ export default function WorkSequenceHero() {
       canvas.style.height = `${rect.height}px`;
       ctxRef.current = canvas.getContext("2d", {
         alpha: false,
-        desynchronized: true,
       });
       if (!ctxRef.current) return;
       ctxRef.current.imageSmoothingEnabled = true;
+      ctxRef.current.imageSmoothingQuality = "high";
       drawFrame(targetFrameRef.current, true);
     };
 
@@ -366,7 +407,7 @@ export default function WorkSequenceHero() {
           className={`absolute inset-0 block h-full w-full bg-[var(--bg-primary)] object-contain object-center transition-opacity duration-500 ${
             firstFrameReady ? "opacity-0" : "opacity-100"
           }`}
-          style={{ filter: "drop-shadow(0 0 18px rgba(7, 9, 15, 0.42))" }}
+          style={{ filter: "drop-shadow(0 0 12px rgba(7, 9, 15, 0.28))" }}
         />
         <canvas
           ref={canvasRef}
@@ -375,7 +416,7 @@ export default function WorkSequenceHero() {
         />
 
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-[54%] opacity-90 mix-blend-screen"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[56%] opacity-90 mix-blend-screen"
           style={{
             backgroundImage: [
               "radial-gradient(circle at 4% 10%, rgba(147,197,253,0.95) 0 1.15px, transparent 2px)",
@@ -426,14 +467,12 @@ export default function WorkSequenceHero() {
               "radial-gradient(circle at 74% 30%, rgba(147,197,253,0.82) 0 1px, transparent 1.75px)",
               "radial-gradient(circle at 88% 32%, rgba(255,255,255,0.68) 0 0.84px, transparent 1.42px)"
             ].join(", "),
-            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.95) 58%, rgba(0,0,0,0.18) 92%, transparent 100%)",
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 62%, rgba(0,0,0,0.24) 90%, transparent 100%)",
           }}
         />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[52%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_68%)]" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-[18vw] bg-[linear-gradient(90deg,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.56)_38%,rgba(7,9,15,0)_100%)]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-[18vw] bg-[linear-gradient(270deg,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.56)_38%,rgba(7,9,15,0)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-52 bg-[linear-gradient(180deg,rgba(7,9,15,0)_0%,rgba(7,9,15,0.12)_20%,rgba(7,9,15,0.42)_42%,rgba(7,9,15,0.88)_76%,rgba(7,9,15,1)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-[6%] bottom-[-8%] h-36 bg-[radial-gradient(ellipse_at_center,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.58)_38%,rgba(7,9,15,0.12)_62%,rgba(7,9,15,0)_82%)] blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_70%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(180deg,rgba(12,18,32,0)_0%,rgba(12,18,32,0.18)_20%,rgba(12,18,32,0.62)_48%,rgba(7,9,15,0.94)_82%,rgba(7,9,15,1)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-[5%] bottom-[-10%] h-40 bg-[radial-gradient(ellipse_at_center,rgba(12,18,32,0.92)_0%,rgba(12,18,32,0.56)_34%,rgba(7,9,15,0.18)_60%,rgba(7,9,15,0)_82%)] blur-3xl" />
 
         {!firstFrameReady && (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
