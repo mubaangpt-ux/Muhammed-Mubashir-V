@@ -50,6 +50,7 @@ export default function WorkSequenceHero() {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const dprRef = useRef(1);
   const framesRef = useRef<Array<HTMLImageElement | null>>(Array(WORK_HERO_FRAME_COUNT).fill(null));
+  const blendCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawRafRef = useRef<number | null>(null);
   const targetFrameRef = useRef(0);
   const lastDrawnFrameRef = useRef(-1);
@@ -115,37 +116,105 @@ export default function WorkSequenceHero() {
     const offsetY = (height - drawHeight) * 0.5;
 
     const coverScale = Math.max(width / imageWidth, height / imageHeight);
-    const coverWidth = imageWidth * coverScale;
-    const coverHeight = imageHeight * coverScale;
+    const coverWidth = imageWidth * coverScale * 1.16;
+    const coverHeight = imageHeight * coverScale * 1.16;
     const coverX = (width - coverWidth) * 0.5;
     const coverY = (height - coverHeight) * 0.5;
 
+    const outerCoverWidth = imageWidth * coverScale * 1.28;
+    const outerCoverHeight = imageHeight * coverScale * 1.28;
+    const outerCoverX = (width - outerCoverWidth) * 0.5;
+    const outerCoverY = (height - outerCoverHeight) * 0.5;
+
     ctx.save();
-    ctx.globalAlpha = 0.26;
-    ctx.filter = "blur(28px) saturate(1.1)";
+    ctx.globalAlpha = 0.18;
+    ctx.drawImage(image, outerCoverX, outerCoverY, outerCoverWidth, outerCoverHeight);
+    ctx.globalAlpha = 0.44;
+    ctx.filter = "brightness(0.86) saturate(1.08)";
     ctx.drawImage(image, coverX, coverY, coverWidth, coverHeight);
     ctx.restore();
 
-    ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+    let blendCanvas = blendCanvasRef.current;
+    if (!blendCanvas) {
+      blendCanvas = document.createElement("canvas");
+      blendCanvasRef.current = blendCanvas;
+    }
 
-    const topFade = ctx.createLinearGradient(0, 0, 0, height * 0.24);
-    topFade.addColorStop(0, `${background}c8`);
+    if (blendCanvas.width !== canvas.width || blendCanvas.height !== canvas.height) {
+      blendCanvas.width = canvas.width;
+      blendCanvas.height = canvas.height;
+    }
+
+    const blendCtx = blendCanvas.getContext("2d");
+    if (blendCtx) {
+      blendCtx.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0);
+      blendCtx.clearRect(0, 0, width, height);
+      blendCtx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+      blendCtx.globalCompositeOperation = "destination-in";
+
+      const horizontalMask = blendCtx.createLinearGradient(offsetX, 0, offsetX + drawWidth, 0);
+      horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
+      horizontalMask.addColorStop(0.12, "rgba(255,255,255,0.94)");
+      horizontalMask.addColorStop(0.88, "rgba(255,255,255,0.94)");
+      horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
+      blendCtx.fillStyle = horizontalMask;
+      blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+
+      const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
+      verticalMask.addColorStop(0, "rgba(255,255,255,0.97)");
+      verticalMask.addColorStop(0.7, "rgba(255,255,255,0.92)");
+      verticalMask.addColorStop(0.9, "rgba(255,255,255,0.22)");
+      verticalMask.addColorStop(1, "rgba(255,255,255,0)");
+      blendCtx.fillStyle = verticalMask;
+      blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+
+      blendCtx.globalCompositeOperation = "source-over";
+      ctx.drawImage(blendCanvas, 0, 0, width, height);
+    } else {
+      ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
+    const topFade = ctx.createLinearGradient(0, 0, 0, height * 0.18);
+    topFade.addColorStop(0, `${background}90`);
     topFade.addColorStop(1, `${background}00`);
     ctx.fillStyle = topFade;
-    ctx.fillRect(0, 0, width, height * 0.24);
+    ctx.fillRect(0, 0, width, height * 0.18);
 
-    const bottomFade = ctx.createLinearGradient(0, height * 0.68, 0, height);
+    const leftFade = ctx.createLinearGradient(0, 0, width * 0.18, 0);
+    leftFade.addColorStop(0, `${background}f2`);
+    leftFade.addColorStop(0.38, `${background}78`);
+    leftFade.addColorStop(1, `${background}00`);
+    ctx.fillStyle = leftFade;
+    ctx.fillRect(0, 0, width * 0.18, height);
+
+    const rightFade = ctx.createLinearGradient(width, 0, width - width * 0.18, 0);
+    rightFade.addColorStop(0, `${background}f2`);
+    rightFade.addColorStop(0.38, `${background}78`);
+    rightFade.addColorStop(1, `${background}00`);
+    ctx.fillStyle = rightFade;
+    ctx.fillRect(width - width * 0.18, 0, width * 0.18, height);
+
+    const bottomFade = ctx.createLinearGradient(0, height * 0.54, 0, height);
     bottomFade.addColorStop(0, `${background}00`);
+    bottomFade.addColorStop(0.34, `${background}54`);
+    bottomFade.addColorStop(0.62, `${background}a8`);
     bottomFade.addColorStop(1, `${background}f5`);
     ctx.fillStyle = bottomFade;
-    ctx.fillRect(0, height * 0.68, width, height * 0.32);
+    ctx.fillRect(0, height * 0.54, width, height * 0.46);
 
-    const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.48);
+    const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
     skyHalo.addColorStop(0, `${accentSoft}20`);
     skyHalo.addColorStop(0.45, `${accent}10`);
     skyHalo.addColorStop(1, `${background}00`);
     ctx.fillStyle = skyHalo;
     ctx.fillRect(0, 0, width, height * 0.56);
+
+    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.01, 0, width * 0.5, height * 0.98, width * 0.46);
+    bottomHalo.addColorStop(0, `${background}ec`);
+    bottomHalo.addColorStop(0.55, `${background}5a`);
+    bottomHalo.addColorStop(1, `${background}00`);
+    ctx.fillStyle = bottomHalo;
+    ctx.fillRect(0, height * 0.74, width, height * 0.3);
     ctx.restore();
 
     lastDrawnFrameRef.current = fallbackIndex;
@@ -297,15 +366,7 @@ export default function WorkSequenceHero() {
           className={`absolute inset-0 block h-full w-full bg-[var(--bg-primary)] object-contain object-center transition-opacity duration-500 ${
             firstFrameReady ? "opacity-0" : "opacity-100"
           }`}
-          style={{ filter: "drop-shadow(0 0 28px rgba(7, 9, 15, 0.55))" }}
-        />
-        <img
-          src={WORK_HERO_POSTER_SRC}
-          alt=""
-          aria-hidden="true"
-          className={`absolute inset-0 block h-full w-full scale-[1.08] object-cover object-center opacity-30 blur-2xl transition-opacity duration-500 ${
-            firstFrameReady ? "opacity-0" : "opacity-30"
-          }`}
+          style={{ filter: "drop-shadow(0 0 18px rgba(7, 9, 15, 0.42))" }}
         />
         <canvas
           ref={canvasRef}
@@ -314,7 +375,7 @@ export default function WorkSequenceHero() {
         />
 
         <div
-          className="pointer-events-none absolute inset-x-[4%] top-[2%] h-[48%] opacity-90 mix-blend-screen"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[54%] opacity-90 mix-blend-screen"
           style={{
             backgroundImage: [
               "radial-gradient(circle at 4% 10%, rgba(147,197,253,0.95) 0 1.15px, transparent 2px)",
@@ -334,13 +395,45 @@ export default function WorkSequenceHero() {
               "radial-gradient(circle at 79% 6%, rgba(96,165,250,0.9) 0 1.16px, transparent 2.02px)",
               "radial-gradient(circle at 84% 21%, rgba(255,255,255,0.86) 0 1px, transparent 1.7px)",
               "radial-gradient(circle at 90% 12%, rgba(147,197,253,0.92) 0 1.08px, transparent 1.88px)",
-              "radial-gradient(circle at 96% 27%, rgba(255,255,255,0.74) 0 0.88px, transparent 1.5px)"
+              "radial-gradient(circle at 96% 27%, rgba(255,255,255,0.74) 0 0.88px, transparent 1.5px)",
+              "radial-gradient(circle at 6% 40%, rgba(255,255,255,0.72) 0 0.85px, transparent 1.5px)",
+              "radial-gradient(circle at 14% 34%, rgba(96,165,250,0.88) 0 1.1px, transparent 1.95px)",
+              "radial-gradient(circle at 21% 44%, rgba(147,197,253,0.82) 0 1px, transparent 1.72px)",
+              "radial-gradient(circle at 31% 38%, rgba(255,255,255,0.78) 0 0.9px, transparent 1.55px)",
+              "radial-gradient(circle at 39% 46%, rgba(96,165,250,0.9) 0 1.15px, transparent 2px)",
+              "radial-gradient(circle at 48% 35%, rgba(255,255,255,0.74) 0 0.88px, transparent 1.52px)",
+              "radial-gradient(circle at 57% 43%, rgba(147,197,253,0.84) 0 1px, transparent 1.76px)",
+              "radial-gradient(circle at 66% 37%, rgba(255,255,255,0.76) 0 0.9px, transparent 1.55px)",
+              "radial-gradient(circle at 75% 45%, rgba(96,165,250,0.88) 0 1.12px, transparent 1.96px)",
+              "radial-gradient(circle at 84% 39%, rgba(255,255,255,0.72) 0 0.86px, transparent 1.48px)",
+              "radial-gradient(circle at 93% 41%, rgba(147,197,253,0.82) 0 1px, transparent 1.75px)",
+              "radial-gradient(circle at 9% 5%, rgba(255,255,255,0.76) 0 0.9px, transparent 1.55px)",
+              "radial-gradient(circle at 16% 12%, rgba(147,197,253,0.88) 0 1.05px, transparent 1.85px)",
+              "radial-gradient(circle at 27% 9%, rgba(255,255,255,0.72) 0 0.86px, transparent 1.48px)",
+              "radial-gradient(circle at 33% 16%, rgba(96,165,250,0.84) 0 1px, transparent 1.78px)",
+              "radial-gradient(circle at 44% 8%, rgba(255,255,255,0.78) 0 0.92px, transparent 1.56px)",
+              "radial-gradient(circle at 52% 14%, rgba(147,197,253,0.9) 0 1.08px, transparent 1.88px)",
+              "radial-gradient(circle at 61% 7%, rgba(255,255,255,0.72) 0 0.86px, transparent 1.5px)",
+              "radial-gradient(circle at 68% 15%, rgba(96,165,250,0.86) 0 1.04px, transparent 1.82px)",
+              "radial-gradient(circle at 77% 9%, rgba(255,255,255,0.76) 0 0.9px, transparent 1.54px)",
+              "radial-gradient(circle at 86% 14%, rgba(147,197,253,0.92) 0 1.08px, transparent 1.9px)",
+              "radial-gradient(circle at 94% 8%, rgba(255,255,255,0.7) 0 0.82px, transparent 1.44px)",
+              "radial-gradient(circle at 12% 31%, rgba(255,255,255,0.68) 0 0.84px, transparent 1.42px)",
+              "radial-gradient(circle at 24% 28%, rgba(147,197,253,0.82) 0 1px, transparent 1.72px)",
+              "radial-gradient(circle at 37% 33%, rgba(255,255,255,0.72) 0 0.86px, transparent 1.5px)",
+              "radial-gradient(circle at 49% 29%, rgba(96,165,250,0.86) 0 1.04px, transparent 1.82px)",
+              "radial-gradient(circle at 62% 34%, rgba(255,255,255,0.74) 0 0.9px, transparent 1.54px)",
+              "radial-gradient(circle at 74% 30%, rgba(147,197,253,0.82) 0 1px, transparent 1.75px)",
+              "radial-gradient(circle at 88% 32%, rgba(255,255,255,0.68) 0 0.84px, transparent 1.42px)"
             ].join(", "),
+            maskImage: "linear-gradient(180deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.95) 58%, rgba(0,0,0,0.18) 92%, transparent 100%)",
           }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[52%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_68%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,rgba(7,9,15,0)_0%,rgba(7,9,15,0.26)_34%,rgba(7,9,15,0.84)_78%,rgba(7,9,15,1)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-[-8%] h-24 bg-[radial-gradient(ellipse_at_center,rgba(7,9,15,0.78)_0%,rgba(7,9,15,0.28)_42%,rgba(7,9,15,0)_72%)] blur-3xl" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-[18vw] bg-[linear-gradient(90deg,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.56)_38%,rgba(7,9,15,0)_100%)]" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[18vw] bg-[linear-gradient(270deg,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.56)_38%,rgba(7,9,15,0)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-52 bg-[linear-gradient(180deg,rgba(7,9,15,0)_0%,rgba(7,9,15,0.12)_20%,rgba(7,9,15,0.42)_42%,rgba(7,9,15,0.88)_76%,rgba(7,9,15,1)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-[6%] bottom-[-8%] h-36 bg-[radial-gradient(ellipse_at_center,rgba(7,9,15,0.92)_0%,rgba(7,9,15,0.58)_38%,rgba(7,9,15,0.12)_62%,rgba(7,9,15,0)_82%)] blur-3xl" />
 
         {!firstFrameReady && (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
