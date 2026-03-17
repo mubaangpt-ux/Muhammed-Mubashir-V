@@ -188,13 +188,19 @@ export const projectJsonLd = (project: Project) => ({
   description: project.overview,
   url: absoluteUrl(`/work/${project.slug}`),
   mainEntityOfPage: absoluteUrl(`/work/${project.slug}`),
+  ...(project.image ? { image: absoluteUrl(project.image) } : {}),
   creator: {
     "@type": "Person",
     name: profile.name,
     url: SITE_URL,
   },
   about: project.category,
-  keywords: project.tools.join(", "),
+  keywords: [
+    ...project.tools,
+    ...(project.languages || []),
+    ...(project.techniques || []),
+    project.category,
+  ].join(", "),
   inLanguage: "en",
 });
 

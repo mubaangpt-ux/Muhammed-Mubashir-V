@@ -11,9 +11,59 @@ export type Project = {
   deliverables: string[];
   results: string[];
   tools: string[];
+  languages?: string[];
+  techniques?: string[];
+  image?: string;
 };
 
 export const projects: Project[] = [
+  {
+    slug: "dubai-skyline-sequence-hero",
+    title: "Dubai Skyline Sequence Hero",
+    category: "Creative Development / Scroll Sequence",
+    client: "mubaan.online",
+    period: "2026",
+    featured: false,
+    overview:
+      "Designed and engineered a 239-frame cinematic work-page sequence where a Dubai skyline grows out of motherboard circuitry through scroll-driven canvas rendering.",
+    problem:
+      "The work page needed a premium opening moment that felt aligned with the home-page cinematic language while still loading quickly, staying smooth on mobile, and supporting SEO, social previews, and accessible crawlable content.",
+    approach:
+      "Built a sticky canvas sequence powered by RAF-scheduled draws, progressive frame preloading, mathematically consistent contain-fit rendering, and a representative poster fallback for search engines and social crawlers. The visual treatment blends the skyline sequence into the site theme with starfield overlays, soft edge blending, and a themed handoff into the work archive.",
+    deliverables: [
+      "239-frame scroll-driven work-page hero sequence",
+      "Canvas renderer with frame fallback and no queued draws",
+      "Sequence prewarming tied into the main intro experience",
+      "Poster-image fallback, ImageObject schema, and image sitemap support",
+      "Dedicated work case study page documenting the build system",
+    ],
+    results: [
+      "A cinematic work-page entry that matches the site’s premium dark-tech language",
+      "Smooth sequence playback across desktop and mobile with reduced flicker risk",
+      "Search-friendly image discovery and metadata for the hero poster frame",
+    ],
+    tools: [
+      "Astro 4",
+      "React",
+      "TypeScript",
+      "Framer Motion",
+      "HTML5 Canvas",
+      "Tailwind CSS",
+      "Vite",
+    ],
+    languages: ["TypeScript", "TSX", "Astro", "CSS"],
+    techniques: [
+      "requestAnimationFrame draw scheduling",
+      "progressive image preloading",
+      "sticky scroll pinning",
+      "canvas contain-fit math",
+      "blurred edge extension from the same frame source",
+      "image fallback for crawlers and social previews",
+      "scroll-synced motion values",
+      "mobile-aware concurrency tuning",
+    ],
+    image: "/sequences/work-hero/000120.jpg",
+  },
   {
     slug: "180-degree-meal-planner",
     title: "180 Degree - Healthy Meal Plans + Web App Plugin",

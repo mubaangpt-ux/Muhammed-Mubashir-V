@@ -15,6 +15,7 @@ export function getStaticPaths() {
 const { project } = Astro.props;
 const relatedProjects = projects.filter((item) => item.slug !== project.slug).slice(0, 2);
 const projectServiceMap: Record<string, string[]> = {
+  "dubai-skyline-sequence-hero": ["dubai-web-development-web-apps", "dubai-technical-seo", "dubai-ai-systems-automation-geo"],
   "180-degree-meal-planner": ["dubai-lead-generation-web-systems", "dubai-technical-seo", "dubai-web-development-web-apps", "dubai-ai-systems-automation-geo"],
   "bluemark-real-estate-leadgen": ["dubai-digital-marketing", "dubai-lead-generation-web-systems", "dubai-technical-seo"],
   "multi-company-digital-ops": ["dubai-digital-marketing", "dubai-technical-seo", "dubai-web-development-web-apps", "dubai-ai-systems-automation-geo"],
@@ -36,6 +37,7 @@ const caseStudyJsonLd = [
   title={buildPageTitle(`${project.title} Case Study`, 62)}
   description={project.overview}
   path={`/work/${project.slug}`}
+  image={project.image}
   jsonLd={caseStudyJsonLd}
 >
 
@@ -123,6 +125,33 @@ const caseStudyJsonLd = [
             ))}
           </div>
         </div>
+        {project.languages && project.languages.length > 0 && (
+          <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.22">
+            <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Languages</h2>
+            <div class="flex flex-wrap gap-2">
+              {project.languages.map((language) => (
+                <span
+                  class="text-xs px-2.5 py-1.5 rounded-full text-slate-500 font-mono"
+                  style="border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);"
+                >
+                  {language}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {project.techniques && project.techniques.length > 0 && (
+          <div class="reveal glass-panel rounded-2xl p-7" data-delay="0.24">
+            <h2 class="text-xs font-mono uppercase tracking-widest text-accent-soft/60 mb-4">Techniques</h2>
+            <ul class="space-y-3">
+              {project.techniques.map((technique) => (
+                <li class="flex items-start gap-3 text-sm text-slate-400">
+                  <span class="text-slate-700 font-mono mt-0.5 shrink-0">-</span> {technique}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
 
