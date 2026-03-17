@@ -127,11 +127,11 @@ export default function WorkSequenceHero() {
     const drawWidth = imageWidth * scale;
     const drawHeight = imageHeight * scale;
     const offsetX = (width - drawWidth) * 0.5;
-    const offsetY = Math.max(0, height - drawHeight - height * 0.018);
+    const offsetY = Math.max(0, height - drawHeight + height * 0.012);
 
     const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
-    const bottomBleedTop = offsetY + drawHeight * 0.84;
-    const bottomBleedHeight = Math.max(0, height - bottomBleedTop + 40);
+    const bottomBleedTop = offsetY + drawHeight * 0.88;
+    const bottomBleedHeight = Math.max(0, height - bottomBleedTop + 92);
 
     ctx.save();
     ctx.globalAlpha = 0.34;
@@ -201,9 +201,9 @@ export default function WorkSequenceHero() {
 
       const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
       verticalMask.addColorStop(0, "rgba(255,255,255,0.97)");
-      verticalMask.addColorStop(0.66, "rgba(255,255,255,0.92)");
-      verticalMask.addColorStop(0.84, "rgba(255,255,255,0.36)");
-      verticalMask.addColorStop(0.94, "rgba(255,255,255,0.08)");
+      verticalMask.addColorStop(0.74, "rgba(255,255,255,0.94)");
+      verticalMask.addColorStop(0.9, "rgba(255,255,255,0.72)");
+      verticalMask.addColorStop(0.975, "rgba(255,255,255,0.24)");
       verticalMask.addColorStop(1, "rgba(255,255,255,0)");
       blendCtx.fillStyle = verticalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
@@ -234,14 +234,14 @@ export default function WorkSequenceHero() {
     ctx.fillStyle = rightFade;
     ctx.fillRect(width - width * 0.14, 0, width * 0.14, height);
 
-    const bottomFade = ctx.createLinearGradient(0, height * 0.48, 0, height);
+    const bottomFade = ctx.createLinearGradient(0, height * 0.56, 0, height);
     bottomFade.addColorStop(0, `${background}00`);
-    bottomFade.addColorStop(0.28, `${background}18`);
-    bottomFade.addColorStop(0.52, `${backgroundSoft}70`);
-    bottomFade.addColorStop(0.82, `${background}d8`);
+    bottomFade.addColorStop(0.34, `${background}14`);
+    bottomFade.addColorStop(0.62, `${backgroundSoft}54`);
+    bottomFade.addColorStop(0.86, `${background}c6`);
     bottomFade.addColorStop(1, `${background}ff`);
     ctx.fillStyle = bottomFade;
-    ctx.fillRect(0, height * 0.48, width, height * 0.52);
+    ctx.fillRect(0, height * 0.56, width, height * 0.44);
 
     const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
     skyHalo.addColorStop(0, `${accentSoft}20`);
@@ -250,12 +250,12 @@ export default function WorkSequenceHero() {
     ctx.fillStyle = skyHalo;
     ctx.fillRect(0, 0, width, height * 0.56);
 
-    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.02, 0, width * 0.5, height * 0.97, width * 0.52);
-    bottomHalo.addColorStop(0, `${backgroundSoft}de`);
-    bottomHalo.addColorStop(0.46, `${background}86`);
+    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.04, 0, width * 0.5, height * 0.98, width * 0.58);
+    bottomHalo.addColorStop(0, `${backgroundSoft}c6`);
+    bottomHalo.addColorStop(0.52, `${background}78`);
     bottomHalo.addColorStop(1, `${background}00`);
     ctx.fillStyle = bottomHalo;
-    ctx.fillRect(0, height * 0.7, width, height * 0.34);
+    ctx.fillRect(0, height * 0.74, width, height * 0.32);
     ctx.restore();
 
     lastDrawnFrameRef.current = fallbackIndex;
@@ -471,8 +471,8 @@ export default function WorkSequenceHero() {
           }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_70%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(180deg,rgba(12,18,32,0)_0%,rgba(12,18,32,0.18)_20%,rgba(12,18,32,0.62)_48%,rgba(7,9,15,0.94)_82%,rgba(7,9,15,1)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-[5%] bottom-[-10%] h-40 bg-[radial-gradient(ellipse_at_center,rgba(12,18,32,0.92)_0%,rgba(12,18,32,0.56)_34%,rgba(7,9,15,0.18)_60%,rgba(7,9,15,0)_82%)] blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(180deg,rgba(12,18,32,0)_0%,rgba(12,18,32,0.12)_26%,rgba(12,18,32,0.34)_54%,rgba(7,9,15,0.82)_84%,rgba(7,9,15,0.96)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-[4%] bottom-[-12%] h-48 bg-[radial-gradient(ellipse_at_center,rgba(12,18,32,0.74)_0%,rgba(12,18,32,0.32)_38%,rgba(7,9,15,0.1)_62%,rgba(7,9,15,0)_84%)] blur-[72px]" />
 
         {!firstFrameReady && (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
