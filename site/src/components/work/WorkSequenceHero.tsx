@@ -60,11 +60,10 @@ export default function WorkSequenceHero() {
   const destroyedRef = useRef(false);
   const [loadedCount, setLoadedCount] = useState(0);
   const [firstFrameReady, setFirstFrameReady] = useState(false);
-  const [allFramesReady, setAllFramesReady] = useState(false);
   const reduceMotion = useReducedMotion();
 
   const sectionHeight = useMemo(
-    () => (reduceMotion ? "180svh" : "min(320svh, 4200px)"),
+    () => (reduceMotion ? "140svh" : "min(240svh, 3200px)"),
     [reduceMotion],
   );
 
@@ -232,10 +231,6 @@ export default function WorkSequenceHero() {
         setLoadedCount(loadedCountRef.current);
       }
 
-      if (loadedCountRef.current === WORK_HERO_FRAME_COUNT) {
-        setAllFramesReady(true);
-      }
-
       scheduleDraw(targetFrameRef.current, frameIndex === 0);
     };
 
@@ -289,14 +284,14 @@ export default function WorkSequenceHero() {
   const progressPercent = Math.round((loadedCount / WORK_HERO_FRAME_COUNT) * 100);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-clip"
-      style={{ height: sectionHeight }}
-      aria-labelledby="work-sequence-heading"
-      aria-describedby="work-sequence-summary work-sequence-caption"
-    >
-      <div ref={stageRef} className="sticky top-0 h-[100svh] overflow-hidden">
+    <>
+      <section
+        ref={sectionRef}
+        className="relative overflow-clip"
+        style={{ height: sectionHeight }}
+        aria-describedby="work-sequence-caption"
+      >
+        <div ref={stageRef} className="sticky top-0 h-[100svh] overflow-hidden">
         <img
           src={WORK_HERO_POSTER_SRC}
           alt={WORK_HERO_IMAGE_ALT}
@@ -315,41 +310,63 @@ export default function WorkSequenceHero() {
           aria-hidden="true"
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.24),transparent_52%),linear-gradient(180deg,rgba(7,9,15,0.1),rgba(7,9,15,0.74)_75%,rgba(7,9,15,0.96))]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,15,0.82)_0%,rgba(7,9,15,0.3)_18%,rgba(7,9,15,0.08)_50%,rgba(7,9,15,0.3)_82%,rgba(7,9,15,0.82)_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.16),transparent_48%),linear-gradient(180deg,rgba(7,9,15,0.04),rgba(7,9,15,0.18)_55%,rgba(7,9,15,0.82))]" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,9,15,0.62)_0%,rgba(7,9,15,0.12)_18%,rgba(7,9,15,0.02)_50%,rgba(7,9,15,0.12)_82%,rgba(7,9,15,0.62)_100%)]" />
 
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-between px-4 pb-8 pt-28 md:px-6 md:pb-10 md:pt-32">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl"
-          >
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-accent-soft/80 backdrop-blur-xl">
-              <span className="inline-block h-2 w-2 rounded-full bg-accent shadow-[0_0_12px_rgba(59,130,246,0.75)]" />
-              Work Sequence
+          {!firstFrameReady && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
+              <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-slate-300 backdrop-blur-xl">
+                Preparing skyline sequence
+              </div>
+            </div>
+          )}
+
+          <p id="work-sequence-caption" className="sr-only">
+            {WORK_HERO_IMAGE_CAPTION}
+          </p>
+        </div>
+      </section>
+
+      <section
+        className="relative px-4 pb-10 pt-6 md:px-6 md:pb-12"
+        aria-labelledby="work-sequence-heading"
+        aria-describedby="work-sequence-summary"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto max-w-6xl rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_24px_80px_rgba(2,6,23,0.28)] backdrop-blur-2xl md:p-8"
+        >
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-accent-soft/80 backdrop-blur-xl">
+                <span className="inline-block h-2 w-2 rounded-full bg-accent shadow-[0_0_12px_rgba(59,130,246,0.75)]" />
+                Work Sequence
+              </div>
+
+              <h1
+                id="work-sequence-heading"
+                className="max-w-4xl text-balance font-display font-bold text-white"
+                style={{ fontSize: "clamp(2rem, 4.4vw, 3.8rem)", letterSpacing: "-0.045em", lineHeight: 0.96 }}
+              >
+                Dubai systems rising from circuit-grade detail.
+              </h1>
+
+              <p
+                id="work-sequence-summary"
+                className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg"
+              >
+                A pinned canvas sequence that moves from motherboard logic into skyline scale, then hands into
+                case studies across web development, technical SEO, GEO, AI systems, and growth operations.
+              </p>
             </div>
 
-            <h1
-              id="work-sequence-heading"
-              className="max-w-4xl text-balance font-display font-bold text-white"
-              style={{ fontSize: "clamp(2.5rem, 6vw, 5.4rem)", letterSpacing: "-0.045em", lineHeight: 0.94 }}
-            >
-              Dubai systems rising from circuit-grade detail.
-            </h1>
-
-            <p
-              id="work-sequence-summary"
-              className="mt-5 max-w-2xl text-base leading-relaxed text-slate-300 md:text-lg"
-            >
-              A pinned canvas sequence that moves from motherboard logic into skyline scale, then hands into
-              case studies across web development, technical SEO, GEO, AI systems, and growth operations.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 lg:justify-end">
               <a
                 href="#work-cases"
-                className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,rgba(59,130,246,0.96),rgba(147,197,253,0.65))] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_10px_40px_rgba(59,130,246,0.35)] transition-transform duration-300 hover:scale-[1.02]"
+                className="inline-flex items-center gap-2 rounded-full bg-[linear-gradient(135deg,rgba(59,130,246,0.96),rgba(147,197,253,0.65))] px-6 py-3 text-sm font-semibold text-slate-950 shadow-[0_10px_40px_rgba(59,130,246,0.35)] transition-transform duration-300 hover:scale-[1.02]"
               >
                 Explore case studies
               </a>
@@ -357,28 +374,22 @@ export default function WorkSequenceHero() {
                 href="https://wa.me/971529144135"
                 target="_blank"
                 rel="noreferrer"
-                className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/14 bg-black/20 px-6 py-3 text-sm font-medium text-white/90 backdrop-blur-xl transition-colors duration-300 hover:border-accent-soft/40 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-black/20 px-6 py-3 text-sm font-medium text-white/90 backdrop-blur-xl transition-colors duration-300 hover:border-accent-soft/40 hover:text-white"
               >
                 WhatsApp
               </a>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="grid gap-3 md:grid-cols-[1.2fr_0.95fr_0.95fr]"
-          >
-            <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.1),rgba(255,255,255,0.04))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_22px_80px_rgba(2,6,23,0.35)] backdrop-blur-2xl">
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            <div className="rounded-[1.45rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-xl">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent-soft/70">Sequence Engine</p>
               <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                239 JPG frames, RAF-only drawing, mathematically consistent contain-fit, and a pinned canvas tuned for
-                mobile and desktop scroll.
+                239 JPG frames, RAF-only drawing, mathematically consistent contain-fit, and scroll tuned for mobile and desktop.
               </p>
             </div>
 
-            <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.1),rgba(255,255,255,0.04))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_22px_80px_rgba(2,6,23,0.35)] backdrop-blur-2xl">
+            <div className="rounded-[1.45rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-xl">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent-soft/70">Sequence Ready</p>
               <div className="mt-3 flex items-end gap-3">
                 <span className="text-3xl font-display font-semibold text-white">{progressPercent}%</span>
@@ -394,37 +405,19 @@ export default function WorkSequenceHero() {
               </div>
             </div>
 
-            <div className="rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.1),rgba(255,255,255,0.04))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_22px_80px_rgba(2,6,23,0.35)] backdrop-blur-2xl">
+            <div className="rounded-[1.45rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.035))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-xl">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-accent-soft/70">Scroll Cue</p>
               <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                Scroll through the skyline build, then drop into the work archive below.
+                Scroll through the skyline build, then continue into the work archive below.
               </p>
               <div className="mt-5 flex items-center gap-2 text-xs font-mono uppercase tracking-[0.22em] text-slate-500">
                 <span className="inline-block h-2 w-2 rounded-full bg-accent-soft/80" />
                 Pinned canvas hero
               </div>
             </div>
-          </motion.div>
-        </div>
-
-        {!firstFrameReady && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-10 z-20 flex justify-center px-4">
-            <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-slate-300 backdrop-blur-xl">
-              Preparing skyline sequence
-            </div>
           </div>
-        )}
-
-        {allFramesReady && (
-          <div className="pointer-events-none absolute right-4 top-24 z-20 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.26em] text-emerald-300 md:right-6 md:top-28">
-            Sequence cached
-          </div>
-        )}
-
-        <p id="work-sequence-caption" className="sr-only">
-          {WORK_HERO_IMAGE_CAPTION}
-        </p>
-      </div>
-    </section>
+        </motion.div>
+      </section>
+    </>
   );
 }
