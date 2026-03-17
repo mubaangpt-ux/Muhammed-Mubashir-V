@@ -81,6 +81,7 @@
 
   // Persistent engine state (survives client-side navigation)
   let canvas, ctx, replay, W, H, cx, cy;
+  let DPR = 1;
   let rafId = null, lastTs = 0, phaseStart = 0;
   let phase = 'idle', mode = 'intro', curSpd = C.V_SLOW, expFactor = 1.0;
   let mouseX = -9999, mouseY = -9999;
@@ -100,6 +101,7 @@
   const sx = new Float32Array(C.N), sy = new Float32Array(C.N), psx = new Float32Array(C.N), psy = new Float32Array(C.N);
   const hx = new Float32Array(C.N), hy = new Float32Array(C.N), vx = new Float32Array(C.N), vy = new Float32Array(C.N);
   const sa = new Float32Array(C.N), sr = new Float32Array(C.N);
+  const tw = new Float32Array(C.N);
 
   function detectPerformanceProfile() {
     const coarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
@@ -133,6 +135,7 @@
     vx[i] = vy[i] = 0;
     sa[i] = C.COLS[ci[i]][3];
     sr[i] = Math.max(0.35, bsz[i] * 0.6);
+    tw[i] = random() * 6.2831;
     const psc = C.FOCAL / z3[i]; 
     const px = x3[i] * psc + (W / 2);
     const py = y3[i] * psc + (H / 2);
@@ -197,6 +200,7 @@
         ? Math.min(1, Math.max(0.12, (snapshot.a[i] || 700) / BG_ALPHA_SCALE))
         : C.COLS[colorIndex][3] * 0.7;
       ci[i] = colorIndex;
+      tw[i] = (i * 0.61803398875) % 6.2831;
       vx[i] = vy[i] = 0;
     }
     backgroundPrepared = true;
@@ -260,6 +264,7 @@
           : 0.6 + random() * 1.2;
       sr[i] = Math.max(0.35, bsz[i] * 0.6);
       sa[i] = C.COLS[ci[i]][3] * 0.7;
+      tw[i] = random() * 6.2831;
       vx[i] = vy[i] = 0;
     }
     backgroundPrepared = true;
@@ -272,25 +277,36 @@
     const [r, g, b] = C.COLS[colorIndex];
     const bucketRadius = Math.max(0.35, Math.round(radius * 4) / 4);
     const bucketAlpha = Math.max(0.12, Math.round(alpha * 12) / 12);
-    const key = `${colorIndex}:${bucketRadius}:${bucketAlpha}`;
+    const key = `${colorIndex}:${bucketRadius}:${bucketAlpha}:${DPR}`;
 
     if (starSpriteCache.has(key)) return starSpriteCache.get(key);
 
-    const glowRadius = Math.max(2.4, bucketRadius * 3.2);
-    const size = Math.max(8, Math.ceil(glowRadius * 2 + 4));
+    const glowRadius = Math.max(2.8, bucketRadius * 3.6);
+    const logicalSize = Math.max(10, Math.ceil(glowRadius * 2 + 6));
     const sprite = document.createElement('canvas');
-    sprite.width = size;
-    sprite.height = size;
+    sprite.width = Math.ceil(logicalSize * DPR);
+    sprite.height = Math.ceil(logicalSize * DPR);
 
     const sCtx = sprite.getContext('2d');
-    const mid = size / 2;
+    sCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    sCtx.imageSmoothingEnabled = true;
+    const mid = logicalSize / 2;
     const gradient = sCtx.createRadialGradient(mid, mid, 0, mid, mid, glowRadius);
     gradient.addColorStop(0, `rgba(${r},${g},${b},${bucketAlpha})`);
-    gradient.addColorStop(0.45, `rgba(${r},${g},${b},${bucketAlpha * 0.55})`);
+    gradient.addColorStop(0.28, `rgba(${r},${g},${b},${bucketAlpha * 0.82})`);
+    gradient.addColorStop(0.56, `rgba(${r},${g},${b},${bucketAlpha * 0.38})`);
     gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
     sCtx.fillStyle = gradient;
     sCtx.beginPath();
     sCtx.arc(mid, mid, glowRadius, 0, Math.PI * 2);
+    sCtx.fill();
+
+    const bloom = sCtx.createRadialGradient(mid, mid, 0, mid, mid, glowRadius * 0.68);
+    bloom.addColorStop(0, `rgba(255,255,255,${bucketAlpha * 0.26})`);
+    bloom.addColorStop(1, 'rgba(255,255,255,0)');
+    sCtx.fillStyle = bloom;
+    sCtx.beginPath();
+    sCtx.arc(mid, mid, glowRadius * 0.68, 0, Math.PI * 2);
     sCtx.fill();
 
     sCtx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, bucketAlpha * 1.08)})`;
@@ -298,20 +314,75 @@
     sCtx.arc(mid, mid, Math.max(0.55, bucketRadius), 0, Math.PI * 2);
     sCtx.fill();
 
-    starSpriteCache.set(key, sprite);
-    return sprite;
+    if (bucketRadius > 0.9) {
+      sCtx.strokeStyle = `rgba(255,255,255,${bucketAlpha * 0.18})`;
+      sCtx.lineWidth = Math.max(0.22, bucketRadius * 0.12);
+      sCtx.beginPath();
+      sCtx.moveTo(mid - bucketRadius * 2.15, mid);
+      sCtx.lineTo(mid + bucketRadius * 2.15, mid);
+      sCtx.moveTo(mid, mid - bucketRadius * 2.15);
+      sCtx.lineTo(mid, mid + bucketRadius * 2.15);
+      sCtx.stroke();
+    }
+
+    const payload = { canvas: sprite, size: logicalSize };
+    starSpriteCache.set(key, payload);
+    return payload;
   }
 
   function drawStarDot(x, y, colorIndex, radius, alpha) {
     const sprite = getStarSprite(colorIndex, radius, alpha);
-    const offset = sprite.width * 0.5;
-    ctx.drawImage(sprite, x - offset, y - offset);
+    const offset = sprite.size * 0.5;
+    ctx.drawImage(sprite.canvas, x - offset, y - offset, sprite.size, sprite.size);
+  }
+
+  function drawWarpStreak(x0, y0, x1, y1, colorIndex, radius, alpha, warpStrength) {
+    const [r, g, b] = C.COLS[colorIndex];
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+    const len = Math.hypot(dx, dy);
+
+    if (len < 1.4) {
+      drawStarDot(x1, y1, colorIndex, radius, alpha);
+      return;
+    }
+
+    const nx = dx / len;
+    const ny = dy / len;
+    const tail = Math.min(len, lerp(8, 82, warpStrength) + radius * 8.5);
+    const sx0 = x1 - nx * tail;
+    const sy0 = y1 - ny * tail;
+    const innerTail = Math.min(tail * 0.74, tail - 2);
+    const sx1 = x1 - nx * innerTail;
+    const sy1 = y1 - ny * innerTail;
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.16})`;
+    ctx.lineWidth = Math.max(1.1, radius * 3.6);
+    ctx.moveTo(sx0, sy0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.42})`;
+    ctx.lineWidth = Math.max(0.65, radius * 1.35);
+    ctx.moveTo(sx1, sy1);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    ctx.restore();
+
+    drawStarDot(x1, y1, colorIndex, Math.max(radius, 0.42 + warpStrength * 0.8), Math.min(1, alpha * 1.1));
   }
 
   function prepareCachedBackdrop() {
     if (!bgCanvas) bgCanvas = document.createElement('canvas');
-    bgCanvas.width = W; bgCanvas.height = H;
+    bgCanvas.width = Math.round(W * DPR);
+    bgCanvas.height = Math.round(H * DPR);
     const bCtx = bgCanvas.getContext('2d', { alpha: false });
+    bCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    bCtx.imageSmoothingEnabled = true;
     
     bCtx.fillStyle = `rgb(${C.BG[0]},${C.BG[1]},${C.BG[2]})`;
     bCtx.fillRect(0, 0, W, H);
@@ -398,8 +469,16 @@
 
   function resize() {
     detectPerformanceProfile();
-    W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
+    DPR = Math.min(window.devicePixelRatio || 1, staticBackgroundMode ? 1.35 : lowPowerMode ? 1.6 : 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = `${W}px`;
+    canvas.style.height = `${H}px`;
     cx = W * 0.5; cy = H * 0.5;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    starSpriteCache.clear();
     prepareCachedBackdrop();
     if (!initialized) {
       resetIntroScene();
@@ -429,9 +508,22 @@
     else if (phase === 'hyper' && el > C.T_HYPER) { phase = 'decel'; phaseStart = ts; }
     else if (phase === 'decel' && el > C.T_DECEL) { phase = 'done'; phaseStart = ts; }
 
-    const target = (phase === 'idle') ? C.V_SLOW : (phase === 'accel') ? lerp(C.V_SLOW, C.V_FAST, eIn(clamp(el/C.T_ACCEL,0,1))) : (phase === 'hyper') ? C.V_FAST : (phase === 'decel') ? lerp(C.V_FAST, C.V_SLOW, eOut(clamp(el/C.T_DECEL,0,1))) : 0;
-    curSpd = lerp(curSpd, target, 0.15);
+    const accelT = clamp(el / C.T_ACCEL, 0, 1);
+    const decelT = clamp(el / C.T_DECEL, 0, 1);
+    const hyperPulse = phase === 'hyper' ? 0.94 + Math.sin(el * 0.018) * 0.06 : 1;
+    const target = (phase === 'idle')
+      ? C.V_SLOW
+      : (phase === 'accel')
+        ? lerp(C.V_SLOW, C.V_FAST, eIn(accelT))
+        : (phase === 'hyper')
+          ? C.V_FAST * hyperPulse
+          : (phase === 'decel')
+            ? lerp(C.V_FAST, C.V_SLOW, eOut(decelT))
+            : 0;
+    curSpd = lerp(curSpd, target, phase === 'hyper' ? 0.24 : 0.15);
     const t01 = clamp((curSpd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
+    const driftX = Math.sin(ts * 0.00036) * lerp(1.6, 10, t01);
+    const driftY = Math.cos(ts * 0.00042) * lerp(1.2, 7.5, t01);
 
     ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - lerp(C.BLUR_LO, C.BLUR_HI, t01)})`; ctx.fillRect(0, 0, W, H);
 
@@ -443,20 +535,31 @@
     expFactor = (phase === 'decel' || phase === 'done') ? 1.0 + eOut(el / C.T_DECEL) * 6.0 : 1.0;
     const dz = curSpd * dt;
 
+    if (t01 > 0.16) {
+      const beamAlpha = Math.min(0.34, t01 * 0.22);
+      const beam = ctx.createRadialGradient(cx + driftX * 0.4, cy + driftY * 0.2, 0, cx + driftX * 0.4, cy + driftY * 0.2, lerp(42, Math.max(W, H) * 0.15, t01));
+      beam.addColorStop(0, `rgba(147,197,253,${beamAlpha})`);
+      beam.addColorStop(0.4, `rgba(59,130,246,${beamAlpha * 0.38})`);
+      beam.addColorStop(1, 'rgba(59,130,246,0)');
+      ctx.fillStyle = beam;
+      ctx.beginPath();
+      ctx.arc(cx + driftX * 0.4, cy + driftY * 0.2, lerp(42, Math.max(W, H) * 0.15, t01), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     for (let i = 0; i < starCount; i++) {
       if (phase !== 'done') {
         z3[i] -= dz; if (z3[i] < C.Z_NEAR) { 
           initStar(i, false); const sc2 = C.FOCAL / z3[i]; psx[i] = cx + x3[i]*sc2*expFactor; psy[i] = cy + y3[i]*sc2*expFactor; 
         }
       }
-      const sc = C.FOCAL / z3[i], x = cx + x3[i]*sc*expFactor, y = cy + y3[i]*sc*expFactor;
-      const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], a = clamp(ma*(0.15+p*0.85),0,1), s = bsz[i]*(0.6+p*1.8);
+      const sc = C.FOCAL / z3[i], x = cx + driftX + x3[i]*sc*expFactor, y = cy + driftY + y3[i]*sc*expFactor;
+      const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], twinkle = 0.92 + Math.sin(ts * 0.0024 + tw[i]) * (phase === 'hyper' ? 0.05 : 0.12), a = clamp(ma * twinkle * (0.15 + p * 0.85), 0, 1), s = bsz[i] * (0.62 + p * 2.05);
       const fillAlpha = a * (mode === 'background' ? 0.7 : 1);
       sa[i] = fillAlpha;
-      sr[i] = Math.max(0.35, s * 0.45);
+      sr[i] = Math.max(0.35, s * 0.52);
       if (t01 > 0.05 && phase !== 'done') {
-        ctx.beginPath(); ctx.strokeStyle = `rgba(${r},${g},${b},${a})`; ctx.lineWidth = Math.max(0.6, s*0.5);
-        ctx.moveTo(psx[i], psy[i]); ctx.lineTo(x, y); ctx.stroke();
+        drawWarpStreak(psx[i], psy[i], x, y, ci[i], sr[i], fillAlpha, t01);
       } else {
         drawStarDot(x, y, ci[i], sr[i], fillAlpha);
       }
@@ -524,7 +627,8 @@
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
-        drawStarDot(sx[i], sy[i], ci[i], sr[i], sa[i]);
+        const shimmer = sa[i] * (0.9 + Math.sin(ts * 0.0016 + tw[i]) * 0.1);
+        drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
     }
     if (staticBackgroundMode) return;
     rafId = requestAnimationFrame(bgLoop);
