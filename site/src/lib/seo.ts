@@ -4,6 +4,8 @@ import { services, type Service, type ServiceFaq } from "../data/services";
 import { resources, type Resource } from "../data/resources";
 
 const DEFAULT_SITE_URL = "https://mubaan.online";
+export const SITE_NAME = "mubaan.online";
+export const SITE_ALTERNATE_NAME = "Muhammed Mubashir V";
 
 export const SITE_URL = (import.meta.env.PUBLIC_SITE_URL || profile.siteUrl || DEFAULT_SITE_URL).replace(/\/+$/, "");
 
@@ -76,10 +78,15 @@ const personEntity = () => ({
 export const websiteJsonLd = () => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: profile.name,
+  "@id": `${SITE_URL}#website`,
+  name: SITE_NAME,
+  alternateName: SITE_ALTERNATE_NAME,
   url: SITE_URL,
   description: profile.summary,
   inLanguage: "en-AE",
+  publisher: {
+    "@id": `${SITE_URL}#organization`,
+  },
 });
 
 export const personJsonLd = () => ({
@@ -98,7 +105,8 @@ export const organizationJsonLd = () => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   "@id": `${SITE_URL}#organization`,
-  name: profile.name,
+  name: SITE_NAME,
+  alternateName: SITE_ALTERNATE_NAME,
   url: SITE_URL,
   logo: absoluteUrl("/profile.png"),
   image: absoluteUrl("/profile.png"),
@@ -110,6 +118,10 @@ export const organizationJsonLd = () => ({
     "@type": "Person",
     name: profile.name,
     url: SITE_URL,
+  },
+  brand: {
+    "@type": "Brand",
+    name: SITE_NAME,
   },
   knowsAbout: [
     "Dubai digital marketing",
