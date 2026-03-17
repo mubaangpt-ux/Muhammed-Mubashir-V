@@ -70,6 +70,8 @@ export default function WorkSequenceHero() {
   const destroyedRef = useRef(false);
   const [firstFrameReady, setFirstFrameReady] = useState(false);
   const reduceMotion = useReducedMotion();
+  const sequenceMask =
+    "linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 68%, rgba(0,0,0,0.95) 76%, rgba(0,0,0,0.76) 84%, rgba(0,0,0,0.36) 93%, rgba(0,0,0,0) 100%)";
 
   const sectionHeight = useMemo(
     () =>
@@ -387,13 +389,13 @@ export default function WorkSequenceHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative -mt-[88px] overflow-clip"
+      className="relative -mt-[88px]"
       style={{ height: sectionHeight }}
       aria-describedby="work-sequence-caption"
     >
       <div
         ref={stageRef}
-        className="sticky top-[88px] overflow-hidden"
+        className="sticky top-[88px]"
         style={{ height: stageHeight }}
       >
         <img
@@ -404,14 +406,22 @@ export default function WorkSequenceHero() {
           loading="eager"
           decoding="async"
           fetchPriority="high"
-          className={`absolute inset-0 block h-full w-full bg-[var(--bg-primary)] object-contain object-center transition-opacity duration-500 ${
+          className={`absolute inset-0 block h-full w-full object-contain object-center transition-opacity duration-500 ${
             firstFrameReady ? "opacity-0" : "opacity-100"
           }`}
-          style={{ filter: "drop-shadow(0 0 12px rgba(7, 9, 15, 0.28))" }}
+          style={{
+            filter: "drop-shadow(0 0 12px rgba(7, 9, 15, 0.28))",
+            WebkitMaskImage: sequenceMask,
+            maskImage: sequenceMask,
+          }}
         />
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 block h-full w-full bg-[var(--bg-primary)]"
+          className="absolute inset-0 block h-full w-full"
+          style={{
+            WebkitMaskImage: sequenceMask,
+            maskImage: sequenceMask,
+          }}
           aria-hidden="true"
         />
 
@@ -471,8 +481,6 @@ export default function WorkSequenceHero() {
           }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_70%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(180deg,rgba(12,18,32,0)_0%,rgba(12,18,32,0.12)_26%,rgba(12,18,32,0.34)_54%,rgba(7,9,15,0.82)_84%,rgba(7,9,15,0.96)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-[4%] bottom-[-12%] h-48 bg-[radial-gradient(ellipse_at_center,rgba(12,18,32,0.74)_0%,rgba(12,18,32,0.32)_38%,rgba(7,9,15,0.1)_62%,rgba(7,9,15,0)_84%)] blur-[72px]" />
 
         {!firstFrameReady && (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
@@ -486,6 +494,20 @@ export default function WorkSequenceHero() {
           {WORK_HERO_IMAGE_CAPTION}
         </p>
       </div>
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2]"
+        style={{
+          height: "52%",
+          background: `
+            radial-gradient(ellipse 62% 84% at 18% 100%, rgba(7,9,15,0.82) 0%, transparent 70%),
+            radial-gradient(ellipse 62% 84% at 82% 100%, rgba(7,9,15,0.82) 0%, transparent 70%),
+            linear-gradient(0deg,
+              rgba(7,9,15,0.84) 0%,
+              rgba(7,9,15,0.54) 24%,
+              rgba(7,9,15,0.18) 56%,
+              transparent 100%)`,
+        }}
+      />
     </section>
   );
 }
