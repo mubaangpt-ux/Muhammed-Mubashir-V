@@ -1,12 +1,41 @@
 ﻿---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import CreativeWorks from "../../components/CreativeWorks";
+import WorkSequenceHero from "../../components/work/WorkSequenceHero";
 import { profile } from "../../data/profile";
 import { projects } from "../../data/projects";
-import { breadcrumbJsonLd, workCollectionJsonLd, buildPageTitle } from "../../lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, workCollectionJsonLd, buildPageTitle } from "../../lib/seo";
+import {
+  WORK_HERO_IMAGE_ALT,
+  WORK_HERO_IMAGE_CAPTION,
+  WORK_HERO_IMAGE_HEIGHT,
+  WORK_HERO_IMAGE_WIDTH,
+  WORK_HERO_POSTER_SRC,
+} from "../../lib/work-sequence";
+
+const workSequenceImageJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  url: absoluteUrl(WORK_HERO_POSTER_SRC),
+  contentUrl: absoluteUrl(WORK_HERO_POSTER_SRC),
+  name: "Dubai skyline motherboard sequence poster",
+  description: WORK_HERO_IMAGE_CAPTION,
+  caption: WORK_HERO_IMAGE_CAPTION,
+  width: WORK_HERO_IMAGE_WIDTH,
+  height: WORK_HERO_IMAGE_HEIGHT,
+  representativeOfPage: true,
+  creator: {
+    "@type": "Person",
+    name: profile.name,
+    url: profile.siteUrl,
+  },
+  keywords:
+    "Dubai web development, digital marketing Dubai, technical SEO Dubai, GEO specialist Dubai, AI systems Dubai, cinematic Dubai skyline sequence",
+};
 
 const workJsonLd = [
   workCollectionJsonLd(),
+  workSequenceImageJsonLd,
   breadcrumbJsonLd([
     { name: "Home", path: "/" },
     { name: "Work", path: "/work" },
@@ -23,20 +52,23 @@ const supportingProjects = projects.filter((project) => !project.featured);
   title={buildPageTitle("Case Studies & Creative Work")}
   description="Case studies in digital marketing, web development, technical SEO, GEO, AI systems, lead generation, and creative work for Dubai and UAE brands."
   path="/work"
+  image={WORK_HERO_POSTER_SRC}
+  ogTitle="Dubai web development, SEO, GEO, and digital marketing case studies | Muhammed Mubashir V"
+  ogDescription={WORK_HERO_IMAGE_ALT}
   jsonLd={workJsonLd}
 >
 
-<CreativeWorks client:visible />
+<WorkSequenceHero client:load />
 
-<section class="py-20 px-4">
+<section id="work-cases" class="py-20 px-4">
   <div class="mx-auto max-w-6xl">
     <div class="reveal mb-3" data-delay="0.05">
       <p class="text-xs font-mono uppercase tracking-[0.3em] text-accent-soft/70">Work</p>
     </div>
     <div class="reveal mb-16" data-delay="0.10">
-      <h1 class="font-display font-bold text-white" style="font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: -0.035em;">
+      <h2 class="font-display font-bold text-white" style="font-size: clamp(2.2rem, 5vw, 3.5rem); letter-spacing: -0.035em;">
         Projects & case studies
-      </h1>
+      </h2>
       <p class="text-base text-slate-400 mt-4 max-w-xl leading-relaxed">
         Selected work with measurable operational and growth outcomes across UAE markets.
       </p>
@@ -174,5 +206,7 @@ const supportingProjects = projects.filter((project) => !project.featured);
     )}
   </div>
 </section>
+
+<CreativeWorks client:visible />
 
 </BaseLayout>

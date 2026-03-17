@@ -49,7 +49,7 @@
      CONFIG & PERSISTENT STATE
      ═══════════════════════════════════════════════════════════════ */
   const C = {
-    N:          3500,
+    N:          2200,
     FOCAL:       380,
     Z_FAR:      1600,
     Z_NEAR:        3,
@@ -74,7 +74,7 @@
     ],
     BG: [7, 9, 15]
   };
-  const BG_SNAPSHOT_KEY = 'hj_background_snapshot_v1';
+  const BG_SNAPSHOT_KEY = 'hj_background_snapshot_v2';
   const BG_POS_SCALE = 100000;
   const BG_SIZE_SCALE = 1000;
   const BG_ALPHA_SCALE = 1000;
@@ -112,7 +112,7 @@
 
     lowPowerMode = reducedMotion || memory <= 4 || cores <= 4 || narrowViewport;
     staticBackgroundMode = reducedMotion || coarsePointer;
-    starCount = staticBackgroundMode ? 1200 : lowPowerMode ? 1800 : C.N;
+    starCount = staticBackgroundMode ? 700 : lowPowerMode ? 1200 : C.N;
     backgroundFrameInterval = staticBackgroundMode ? 1000 / 18 : lowPowerMode ? 1000 / 30 : 1000 / 45;
   }
 
@@ -154,7 +154,7 @@
       const raw = sessionStorage.getItem(BG_SNAPSHOT_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (!parsed || (parsed.v !== 1 && parsed.v !== 2)) return null;
+      if (!parsed || (parsed.v !== 2 && parsed.v !== 3)) return null;
       if (!Array.isArray(parsed.x) || !Array.isArray(parsed.y) || !Array.isArray(parsed.s) || !Array.isArray(parsed.c)) return null;
       if (parsed.x.length < starCount || parsed.y.length < starCount || parsed.s.length < starCount || parsed.c.length < starCount) return null;
       if (parsed.a && (!Array.isArray(parsed.a) || parsed.a.length < starCount)) return null;
@@ -167,7 +167,7 @@
 
   function saveBackgroundSnapshot() {
     const snapshot = {
-      v: 2,
+      v: 3,
       n: starCount,
       x: Array.from({ length: starCount }, (_, i) => Math.round((hx[i] / W) * BG_POS_SCALE)),
       y: Array.from({ length: starCount }, (_, i) => Math.round((hy[i] / H) * BG_POS_SCALE)),
@@ -183,7 +183,7 @@
 
   function restoreBackgroundSnapshot(snapshot = loadBackgroundSnapshot()) {
     if (!snapshot) return false;
-    const legacySnapshot = snapshot.v === 1;
+    const legacySnapshot = snapshot.v === 2;
     for (let i = 0; i < starCount; i++) {
       const px = (snapshot.x[i] / BG_POS_SCALE) * W;
       const py = (snapshot.y[i] / BG_POS_SCALE) * H;
@@ -261,7 +261,7 @@
         ? 0.35 + random() * 0.65
         : layer < 0.82
           ? 0.25 + random() * 0.55
-          : 0.6 + random() * 1.2;
+          : 0.5 + random() * 0.9;
       sr[i] = Math.max(0.35, bsz[i] * 0.6);
       sa[i] = C.COLS[ci[i]][3] * 0.7;
       tw[i] = random() * 6.2831;
@@ -281,8 +281,8 @@
 
     if (starSpriteCache.has(key)) return starSpriteCache.get(key);
 
-    const glowRadius = Math.max(2.8, bucketRadius * 3.6);
-    const logicalSize = Math.max(10, Math.ceil(glowRadius * 2 + 6));
+    const glowRadius = Math.max(2.3, bucketRadius * 3.05);
+    const logicalSize = Math.max(8, Math.ceil(glowRadius * 2 + 4));
     const sprite = document.createElement('canvas');
     sprite.width = Math.ceil(logicalSize * DPR);
     sprite.height = Math.ceil(logicalSize * DPR);
@@ -293,37 +293,17 @@
     const mid = logicalSize / 2;
     const gradient = sCtx.createRadialGradient(mid, mid, 0, mid, mid, glowRadius);
     gradient.addColorStop(0, `rgba(${r},${g},${b},${bucketAlpha})`);
-    gradient.addColorStop(0.28, `rgba(${r},${g},${b},${bucketAlpha * 0.82})`);
-    gradient.addColorStop(0.56, `rgba(${r},${g},${b},${bucketAlpha * 0.38})`);
+    gradient.addColorStop(0.38, `rgba(${r},${g},${b},${bucketAlpha * 0.62})`);
     gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
     sCtx.fillStyle = gradient;
     sCtx.beginPath();
     sCtx.arc(mid, mid, glowRadius, 0, Math.PI * 2);
     sCtx.fill();
 
-    const bloom = sCtx.createRadialGradient(mid, mid, 0, mid, mid, glowRadius * 0.68);
-    bloom.addColorStop(0, `rgba(255,255,255,${bucketAlpha * 0.26})`);
-    bloom.addColorStop(1, 'rgba(255,255,255,0)');
-    sCtx.fillStyle = bloom;
-    sCtx.beginPath();
-    sCtx.arc(mid, mid, glowRadius * 0.68, 0, Math.PI * 2);
-    sCtx.fill();
-
     sCtx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, bucketAlpha * 1.08)})`;
     sCtx.beginPath();
     sCtx.arc(mid, mid, Math.max(0.55, bucketRadius), 0, Math.PI * 2);
     sCtx.fill();
-
-    if (bucketRadius > 0.9) {
-      sCtx.strokeStyle = `rgba(255,255,255,${bucketAlpha * 0.18})`;
-      sCtx.lineWidth = Math.max(0.22, bucketRadius * 0.12);
-      sCtx.beginPath();
-      sCtx.moveTo(mid - bucketRadius * 2.15, mid);
-      sCtx.lineTo(mid + bucketRadius * 2.15, mid);
-      sCtx.moveTo(mid, mid - bucketRadius * 2.15);
-      sCtx.lineTo(mid, mid + bucketRadius * 2.15);
-      sCtx.stroke();
-    }
 
     const payload = { canvas: sprite, size: logicalSize };
     starSpriteCache.set(key, payload);
@@ -349,7 +329,7 @@
 
     const nx = dx / len;
     const ny = dy / len;
-    const tail = Math.min(len, lerp(8, 82, warpStrength) + radius * 8.5);
+    const tail = Math.min(len, lerp(6, 46, warpStrength) + radius * 5.8);
     const sx0 = x1 - nx * tail;
     const sy0 = y1 - ny * tail;
     const innerTail = Math.min(tail * 0.74, tail - 2);
@@ -359,21 +339,21 @@
     ctx.save();
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.16})`;
-    ctx.lineWidth = Math.max(1.1, radius * 3.6);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.1})`;
+    ctx.lineWidth = Math.max(0.8, radius * 2.1);
     ctx.moveTo(sx0, sy0);
     ctx.lineTo(x1, y1);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.42})`;
-    ctx.lineWidth = Math.max(0.65, radius * 1.35);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.28})`;
+    ctx.lineWidth = Math.max(0.5, radius * 0.95);
     ctx.moveTo(sx1, sy1);
     ctx.lineTo(x1, y1);
     ctx.stroke();
     ctx.restore();
 
-    drawStarDot(x1, y1, colorIndex, Math.max(radius, 0.42 + warpStrength * 0.8), Math.min(1, alpha * 1.1));
+    drawStarDot(x1, y1, colorIndex, Math.max(radius, 0.38 + warpStrength * 0.36), Math.min(1, alpha * 1.02));
   }
 
   function prepareCachedBackdrop() {
@@ -520,10 +500,10 @@
           : (phase === 'decel')
             ? lerp(C.V_FAST, C.V_SLOW, eOut(decelT))
             : 0;
-    curSpd = lerp(curSpd, target, phase === 'hyper' ? 0.24 : 0.15);
+    curSpd = lerp(curSpd, target, phase === 'hyper' ? 0.2 : 0.15);
     const t01 = clamp((curSpd - C.V_SLOW) / (C.V_FAST - C.V_SLOW), 0, 1);
-    const driftX = Math.sin(ts * 0.00036) * lerp(1.6, 10, t01);
-    const driftY = Math.cos(ts * 0.00042) * lerp(1.2, 7.5, t01);
+    const driftX = Math.sin(ts * 0.00036) * lerp(0.4, 1.6, t01);
+    const driftY = Math.cos(ts * 0.00042) * lerp(0.3, 1.2, t01);
 
     ctx.fillStyle = `rgba(${C.BG[0]},${C.BG[1]},${C.BG[2]},${1 - lerp(C.BLUR_LO, C.BLUR_HI, t01)})`; ctx.fillRect(0, 0, W, H);
 
@@ -535,18 +515,6 @@
     expFactor = (phase === 'decel' || phase === 'done') ? 1.0 + eOut(el / C.T_DECEL) * 6.0 : 1.0;
     const dz = curSpd * dt;
 
-    if (t01 > 0.16) {
-      const beamAlpha = Math.min(0.34, t01 * 0.22);
-      const beam = ctx.createRadialGradient(cx + driftX * 0.4, cy + driftY * 0.2, 0, cx + driftX * 0.4, cy + driftY * 0.2, lerp(42, Math.max(W, H) * 0.15, t01));
-      beam.addColorStop(0, `rgba(147,197,253,${beamAlpha})`);
-      beam.addColorStop(0.4, `rgba(59,130,246,${beamAlpha * 0.38})`);
-      beam.addColorStop(1, 'rgba(59,130,246,0)');
-      ctx.fillStyle = beam;
-      ctx.beginPath();
-      ctx.arc(cx + driftX * 0.4, cy + driftY * 0.2, lerp(42, Math.max(W, H) * 0.15, t01), 0, Math.PI * 2);
-      ctx.fill();
-    }
-
     for (let i = 0; i < starCount; i++) {
       if (phase !== 'done') {
         z3[i] -= dz; if (z3[i] < C.Z_NEAR) { 
@@ -554,10 +522,10 @@
         }
       }
       const sc = C.FOCAL / z3[i], x = cx + driftX + x3[i]*sc*expFactor, y = cy + driftY + y3[i]*sc*expFactor;
-      const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], twinkle = 0.92 + Math.sin(ts * 0.0024 + tw[i]) * (phase === 'hyper' ? 0.05 : 0.12), a = clamp(ma * twinkle * (0.15 + p * 0.85), 0, 1), s = bsz[i] * (0.62 + p * 2.05);
+      const p = 1 - z3[i] / C.Z_FAR, [r, g, b, ma] = C.COLS[ci[i]], twinkle = 0.94 + Math.sin(ts * 0.0022 + tw[i]) * (phase === 'hyper' ? 0.03 : 0.08), a = clamp(ma * twinkle * (0.15 + p * 0.85), 0, 1), s = bsz[i] * (0.6 + p * 1.82);
       const fillAlpha = a * (mode === 'background' ? 0.7 : 1);
       sa[i] = fillAlpha;
-      sr[i] = Math.max(0.35, s * 0.52);
+      sr[i] = Math.max(0.32, s * 0.45);
       if (t01 > 0.05 && phase !== 'done') {
         drawWarpStreak(psx[i], psy[i], x, y, ci[i], sr[i], fillAlpha, t01);
       } else {
