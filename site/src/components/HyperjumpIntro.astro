@@ -45,6 +45,11 @@
 >⟳ Replay</button>
 
 <script>
+  (() => {
+  if (window.__hjRuntime?.handlePageLoad) {
+    return;
+  }
+  const runtime = window.__hjRuntime = window.__hjRuntime || {};
   /* ═══════════════════════════════════════════════════════════════
      CONFIG & PERSISTENT STATE
      ═══════════════════════════════════════════════════════════════ */
@@ -542,8 +547,6 @@
 
   function finishIntro(wasSkipped) {
     if (!canvas) return;
-    mode = 'background';
-    mountBackgroundCanvas();
     if (wasSkipped) {
       if (!restoreBackgroundSnapshot()) {
         prepareBackgroundScene();
@@ -553,22 +556,8 @@
       freezeCurrentBackgroundFrame();
       saveBackgroundSnapshot();
     }
-    canvas.style.display = 'block'; 
-    canvas.style.opacity = '1';
-    canvas.style.pointerEvents = 'none';
-    document.body.classList.remove('hyperjump-active');
-    if (replay) replay.style.display = 'block';
-    
-    revealHero(wasSkipped);
-    bindBackgroundEvents();
-    document.dispatchEvent(new CustomEvent('hyperjump-complete'));
-    if (rafId) cancelAnimationFrame(rafId);
-    lastBgFrame = 0;
-    if (staticBackgroundMode) {
-      bgLoop(performance.now());
-      return;
-    }
-    rafId = requestAnimationFrame(bgLoop);
+    syncBackground('none');
+    if (!wasSkipped) revealHero(false);
   }
 
   function bgLoop(ts) {
@@ -610,6 +599,33 @@
     revealTimers.push(timerId);
   }
 
+  function revealImmediately(selectors) {
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => el.classList.add('revealed'));
+    });
+  }
+
+  function revealHeaderImmediately() {
+    const header = document.querySelector('header');
+    if (header) header.classList.add('revealed');
+  }
+
+  function revealHomeImmediately() {
+    revealHeaderImmediately();
+    revealImmediately([
+      '.hero-orbit-stage',
+      '.hero-portrait-layer',
+      '.hero-content-shade',
+      '.hero-pill-reveal',
+      '.hero-name-stack',
+      '.hero-glow-baseline',
+      '.hero-role-reveal',
+      '.hero-discipline-reveal',
+      '.hero-cta-reveal',
+      '.hero-social-proof',
+    ]);
+  }
+
   function revealHero(wasSkipped) {
     const fastMode = Boolean(wasSkipped);
     const header = document.querySelector('header');
@@ -647,16 +663,45 @@
     });
   }
 
-  function start() {
+  function syncBackground(revealMode = 'none') {
+    if (!canvas) return;
+    mode = 'background';
+    mountBackgroundCanvas();
+    if (!restoreBackgroundSnapshot()) {
+      if (!backgroundPrepared) prepareBackgroundScene();
+      saveBackgroundSnapshot();
+    }
+    canvas.style.display = 'block';
+    canvas.style.opacity = '1';
+    canvas.style.pointerEvents = 'none';
+    document.body.classList.remove('hyperjump-active');
+    if (replay) replay.style.display = 'block';
+
+    if (revealMode === 'hero') revealHomeImmediately();
+    else if (revealMode === 'header') revealHeaderImmediately();
+
+    bindBackgroundEvents();
+    document.dispatchEvent(new CustomEvent('hyperjump-complete'));
+    if (rafId) cancelAnimationFrame(rafId);
+    lastBgFrame = 0;
+    if (staticBackgroundMode) {
+      bgLoop(performance.now());
+      return;
+    }
+    rafId = requestAnimationFrame(bgLoop);
+  }
+
+  function isHomeRoute() {
+    return window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+  }
+
+  function startIntro() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
     if (!canvas) return;
     detectPerformanceProfile();
     ctx = canvas.getContext('2d', { alpha: false });
     resize();
     clearRevealTimers();
-    
-    const played = sessionStorage.getItem('hj_intro_played'), isHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
-    if (played || !isHome) { finishIntro(true); return; }
 
     canvas.style.position = 'fixed'; canvas.style.zIndex = '9999'; canvas.style.display = 'block'; canvas.style.opacity = '1';
     if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
@@ -670,9 +715,34 @@
     if (rafId) cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame);
   }
 
+  function handlePageLoad() {
+    canvas = document.getElementById('hj-canvas');
+    replay = document.getElementById('hj-replay');
+    if (!canvas) return;
+
+    detectPerformanceProfile();
+    ctx = canvas.getContext('2d', { alpha: false });
+    resize();
+    clearRevealTimers();
+
+    const played = sessionStorage.getItem('hj_intro_played');
+    const isHome = isHomeRoute();
+    const hasBooted = Boolean(runtime.hasBooted);
+    runtime.hasBooted = true;
+
+    if (!hasBooted && isHome && !played) {
+      startIntro();
+      return;
+    }
+
+    syncBackground(isHome ? 'hero' : 'header');
+  }
+
+  runtime.handlePageLoad = handlePageLoad;
+
   document.addEventListener('astro:page-load', () => {
     if (!window.hj_ev) { window.addEventListener('resize', () => { if(canvas) resize(); }, { passive: true }); window.hj_ev = true; }
-    start();
+    handlePageLoad();
   });
   document.addEventListener('astro:after-swap', () => {
     if (rafId) cancelAnimationFrame(rafId);
@@ -683,9 +753,11 @@
       sessionStorage.removeItem('hj_intro_played');
       sessionStorage.removeItem(BG_SNAPSHOT_KEY);
       backgroundSnapshot = null;
-      start();
+      runtime.hasBooted = false;
+      handlePageLoad();
     }
   });
+  })();
 </script>
 
 <style is:global>

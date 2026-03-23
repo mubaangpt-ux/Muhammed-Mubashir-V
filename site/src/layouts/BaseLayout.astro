@@ -1032,6 +1032,13 @@ const navItems = [
 
         if (!els.length) return;
 
+        const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (isCoarsePointer || prefersReducedMotion) {
+          els.forEach((el) => el.classList.add('revealed'));
+          return;
+        }
+
         observer = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
             readQueue.push(() => {
@@ -1247,12 +1254,19 @@ const navItems = [
         state.started = true;
 
         const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
-        const concurrency = isCoarsePointer ? WORK_HERO_PREWARM_MOBILE_CONCURRENCY : WORK_HERO_PREWARM_CONCURRENCY;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const lowMemory = (navigator.deviceMemory || 8) <= 4;
+        const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
+        const limit = isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
+          ? Math.min(32, WORK_HERO_FRAME_COUNT)
+          : WORK_HERO_FRAME_COUNT;
+        state.total = limit;
+        const concurrency = isCoarsePointer ? Math.min(2, WORK_HERO_PREWARM_MOBILE_CONCURRENCY) : WORK_HERO_PREWARM_CONCURRENCY;
         let active = 0;
         let cursor = 0;
 
         const loadNext = () => {
-          while (active < concurrency && cursor < WORK_HERO_FRAME_COUNT) {
+          while (active < concurrency && cursor < limit) {
             const index = cursor;
             cursor += 1;
             active += 1;
@@ -1265,7 +1279,7 @@ const navItems = [
             img.onload = img.onerror = () => {
               active -= 1;
               state.loaded += 1;
-              if (state.loaded >= WORK_HERO_FRAME_COUNT) {
+              if (state.loaded >= limit) {
                 state.done = true;
               }
               loadNext();
@@ -1292,8 +1306,11 @@ const navItems = [
       }
 
       maybeWarmSequence();
-      document.addEventListener('astro:page-load', maybeWarmSequence);
-      document.addEventListener('hyperjump-complete', maybeWarmSequence);
+      if (!window.__mubSequenceWarmBindingsAdded) {
+        document.addEventListener('astro:page-load', maybeWarmSequence);
+        document.addEventListener('hyperjump-complete', maybeWarmSequence);
+        window.__mubSequenceWarmBindingsAdded = true;
+      }
     })();
     </script>
   </body>

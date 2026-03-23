@@ -49,8 +49,10 @@ const pickRenderableFrame = (
   lastVisible: number,
 ) => {
   if (frames[target]) return target;
+  const nearestLoaded = findNearestLoadedFrame(frames, target);
+  if (nearestLoaded >= 0) return nearestLoaded;
   if (lastVisible >= 0 && frames[lastVisible]) return lastVisible;
-  return findNearestLoadedFrame(frames, target);
+  return -1;
 };
 
 export default function WorkSequenceHero() {
@@ -68,6 +70,7 @@ export default function WorkSequenceHero() {
   const loadedCountRef = useRef(0);
   const firstFrameReadyRef = useRef(false);
   const destroyedRef = useRef(false);
+  const lowPowerRef = useRef(false);
   const [firstFrameReady, setFirstFrameReady] = useState(false);
   const reduceMotion = useReducedMotion();
   const sequenceMask =
@@ -132,8 +135,6 @@ export default function WorkSequenceHero() {
     const offsetY = Math.max(0, height - drawHeight + height * 0.012);
 
     const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
-    const bottomBleedTop = offsetY + drawHeight * 0.88;
-    const bottomBleedHeight = Math.max(0, height - bottomBleedTop + 92);
 
     ctx.save();
     ctx.globalAlpha = 0.34;
@@ -160,19 +161,6 @@ export default function WorkSequenceHero() {
       sideBleedWidth,
       drawHeight + 20,
     );
-    if (bottomBleedHeight > 0) {
-      ctx.drawImage(
-        image,
-        imageWidth * 0.08,
-        imageHeight * 0.8,
-        imageWidth * 0.84,
-        imageHeight * 0.16,
-        offsetX - drawWidth * 0.03,
-        bottomBleedTop,
-        drawWidth * 1.06,
-        bottomBleedHeight,
-      );
-    }
     ctx.restore();
 
     let blendCanvas = blendCanvasRef.current;
@@ -202,10 +190,10 @@ export default function WorkSequenceHero() {
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
 
       const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
-      verticalMask.addColorStop(0, "rgba(255,255,255,0.97)");
-      verticalMask.addColorStop(0.74, "rgba(255,255,255,0.94)");
-      verticalMask.addColorStop(0.9, "rgba(255,255,255,0.72)");
-      verticalMask.addColorStop(0.975, "rgba(255,255,255,0.24)");
+      verticalMask.addColorStop(0, "rgba(255,255,255,1)");
+      verticalMask.addColorStop(0.8, "rgba(255,255,255,0.98)");
+      verticalMask.addColorStop(0.92, "rgba(255,255,255,0.72)");
+      verticalMask.addColorStop(0.985, "rgba(255,255,255,0.16)");
       verticalMask.addColorStop(1, "rgba(255,255,255,0)");
       blendCtx.fillStyle = verticalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
@@ -236,28 +224,12 @@ export default function WorkSequenceHero() {
     ctx.fillStyle = rightFade;
     ctx.fillRect(width - width * 0.14, 0, width * 0.14, height);
 
-    const bottomFade = ctx.createLinearGradient(0, height * 0.56, 0, height);
-    bottomFade.addColorStop(0, `${background}00`);
-    bottomFade.addColorStop(0.34, `${background}14`);
-    bottomFade.addColorStop(0.62, `${backgroundSoft}54`);
-    bottomFade.addColorStop(0.86, `${background}c6`);
-    bottomFade.addColorStop(1, `${background}ff`);
-    ctx.fillStyle = bottomFade;
-    ctx.fillRect(0, height * 0.56, width, height * 0.44);
-
     const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
     skyHalo.addColorStop(0, `${accentSoft}20`);
     skyHalo.addColorStop(0.45, `${accent}10`);
     skyHalo.addColorStop(1, `${background}00`);
     ctx.fillStyle = skyHalo;
     ctx.fillRect(0, 0, width, height * 0.56);
-
-    const bottomHalo = ctx.createRadialGradient(width * 0.5, height * 1.04, 0, width * 0.5, height * 0.98, width * 0.58);
-    bottomHalo.addColorStop(0, `${backgroundSoft}c6`);
-    bottomHalo.addColorStop(0.52, `${background}78`);
-    bottomHalo.addColorStop(1, `${background}00`);
-    ctx.fillStyle = bottomHalo;
-    ctx.fillRect(0, height * 0.74, width, height * 0.32);
     ctx.restore();
 
     lastDrawnFrameRef.current = fallbackIndex;
@@ -275,7 +247,18 @@ export default function WorkSequenceHero() {
   };
 
   useMotionValueEvent(smoothProgress, "change", (value) => {
-    const nextFrame = clamp(Math.round(value * (WORK_HERO_FRAME_COUNT - 1)), 0, WORK_HERO_FRAME_COUNT - 1);
+    const frameStep = lowPowerRef.current ? 2 : 1;
+    const rawFrame = clamp(
+      Math.round(value * (WORK_HERO_FRAME_COUNT - 1)),
+      0,
+      WORK_HERO_FRAME_COUNT - 1,
+    );
+    const steppedFrame = clamp(
+      Math.round(rawFrame / frameStep) * frameStep,
+      0,
+      WORK_HERO_FRAME_COUNT - 1,
+    );
+    const nextFrame = steppedFrame;
     scheduleDraw(nextFrame);
   });
 
@@ -314,13 +297,31 @@ export default function WorkSequenceHero() {
 
   useEffect(() => {
     destroyedRef.current = false;
-    const concurrency = window.matchMedia("(pointer: coarse)").matches ? 4 : 8;
-    const priorityFrames = Array.from({ length: Math.min(24, WORK_HERO_FRAME_COUNT) }, (_, index) => index);
+    const coarsePointer =
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(hover: none)").matches;
+    const lowMemory = (navigator.deviceMemory || 8) <= 4;
+    const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
+    lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
+
+    const concurrency = lowPowerRef.current ? 2 : 6;
+    const priorityFrames = Array.from(
+      { length: Math.min(lowPowerRef.current ? 16 : 24, WORK_HERO_FRAME_COUNT) },
+      (_, index) => index,
+    );
     const remainingFrames = Array.from(
       { length: WORK_HERO_FRAME_COUNT - priorityFrames.length },
       (_, index) => index + priorityFrames.length,
     );
-    const queue = [...priorityFrames, ...remainingFrames];
+    const coarseCoverage = lowPowerRef.current
+      ? remainingFrames.filter((frameIndex) => frameIndex % 2 === 0)
+      : [];
+    const deferredFrames = lowPowerRef.current
+      ? remainingFrames.filter((frameIndex) => frameIndex % 2 !== 0)
+      : remainingFrames;
+    const queue = lowPowerRef.current
+      ? [...priorityFrames, ...coarseCoverage, ...deferredFrames]
+      : [...priorityFrames, ...remainingFrames];
     let active = 0;
     let cursor = 0;
 
@@ -343,9 +344,9 @@ export default function WorkSequenceHero() {
       new Promise<void>((resolve) => {
         const image = new Image();
         image.decoding = "async";
-        image.loading = "eager";
+        image.loading = frameIndex < priorityFrames.length ? "eager" : "lazy";
         if ("fetchPriority" in image) {
-          image.fetchPriority = frameIndex < 24 ? "high" : "low";
+          image.fetchPriority = frameIndex < priorityFrames.length ? "high" : "low";
         }
 
         image.onload = async () => {
@@ -494,20 +495,6 @@ export default function WorkSequenceHero() {
           {WORK_HERO_IMAGE_CAPTION}
         </p>
       </div>
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 z-[2]"
-        style={{
-          height: "52%",
-          background: `
-            radial-gradient(ellipse 62% 84% at 18% 100%, rgba(7,9,15,0.82) 0%, transparent 70%),
-            radial-gradient(ellipse 62% 84% at 82% 100%, rgba(7,9,15,0.82) 0%, transparent 70%),
-            linear-gradient(0deg,
-              rgba(7,9,15,0.84) 0%,
-              rgba(7,9,15,0.54) 24%,
-              rgba(7,9,15,0.18) 56%,
-              transparent 100%)`,
-        }}
-      />
     </section>
   );
 }

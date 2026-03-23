@@ -1135,6 +1135,9 @@ const homeJsonLd = [
 
   let rafId = null;
   let observer = null;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+  const lowPower = prefersReducedMotion || isCoarsePointer || (navigator.deviceMemory || 8) <= 4;
 
   function resize() {
     canvas.width  = canvas.offsetWidth  * window.devicePixelRatio;
@@ -1188,25 +1191,31 @@ const homeJsonLd = [
     const H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    const elapsed = now - phaseStart;
-
-    if (phase === 'rise') {
-      const progress = Math.min(elapsed / TOTAL_DURATION, 1);
-
+    if (lowPower) {
       BARS.forEach((bar, i) => {
-        const barProgress = Math.max(0, Math.min(
-          (progress - bar.delay * 0.5) / (1 - bar.delay * 0.5), 1
-        ));
-        current[i] = easeOutQuart(barProgress) * bar.target;
+        current[i] = bar.target;
       });
+    } else {
+      const elapsed = now - phaseStart;
 
-      if (progress >= 1) { phase = 'pause'; phaseStart = now; }
+      if (phase === 'rise') {
+        const progress = Math.min(elapsed / TOTAL_DURATION, 1);
 
-    } else if (phase === 'pause') {
-      if (elapsed >= LOOP_PAUSE) { phase = 'rise'; phaseStart = now; current.fill(0); }
+        BARS.forEach((bar, i) => {
+          const barProgress = Math.max(0, Math.min(
+            (progress - bar.delay * 0.5) / (1 - bar.delay * 0.5), 1
+          ));
+          current[i] = easeOutQuart(barProgress) * bar.target;
+        });
 
-    } else if (phase === 'reset') {
-      phase = 'rise'; phaseStart = now; current.fill(0);
+        if (progress >= 1) { phase = 'pause'; phaseStart = now; }
+
+      } else if (phase === 'pause') {
+        if (elapsed >= LOOP_PAUSE) { phase = 'rise'; phaseStart = now; current.fill(0); }
+
+      } else if (phase === 'reset') {
+        phase = 'rise'; phaseStart = now; current.fill(0);
+      }
     }
 
     // Layout
@@ -1315,7 +1324,9 @@ const homeJsonLd = [
     ctx.stroke();
     ctx.restore();
 
-    rafId = requestAnimationFrame(drawFrame);
+    if (!lowPower) {
+      rafId = requestAnimationFrame(drawFrame);
+    }
   }
 
   // Start when section enters viewport
@@ -1681,6 +1692,8 @@ const homeJsonLd = [
   let testiLastFrame = 0;
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+  const lowPowerRows = prefersReducedMotion || isCoarsePointer || (navigator.deviceMemory || 8) <= 4;
 
   function initRows() {
     rows.length = 0;
@@ -1741,7 +1754,7 @@ const homeJsonLd = [
   }
 
   function startRows() {
-    if (rowsActive || prefersReducedMotion) return;
+    if (rowsActive || lowPowerRows) return;
     rowsActive = true;
     testiLastFrame = 0;
     animFrame = requestAnimationFrame(tick);
@@ -1828,8 +1841,12 @@ const homeJsonLd = [
     initRows();
     initPhotoUpload();
 
+    if (lowPowerRows) {
+      return;
+    }
+
     const section = document.getElementById('testi-section');
-    if (!prefersReducedMotion && section) {
+    if (section) {
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) startRows();
