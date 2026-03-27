@@ -29,6 +29,20 @@ declare global {
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const HEADER_OFFSET = 88;
 
+const buildDistributedFrameSet = (count: number, total: number) => {
+  if (count >= total) {
+    return Array.from({ length: total }, (_, index) => index);
+  }
+
+  const frameSet = new Set<number>();
+  for (let index = 0; index < count; index += 1) {
+    const ratio = count === 1 ? 0 : index / (count - 1);
+    frameSet.add(Math.round(ratio * (total - 1)));
+  }
+
+  return Array.from(frameSet).sort((a, b) => a - b);
+};
+
 const findNearestLoadedFrame = (frames: Array<HTMLImageElement | null>, target: number) => {
   if (frames[target]) return target;
 
@@ -72,6 +86,7 @@ export default function WorkSequenceHero() {
   const destroyedRef = useRef(false);
   const lowPowerRef = useRef(false);
   const [firstFrameReady, setFirstFrameReady] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const reduceMotion = useReducedMotion();
   const sequenceMask =
     "linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 68%, rgba(0,0,0,0.95) 76%, rgba(0,0,0,0.76) 84%, rgba(0,0,0,0.36) 93%, rgba(0,0,0,0) 100%)";
@@ -79,11 +94,17 @@ export default function WorkSequenceHero() {
   const sectionHeight = useMemo(
     () =>
       reduceMotion
-        ? `calc(140svh + ${HEADER_OFFSET}px)`
-        : `calc(min(240svh, 3200px) + ${HEADER_OFFSET}px)`,
-    [reduceMotion],
+        ? `calc(${isMobileViewport ? "116svh" : "140svh"} + ${HEADER_OFFSET}px)`
+        : `calc(${isMobileViewport ? "170svh" : "min(240svh, 3200px)"} + ${HEADER_OFFSET}px)`,
+    [isMobileViewport, reduceMotion],
   );
-  const stageHeight = useMemo(() => `calc(100svh - ${HEADER_OFFSET}px)`, []);
+  const stageHeight = useMemo(
+    () =>
+      isMobileViewport
+        ? `calc(min(76svh, 760px) - ${HEADER_OFFSET}px)`
+        : `calc(100svh - ${HEADER_OFFSET}px)`,
+    [isMobileViewport],
+  );
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -128,40 +149,47 @@ export default function WorkSequenceHero() {
 
     const imageWidth = image.naturalWidth || image.width;
     const imageHeight = image.naturalHeight || image.height;
-    const scale = Math.min(width / imageWidth, height / imageHeight);
+    const useMobileFit = isMobileViewport || width / height < 1.08;
+    const scale = useMobileFit
+      ? Math.max(width / imageWidth, height / imageHeight)
+      : Math.min(width / imageWidth, height / imageHeight);
     const drawWidth = imageWidth * scale;
     const drawHeight = imageHeight * scale;
     const offsetX = (width - drawWidth) * 0.5;
-    const offsetY = Math.max(0, height - drawHeight + height * 0.012);
+    const offsetY = useMobileFit
+      ? (height - drawHeight) * 0.6
+      : Math.max(0, height - drawHeight + height * 0.012);
 
-    const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
+    if (!useMobileFit) {
+      const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
 
-    ctx.save();
-    ctx.globalAlpha = 0.34;
-    ctx.filter = "blur(22px) brightness(0.7) saturate(0.92)";
-    ctx.drawImage(
-      image,
-      imageWidth * 0.02,
-      imageHeight * 0.05,
-      imageWidth * 0.12,
-      imageHeight * 0.86,
-      0,
-      offsetY - 10,
-      sideBleedWidth,
-      drawHeight + 20,
-    );
-    ctx.drawImage(
-      image,
-      imageWidth * 0.86,
-      imageHeight * 0.05,
-      imageWidth * 0.12,
-      imageHeight * 0.86,
-      width - sideBleedWidth,
-      offsetY - 10,
-      sideBleedWidth,
-      drawHeight + 20,
-    );
-    ctx.restore();
+      ctx.save();
+      ctx.globalAlpha = 0.34;
+      ctx.filter = "blur(22px) brightness(0.7) saturate(0.92)";
+      ctx.drawImage(
+        image,
+        imageWidth * 0.02,
+        imageHeight * 0.05,
+        imageWidth * 0.12,
+        imageHeight * 0.86,
+        0,
+        offsetY - 10,
+        sideBleedWidth,
+        drawHeight + 20,
+      );
+      ctx.drawImage(
+        image,
+        imageWidth * 0.86,
+        imageHeight * 0.05,
+        imageWidth * 0.12,
+        imageHeight * 0.86,
+        width - sideBleedWidth,
+        offsetY - 10,
+        sideBleedWidth,
+        drawHeight + 20,
+      );
+      ctx.restore();
+    }
 
     let blendCanvas = blendCanvasRef.current;
     if (!blendCanvas) {
@@ -182,18 +210,25 @@ export default function WorkSequenceHero() {
       blendCtx.globalCompositeOperation = "destination-in";
 
       const horizontalMask = blendCtx.createLinearGradient(offsetX, 0, offsetX + drawWidth, 0);
-      horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
-      horizontalMask.addColorStop(0.1, "rgba(255,255,255,0.94)");
-      horizontalMask.addColorStop(0.9, "rgba(255,255,255,0.94)");
-      horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
+      if (useMobileFit) {
+        horizontalMask.addColorStop(0, "rgba(255,255,255,0.08)");
+        horizontalMask.addColorStop(0.08, "rgba(255,255,255,0.98)");
+        horizontalMask.addColorStop(0.92, "rgba(255,255,255,0.98)");
+        horizontalMask.addColorStop(1, "rgba(255,255,255,0.08)");
+      } else {
+        horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
+        horizontalMask.addColorStop(0.1, "rgba(255,255,255,0.94)");
+        horizontalMask.addColorStop(0.9, "rgba(255,255,255,0.94)");
+        horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
+      }
       blendCtx.fillStyle = horizontalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
 
       const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
       verticalMask.addColorStop(0, "rgba(255,255,255,1)");
-      verticalMask.addColorStop(0.8, "rgba(255,255,255,0.98)");
-      verticalMask.addColorStop(0.92, "rgba(255,255,255,0.72)");
-      verticalMask.addColorStop(0.985, "rgba(255,255,255,0.16)");
+      verticalMask.addColorStop(useMobileFit ? 0.86 : 0.8, "rgba(255,255,255,0.98)");
+      verticalMask.addColorStop(useMobileFit ? 0.94 : 0.92, "rgba(255,255,255,0.72)");
+      verticalMask.addColorStop(useMobileFit ? 0.992 : 0.985, "rgba(255,255,255,0.16)");
       verticalMask.addColorStop(1, "rgba(255,255,255,0)");
       blendCtx.fillStyle = verticalMask;
       blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
@@ -263,6 +298,20 @@ export default function WorkSequenceHero() {
   });
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const syncViewport = () => setIsMobileViewport(media.matches);
+    syncViewport();
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", syncViewport);
+      return () => media.removeEventListener("change", syncViewport);
+    }
+
+    media.addListener(syncViewport);
+    return () => media.removeListener(syncViewport);
+  }, []);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     const stage = stageRef.current;
     if (!canvas || !stage) return;
@@ -293,7 +342,7 @@ export default function WorkSequenceHero() {
       observer.disconnect();
       window.removeEventListener("orientationchange", setCanvasSize);
     };
-  }, []);
+  }, [isMobileViewport]);
 
   useEffect(() => {
     destroyedRef.current = false;
@@ -305,13 +354,13 @@ export default function WorkSequenceHero() {
     lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
 
     const concurrency = lowPowerRef.current ? 2 : 6;
-    const priorityFrames = Array.from(
-      { length: Math.min(lowPowerRef.current ? 16 : 24, WORK_HERO_FRAME_COUNT) },
-      (_, index) => index,
-    );
-    const remainingFrames = Array.from(
-      { length: WORK_HERO_FRAME_COUNT - priorityFrames.length },
-      (_, index) => index + priorityFrames.length,
+    const initialPriorityFrameCount = Math.min(lowPowerRef.current ? 20 : 24, WORK_HERO_FRAME_COUNT);
+    const priorityFrames = lowPowerRef.current
+      ? buildDistributedFrameSet(initialPriorityFrameCount, WORK_HERO_FRAME_COUNT)
+      : Array.from({ length: initialPriorityFrameCount }, (_, index) => index);
+    const priorityFrameSet = new Set(priorityFrames);
+    const remainingFrames = Array.from({ length: WORK_HERO_FRAME_COUNT }, (_, index) => index).filter(
+      (frameIndex) => !priorityFrameSet.has(frameIndex),
     );
     const coarseCoverage = lowPowerRef.current
       ? remainingFrames.filter((frameIndex) => frameIndex % 2 === 0)
@@ -407,10 +456,12 @@ export default function WorkSequenceHero() {
           loading="eager"
           decoding="async"
           fetchPriority="high"
-          className={`absolute inset-0 block h-full w-full object-contain object-center transition-opacity duration-500 ${
+          className={`absolute inset-0 block h-full w-full transition-opacity duration-500 ${
             firstFrameReady ? "opacity-0" : "opacity-100"
           }`}
           style={{
+            objectFit: isMobileViewport ? "cover" : "contain",
+            objectPosition: isMobileViewport ? "center 60%" : "center",
             filter: "drop-shadow(0 0 12px rgba(7, 9, 15, 0.28))",
             WebkitMaskImage: sequenceMask,
             maskImage: sequenceMask,

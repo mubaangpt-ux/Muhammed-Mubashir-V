@@ -1385,6 +1385,17 @@ const homeJsonLd = [
     const capCards = document.querySelectorAll('.cap-card');
     if (!capCards.length) return;
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (prefersReducedMotion || isCoarsePointer || isMobile) {
+      capCards.forEach((card) => {
+        card.classList.remove('cap-out');
+        card.classList.add('cap-in');
+      });
+      return;
+    }
+
     let hasAnimatedIn = false;
     const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
 
@@ -1557,6 +1568,17 @@ const homeJsonLd = [
 <script is:inline data-astro-rerun>
   (() => {
     // Metric cards with counter reset
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (prefersReducedMotion || isCoarsePointer || isMobile) {
+      document.querySelectorAll('.metric-drop, .metric-slide-left, .metric-rise, .metric-slide-right').forEach((card) => {
+        card.classList.remove('metric-out');
+        card.classList.add('metric-in');
+      });
+      return;
+    }
+
     const scheduleWrite = window.__scheduleWrite || ((fn) => fn());
     document.querySelectorAll('.metric-drop, .metric-slide-left, .metric-rise, .metric-slide-right').forEach(card => {
       let seen = false;
@@ -1841,12 +1863,8 @@ const homeJsonLd = [
     initRows();
     initPhotoUpload();
 
-    if (lowPowerRows) {
-      return;
-    }
-
     const section = document.getElementById('testi-section');
-    if (section) {
+    if (section && !lowPowerRows) {
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) startRows();
@@ -1854,6 +1872,11 @@ const homeJsonLd = [
         });
       }, { threshold: 0.05, rootMargin: '220px 0px 220px 0px' });
       sectionObserver.observe(section);
+    } else {
+      rows.forEach((row) => {
+        row.x = 0;
+        row.el.style.transform = 'translateX(0px) translateZ(0)';
+      });
     }
 
     const openBtn   = document.getElementById('testi-open-btn');
@@ -1925,6 +1948,17 @@ const homeJsonLd = [
       '.work-left, .work-card-1, .work-card-2, .work-card-3, .work-card-center, .work-card-4'
     );
     if (!allCards.length) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (prefersReducedMotion || isCoarsePointer || isMobile) {
+      allCards.forEach((card) => {
+        card.classList.remove('work-out');
+        card.classList.add('work-in');
+      });
+      return;
+    }
 
     // Track which cards have ever been seen
     const seen = new Set();
@@ -2855,6 +2889,23 @@ const homeJsonLd = [
 
     .cap-media-frame {
       min-height: 118px;
+    }
+
+    .metric-drop,
+    .metric-slide-left,
+    .metric-rise,
+    .metric-slide-right,
+    .cap-card,
+    .work-left,
+    .work-card-1,
+    .work-card-2,
+    .work-card-3,
+    .work-card-center,
+    .work-card-4 {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+      transition-duration: 0s !important;
     }
   }
 
