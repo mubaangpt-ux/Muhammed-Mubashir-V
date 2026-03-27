@@ -101,6 +101,7 @@
   let backgroundFrameInterval = 1000 / 45;
   let lastBgFrame = 0;
   let homeMediaWarmStarted = false;
+  let touchRippleUntil = 0;
 
   const HERO_REVEAL_SELECTORS = [
     '.hero-orbit-stage',
@@ -508,10 +509,35 @@
     mouseY = -9999;
   }
 
+  function wakeBackgroundRipple(clientX, clientY) {
+    mouseX = clientX;
+    mouseY = clientY;
+    touchRippleUntil = performance.now() + 720;
+
+    if (mode !== 'background') return;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(bgLoop);
+  }
+
+  function onPointerDown(e) {
+    if (e.pointerType === 'mouse' && staticBackgroundMode) return;
+    wakeBackgroundRipple(e.clientX, e.clientY);
+  }
+
+  function onTouchStart(e) {
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    wakeBackgroundRipple(touch.clientX, touch.clientY);
+  }
+
   function bindBackgroundEvents() {
-    if (bgEventsBound || staticBackgroundMode) return;
-    window.addEventListener('mousemove', onMouse, { passive: true });
-    window.addEventListener('mouseleave', onMouseLeave, { passive: true });
+    if (bgEventsBound) return;
+    if (!staticBackgroundMode) {
+      window.addEventListener('mousemove', onMouse, { passive: true });
+      window.addEventListener('mouseleave', onMouseLeave, { passive: true });
+    }
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
     bgEventsBound = true;
   }
 
@@ -639,9 +665,10 @@
 
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
+    const rippleActive = !staticBackgroundMode || ts < touchRippleUntil;
     for (let i = 0; i < starCount; i++) {
         const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
-        if (!staticBackgroundMode && d2 < r2 && d2 > 0.1) {
+        if (rippleActive && d2 < r2 && d2 > 0.1) {
             const t = 1 - d2/r2, f = t*t*C.RIPPLE_F, inv = 1/Math.sqrt(d2);
             vx[i] += dx*inv*f*0.05; vy[i] += dy*inv*f*0.05;
         }
@@ -650,7 +677,15 @@
         const shimmer = sa[i] * (0.9 + Math.sin(ts * 0.0016 + tw[i]) * 0.1);
         drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
     }
-    if (staticBackgroundMode) return;
+    if (staticBackgroundMode) {
+      if (ts < touchRippleUntil) {
+        rafId = requestAnimationFrame(bgLoop);
+      } else {
+        rafId = null;
+        onMouseLeave();
+      }
+      return;
+    }
     rafId = requestAnimationFrame(bgLoop);
   }
 
