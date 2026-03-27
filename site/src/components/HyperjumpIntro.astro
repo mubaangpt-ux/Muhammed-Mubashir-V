@@ -100,6 +100,20 @@
   let lowPowerMode = false;
   let backgroundFrameInterval = 1000 / 45;
   let lastBgFrame = 0;
+  let homeMediaWarmStarted = false;
+
+  const HERO_REVEAL_SELECTORS = [
+    '.hero-orbit-stage',
+    '.hero-portrait-layer',
+    '.hero-content-shade',
+    '.hero-pill-reveal',
+    '.hero-name-stack',
+    '.hero-glow-baseline',
+    '.hero-role-reveal',
+    '.hero-discipline-reveal',
+    '.hero-cta-reveal',
+    '.hero-social-proof',
+  ];
 
   const x3 = new Float32Array(C.N), y3 = new Float32Array(C.N), z3 = new Float32Array(C.N);
   const ci = new Uint8Array(C.N), bsz = new Float32Array(C.N);
@@ -228,6 +242,55 @@
   function clearRevealTimers() {
     revealTimers.forEach((timerId) => clearTimeout(timerId));
     revealTimers = [];
+  }
+
+  function shouldUseStaticHomeReveal() {
+    return (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(hover: none)').matches ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.matchMedia('(max-width: 767px)').matches
+    );
+  }
+
+  function warmHomeMedia() {
+    if (homeMediaWarmStarted || !isHomeRoute()) return;
+    homeMediaWarmStarted = true;
+
+    const mediaUrls = new Set(['/profile.png']);
+
+    document.querySelectorAll('img[src]').forEach((node) => {
+      const src = node.getAttribute('src');
+      if (src && src.startsWith('/')) mediaUrls.add(src);
+    });
+
+    document.querySelectorAll('video[poster], video[data-src]').forEach((node) => {
+      const poster = node.getAttribute('poster');
+      const src = node.getAttribute('data-src');
+      if (poster && poster.startsWith('/')) mediaUrls.add(poster);
+      if (src && src.startsWith('/')) mediaUrls.add(src);
+    });
+
+    const warmList = Array.from(mediaUrls).slice(0, 24);
+    const schedule = window.requestIdleCallback || ((cb) => window.setTimeout(cb, 120));
+    schedule(() => {
+      warmList.forEach((url) => {
+        if (/\.(mp4|webm|ogg)$/i.test(url)) {
+          const link = document.createElement('link');
+          link.rel = 'preload';
+          link.as = 'video';
+          link.href = url;
+          document.head.appendChild(link);
+          return;
+        }
+
+        const img = new Image();
+        img.decoding = 'async';
+        img.loading = 'eager';
+        if ('fetchPriority' in img) img.fetchPriority = 'high';
+        img.src = url;
+      });
+    }, { timeout: 1200 });
   }
 
   function prepareBackgroundScene() {
@@ -605,6 +668,14 @@
     });
   }
 
+  function revealAllNonHeroContent() {
+    document.querySelectorAll('.reveal').forEach((el) => {
+      if (!el.closest('.hero-section')) {
+        el.classList.add('revealed');
+      }
+    });
+  }
+
   function revealHeaderImmediately() {
     const header = document.querySelector('header');
     if (header) header.classList.add('revealed');
@@ -612,18 +683,10 @@
 
   function revealHomeImmediately() {
     revealHeaderImmediately();
-    revealImmediately([
-      '.hero-orbit-stage',
-      '.hero-portrait-layer',
-      '.hero-content-shade',
-      '.hero-pill-reveal',
-      '.hero-name-stack',
-      '.hero-glow-baseline',
-      '.hero-role-reveal',
-      '.hero-discipline-reveal',
-      '.hero-cta-reveal',
-      '.hero-social-proof',
-    ]);
+    revealImmediately(HERO_REVEAL_SELECTORS);
+    if (shouldUseStaticHomeReveal()) {
+      revealAllNonHeroContent();
+    }
   }
 
   function revealHero(wasSkipped) {
@@ -702,13 +765,16 @@
     ctx = canvas.getContext('2d', { alpha: false });
     resize();
     clearRevealTimers();
+    warmHomeMedia();
 
     canvas.style.position = 'fixed'; canvas.style.zIndex = '9999'; canvas.style.display = 'block'; canvas.style.opacity = '1';
     if (canvas.parentElement !== document.body) document.body.insertBefore(canvas, document.body.firstChild);
     document.body.classList.add('hyperjump-active');
     const header = document.querySelector('header');
     if (header) header.classList.remove('revealed');
-    document.querySelectorAll('.reveal').forEach(el => el.classList.remove('revealed'));
+    HERO_REVEAL_SELECTORS.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => el.classList.remove('revealed'));
+    });
     
     resetIntroScene();
     mode = 'intro'; phase = 'idle'; phaseStart = lastTs = performance.now(); curSpd = C.V_SLOW;
@@ -729,6 +795,10 @@
     const isHome = isHomeRoute();
     const hasBooted = Boolean(runtime.hasBooted);
     runtime.hasBooted = true;
+
+    if (isHome) {
+      warmHomeMedia();
+    }
 
     if (!hasBooted && isHome && !played) {
       startIntro();
