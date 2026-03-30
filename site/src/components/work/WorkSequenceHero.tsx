@@ -85,6 +85,12 @@ export default function WorkSequenceHero() {
   const firstFrameReadyRef = useRef(false);
   const destroyedRef = useRef(false);
   const lowPowerRef = useRef(false);
+  const concurrencyRef = useRef(6);
+  const activeLoadsRef = useRef(0);
+  const priorityQueueRef = useRef<number[]>([]);
+  const backgroundQueueRef = useRef<number[]>([]);
+  const queuedFramesRef = useRef<Set<number>>(new Set());
+  const loadingFramesRef = useRef<Set<number>>(new Set());
   const [firstFrameReady, setFirstFrameReady] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -281,6 +287,89 @@ export default function WorkSequenceHero() {
     });
   };
 
+  const enqueueFrames = (frameIndices: number[], priority = false) => {
+    const targetQueue = priority ? priorityQueueRef.current : backgroundQueueRef.current;
+    frameIndices.forEach((frameIndex) => {
+      if (frameIndex < 0 || frameIndex >= WORK_HERO_FRAME_COUNT) return;
+      if (framesRef.current[frameIndex]) return;
+      if (loadingFramesRef.current.has(frameIndex)) return;
+      if (queuedFramesRef.current.has(frameIndex)) return;
+      queuedFramesRef.current.add(frameIndex);
+      targetQueue.push(frameIndex);
+    });
+  };
+
+  const pumpLoadQueue = () => {
+    if (destroyedRef.current) return;
+
+    while (activeLoadsRef.current < concurrencyRef.current) {
+      const nextFrame =
+        priorityQueueRef.current.length > 0
+          ? priorityQueueRef.current.shift()
+          : backgroundQueueRef.current.shift();
+
+      if (typeof nextFrame !== "number") break;
+      if (framesRef.current[nextFrame] || loadingFramesRef.current.has(nextFrame)) {
+        queuedFramesRef.current.delete(nextFrame);
+        continue;
+      }
+
+      queuedFramesRef.current.delete(nextFrame);
+      loadingFramesRef.current.add(nextFrame);
+      activeLoadsRef.current += 1;
+
+      const image = new Image();
+      image.decoding = "async";
+      image.loading = nextFrame <= 8 ? "eager" : "lazy";
+      if ("fetchPriority" in image) {
+        image.fetchPriority = nextFrame <= 8 ? "high" : "low";
+      }
+
+      image.onload = async () => {
+        try {
+          if (typeof image.decode === "function") {
+            await image.decode();
+          }
+        } catch {}
+
+        if (!destroyedRef.current && !framesRef.current[nextFrame]) {
+          framesRef.current[nextFrame] = image;
+          loadedCountRef.current += 1;
+          if (nextFrame === 0 && !firstFrameReadyRef.current) {
+            firstFrameReadyRef.current = true;
+            setFirstFrameReady(true);
+          }
+          scheduleDraw(targetFrameRef.current, nextFrame === 0);
+        }
+
+        loadingFramesRef.current.delete(nextFrame);
+        activeLoadsRef.current -= 1;
+        pumpLoadQueue();
+      };
+
+      image.onerror = () => {
+        loadingFramesRef.current.delete(nextFrame);
+        activeLoadsRef.current -= 1;
+        pumpLoadQueue();
+      };
+
+      image.src = getWorkHeroFrameSrc(nextFrame);
+    }
+  };
+
+  const primeFrameWindow = (frameIndex: number) => {
+    const neighborOffsets = lowPowerRef.current
+      ? [0, -1, 1, -2, 2, -4, 4, -8, 8, -12, 12]
+      : [0, -1, 1, -2, 2, -3, 3, -5, 5, -8, 8, -13, 13, -21, 21];
+
+    const prioritizedFrames = neighborOffsets
+      .map((offset) => frameIndex + offset)
+      .filter((candidate, index, list) => candidate >= 0 && candidate < WORK_HERO_FRAME_COUNT && list.indexOf(candidate) === index);
+
+    enqueueFrames(prioritizedFrames, true);
+    pumpLoadQueue();
+  };
+
   useMotionValueEvent(smoothProgress, "change", (value) => {
     const frameStep = lowPowerRef.current ? 2 : 1;
     const rawFrame = clamp(
@@ -294,6 +383,7 @@ export default function WorkSequenceHero() {
       WORK_HERO_FRAME_COUNT - 1,
     );
     const nextFrame = steppedFrame;
+    primeFrameWindow(nextFrame);
     scheduleDraw(nextFrame);
   });
 
@@ -352,9 +442,14 @@ export default function WorkSequenceHero() {
     const lowMemory = (navigator.deviceMemory || 8) <= 4;
     const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
     lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
+    concurrencyRef.current = lowPowerRef.current ? 2 : 6;
+    activeLoadsRef.current = 0;
+    priorityQueueRef.current = [];
+    backgroundQueueRef.current = [];
+    queuedFramesRef.current.clear();
+    loadingFramesRef.current.clear();
 
-    const concurrency = lowPowerRef.current ? 2 : 6;
-    const initialPriorityFrameCount = Math.min(lowPowerRef.current ? 20 : 24, WORK_HERO_FRAME_COUNT);
+    const initialPriorityFrameCount = Math.min(lowPowerRef.current ? 20 : 28, WORK_HERO_FRAME_COUNT);
     const priorityFrames = lowPowerRef.current
       ? buildDistributedFrameSet(initialPriorityFrameCount, WORK_HERO_FRAME_COUNT)
       : Array.from({ length: initialPriorityFrameCount }, (_, index) => index);
@@ -362,70 +457,11 @@ export default function WorkSequenceHero() {
     const remainingFrames = Array.from({ length: WORK_HERO_FRAME_COUNT }, (_, index) => index).filter(
       (frameIndex) => !priorityFrameSet.has(frameIndex),
     );
-    const coarseCoverage = lowPowerRef.current
-      ? remainingFrames.filter((frameIndex) => frameIndex % 2 === 0)
-      : [];
-    const deferredFrames = lowPowerRef.current
-      ? remainingFrames.filter((frameIndex) => frameIndex % 2 !== 0)
-      : remainingFrames;
-    const queue = lowPowerRef.current
-      ? [...priorityFrames, ...coarseCoverage, ...deferredFrames]
-      : [...priorityFrames, ...remainingFrames];
-    let active = 0;
-    let cursor = 0;
 
-    const onFrameReady = (frameIndex: number, image: HTMLImageElement) => {
-      if (destroyedRef.current) return;
-      if (!framesRef.current[frameIndex]) {
-        framesRef.current[frameIndex] = image;
-        loadedCountRef.current += 1;
-      }
-
-      if (frameIndex === 0 && !firstFrameReadyRef.current) {
-        firstFrameReadyRef.current = true;
-        setFirstFrameReady(true);
-      }
-
-      scheduleDraw(targetFrameRef.current, frameIndex === 0);
-    };
-
-    const loadOne = (frameIndex: number) =>
-      new Promise<void>((resolve) => {
-        const image = new Image();
-        image.decoding = "async";
-        image.loading = frameIndex < priorityFrames.length ? "eager" : "lazy";
-        if ("fetchPriority" in image) {
-          image.fetchPriority = frameIndex < priorityFrames.length ? "high" : "low";
-        }
-
-        image.onload = async () => {
-          try {
-            if (typeof image.decode === "function") {
-              await image.decode();
-            }
-          } catch {}
-          onFrameReady(frameIndex, image);
-          resolve();
-        };
-
-        image.onerror = () => resolve();
-        image.src = getWorkHeroFrameSrc(frameIndex);
-      });
-
-    const pump = () => {
-      if (destroyedRef.current) return;
-      while (active < concurrency && cursor < queue.length) {
-        const frameIndex = queue[cursor];
-        cursor += 1;
-        active += 1;
-        loadOne(frameIndex).finally(() => {
-          active -= 1;
-          if (!destroyedRef.current) pump();
-        });
-      }
-    };
-
-    pump();
+    enqueueFrames(priorityFrames, true);
+    enqueueFrames(remainingFrames, false);
+    primeFrameWindow(0);
+    pumpLoadQueue();
 
     return () => {
       destroyedRef.current = true;
