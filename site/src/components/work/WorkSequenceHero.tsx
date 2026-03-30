@@ -60,6 +60,13 @@ const buildBalancedFrameOrder = (frames: number[]) => {
   return ordered.filter((frameIndex, index, list) => list.indexOf(frameIndex) === index);
 };
 
+const buildUrgentFrameSet = (frameIndex: number, total: number, lowPower: boolean) => {
+  const offsets = lowPower ? [0, -1, 1, -2, 2, -3, 3] : [0, -1, 1, -2, 2, -3, 3, -4, 4];
+  return offsets
+    .map((offset) => frameIndex + offset)
+    .filter((candidate, index, list) => candidate >= 0 && candidate < total && list.indexOf(candidate) === index);
+};
+
 const findNearestLoadedFrame = (
   frames: Array<HTMLImageElement | null>,
   target: number,
@@ -109,6 +116,7 @@ export default function WorkSequenceHero() {
   const lowPowerRef = useRef(false);
   const concurrencyRef = useRef(6);
   const activeLoadsRef = useRef(0);
+  const urgentLoadsRef = useRef(0);
   const priorityQueueRef = useRef<number[]>([]);
   const backgroundQueueRef = useRef<number[]>([]);
   const queuedFramesRef = useRef<Set<number>>(new Set());
@@ -134,6 +142,55 @@ export default function WorkSequenceHero() {
         : `calc(100svh - ${HEADER_OFFSET}px)`,
     [isMobileViewport],
   );
+
+  const registerLoadedFrame = (frameIndex: number, image: HTMLImageElement) => {
+    if (destroyedRef.current || framesRef.current[frameIndex]) return;
+    framesRef.current[frameIndex] = image;
+    loadedCountRef.current += 1;
+    scheduleDraw(targetFrameRef.current, frameIndex === 0);
+  };
+
+  const requestFrameLoad = (frameIndex: number, urgent = false) => {
+    if (frameIndex < 0 || frameIndex >= WORK_HERO_FRAME_COUNT) return;
+    if (framesRef.current[frameIndex]) return;
+    if (loadingFramesRef.current.has(frameIndex)) return;
+
+    loadingFramesRef.current.add(frameIndex);
+    if (urgent) {
+      urgentLoadsRef.current += 1;
+    } else {
+      activeLoadsRef.current += 1;
+    }
+
+    const image = new Image();
+    image.decoding = "async";
+    image.loading = urgent || frameIndex <= 8 ? "eager" : "lazy";
+    if ("fetchPriority" in image) {
+      image.fetchPriority =
+        urgent || Math.abs(frameIndex - targetFrameRef.current) <= 2 || frameIndex <= 8 ? "high" : "low";
+    }
+
+    const finalize = () => {
+      loadingFramesRef.current.delete(frameIndex);
+      if (urgent) {
+        urgentLoadsRef.current = Math.max(0, urgentLoadsRef.current - 1);
+      } else {
+        activeLoadsRef.current = Math.max(0, activeLoadsRef.current - 1);
+      }
+      pumpLoadQueue();
+    };
+
+    image.onload = () => {
+      registerLoadedFrame(frameIndex, image);
+      finalize();
+    };
+
+    image.onerror = () => {
+      finalize();
+    };
+
+    image.src = getWorkHeroFrameSrc(frameIndex);
+  };
 
   const drawFrame = (frameIndex: number, force = false) => {
     const canvas = canvasRef.current;
@@ -350,42 +407,7 @@ export default function WorkSequenceHero() {
       }
 
       queuedFramesRef.current.delete(nextFrame);
-      loadingFramesRef.current.add(nextFrame);
-      activeLoadsRef.current += 1;
-
-      const image = new Image();
-      image.decoding = "async";
-      image.loading = nextFrame <= 8 ? "eager" : "lazy";
-      if ("fetchPriority" in image) {
-        image.fetchPriority =
-          Math.abs(nextFrame - targetFrameRef.current) <= 2 || nextFrame <= 8 ? "high" : "low";
-      }
-
-      image.onload = async () => {
-        try {
-          if (typeof image.decode === "function") {
-            await image.decode();
-          }
-        } catch {}
-
-        if (!destroyedRef.current && !framesRef.current[nextFrame]) {
-          framesRef.current[nextFrame] = image;
-          loadedCountRef.current += 1;
-          scheduleDraw(targetFrameRef.current, nextFrame === 0);
-        }
-
-        loadingFramesRef.current.delete(nextFrame);
-        activeLoadsRef.current -= 1;
-        pumpLoadQueue();
-      };
-
-      image.onerror = () => {
-        loadingFramesRef.current.delete(nextFrame);
-        activeLoadsRef.current -= 1;
-        pumpLoadQueue();
-      };
-
-      image.src = getWorkHeroFrameSrc(nextFrame);
+      requestFrameLoad(nextFrame, false);
     }
   };
 
@@ -455,6 +477,10 @@ export default function WorkSequenceHero() {
     ];
 
     trimFrameCache(frameIndex);
+    buildUrgentFrameSet(frameIndex, WORK_HERO_FRAME_COUNT, lowPowerRef.current).forEach((urgentFrame) => {
+      if (urgentLoadsRef.current >= 2 && !loadingFramesRef.current.has(urgentFrame)) return;
+      requestFrameLoad(urgentFrame, true);
+    });
     replacePriorityFrames(prioritizedFrames);
     replaceBackgroundFrames(supportFrames);
     lastRequestedFrameRef.current = frameIndex;
@@ -518,6 +544,7 @@ export default function WorkSequenceHero() {
     lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
     concurrencyRef.current = lowPowerRef.current ? 4 : 8;
     activeLoadsRef.current = 0;
+    urgentLoadsRef.current = 0;
     priorityQueueRef.current = [];
     backgroundQueueRef.current = [];
     queuedFramesRef.current.clear();
