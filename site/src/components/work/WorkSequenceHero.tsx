@@ -108,6 +108,7 @@ export default function WorkSequenceHero() {
   const blendCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawRafRef = useRef<number | null>(null);
   const targetFrameRef = useRef(0);
+  const currentFrameFloatRef = useRef(0);
   const lastDrawnFrameRef = useRef(-1);
   const lastVisibleFrameRef = useRef(-1);
   const loadedCountRef = useRef(0);
@@ -355,12 +356,10 @@ export default function WorkSequenceHero() {
 
   const scheduleDraw = (frameIndex: number, force = false) => {
     targetFrameRef.current = frameIndex;
-    if (drawRafRef.current !== null) return;
-
-    drawRafRef.current = window.requestAnimationFrame(() => {
-      drawRafRef.current = null;
-      drawFrame(targetFrameRef.current, force);
-    });
+    if (force) {
+      currentFrameFloatRef.current = frameIndex;
+      drawFrame(frameIndex, true);
+    }
   };
 
   const rebuildQueuedSet = () => {
@@ -545,11 +544,37 @@ export default function WorkSequenceHero() {
     concurrencyRef.current = lowPowerRef.current ? 4 : 8;
     activeLoadsRef.current = 0;
     urgentLoadsRef.current = 0;
+    currentFrameFloatRef.current = 0;
     priorityQueueRef.current = [];
     backgroundQueueRef.current = [];
     queuedFramesRef.current.clear();
     loadingFramesRef.current.clear();
     primeFrameWindow(0);
+
+    const animate = () => {
+      if (destroyedRef.current) return;
+
+      const targetFrame = targetFrameRef.current;
+      const currentFrame = currentFrameFloatRef.current;
+      const smoothing = reduceMotion ? 1 : lowPowerRef.current ? 0.34 : 0.22;
+      const nextFrame =
+        smoothing >= 1 ? targetFrame : currentFrame + (targetFrame - currentFrame) * smoothing;
+
+      currentFrameFloatRef.current =
+        Math.abs(targetFrame - nextFrame) <= 0.02 ? targetFrame : nextFrame;
+
+      drawFrame(
+        clamp(
+          Math.round(currentFrameFloatRef.current),
+          0,
+          WORK_HERO_FRAME_COUNT - 1,
+        ),
+      );
+
+      drawRafRef.current = window.requestAnimationFrame(animate);
+    };
+
+    drawRafRef.current = window.requestAnimationFrame(animate);
 
     return () => {
       destroyedRef.current = true;

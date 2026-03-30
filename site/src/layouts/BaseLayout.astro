@@ -1292,11 +1292,15 @@ const navItems = [
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const lowMemory = (navigator.deviceMemory || 8) <= 4;
         const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
+        const path = window.location.pathname;
+        const isWork = path === '/work' || path === '/work/';
         const warmupOrder = buildBalancedFrameOrder(
           buildDistributedFrameSet(
-            isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
-              ? Math.min(28, WORK_HERO_FRAME_COUNT)
-              : Math.min(48, WORK_HERO_FRAME_COUNT),
+            isWork
+              ? WORK_HERO_FRAME_COUNT
+              : isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
+                ? Math.min(28, WORK_HERO_FRAME_COUNT)
+                : Math.min(48, WORK_HERO_FRAME_COUNT),
             WORK_HERO_FRAME_COUNT,
           ),
         );
