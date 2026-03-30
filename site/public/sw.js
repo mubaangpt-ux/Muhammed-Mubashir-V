@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'site-static-v4';
-const DYNAMIC_CACHE = 'site-dynamic-v4';
+const STATIC_CACHE = 'site-static-v5';
+const DYNAMIC_CACHE = 'site-dynamic-v5';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -8,6 +8,7 @@ const PRECACHE_ASSETS = [
   '/resume',
   '/contact',
   '/profile.png',
+  '/favicon.svg',
   '/favicon.png',
   '/favicon.ico',
   '/apple-touch-icon.png',

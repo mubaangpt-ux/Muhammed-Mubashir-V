@@ -10,6 +10,7 @@ import {
   WORK_HERO_PREWARM_CONCURRENCY,
   WORK_HERO_PREWARM_MOBILE_CONCURRENCY,
   WORK_HERO_SEQUENCE_DIR,
+  WORK_HERO_SEQUENCE_VERSION,
 } from "../lib/work-sequence";
 import HyperjumpIntro from "../components/HyperjumpIntro.astro";
 import {
@@ -157,6 +158,8 @@ const navItems = [
     <meta name="robots" content={robotsContent} />
     <meta name="googlebot" content={robotsContent} />
     <link rel="canonical" href={canonical} />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -1236,6 +1239,7 @@ const navItems = [
         WORK_HERO_PREWARM_CONCURRENCY,
         WORK_HERO_PREWARM_MOBILE_CONCURRENCY,
         WORK_HERO_SEQUENCE_DIR,
+        WORK_HERO_SEQUENCE_VERSION,
       }}
     >
     (() => {
@@ -1250,7 +1254,7 @@ const navItems = [
       }
 
       const state = window[STATE_KEY];
-      const makeSrc = (index) => `${WORK_HERO_SEQUENCE_DIR}/${String(index + 1).padStart(6, '0')}.jpg`;
+      const makeSrc = (index) => `${WORK_HERO_SEQUENCE_DIR}/${String(index + 1).padStart(6, '0')}.jpg?v=${WORK_HERO_SEQUENCE_VERSION}`;
 
       function startWarmup() {
         if (state.started) return;

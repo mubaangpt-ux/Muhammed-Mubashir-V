@@ -27,6 +27,8 @@ const DESKTOP_CACHE_RADIUS = 26;
 const MOBILE_CACHE_RADIUS = 14;
 const DESKTOP_ANCHOR_COUNT = 16;
 const MOBILE_ANCHOR_COUNT = 10;
+const DESKTOP_FALLBACK_RADIUS = 8;
+const MOBILE_FALLBACK_RADIUS = 4;
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -42,10 +44,14 @@ const buildDistributedFrameSet = (count: number, total: number) => {
   return Array.from(frameSet).sort((a, b) => a - b);
 };
 
-const findNearestLoadedFrame = (frames: Array<HTMLImageElement | null>, target: number) => {
+const findNearestLoadedFrame = (
+  frames: Array<HTMLImageElement | null>,
+  target: number,
+  maxDistance: number,
+) => {
   if (frames[target]) return target;
 
-  for (let offset = 1; offset < frames.length; offset += 1) {
+  for (let offset = 1; offset <= maxDistance; offset += 1) {
     const previous = target - offset;
     const next = target + offset;
 
@@ -60,9 +66,10 @@ const pickRenderableFrame = (
   frames: Array<HTMLImageElement | null>,
   target: number,
   lastVisible: number,
+  maxDistance: number,
 ) => {
   if (frames[target]) return target;
-  const nearestLoaded = findNearestLoadedFrame(frames, target);
+  const nearestLoaded = findNearestLoadedFrame(frames, target, maxDistance);
   if (nearestLoaded >= 0) return nearestLoaded;
   if (lastVisible >= 0 && frames[lastVisible]) return lastVisible;
   return -1;
@@ -120,6 +127,7 @@ export default function WorkSequenceHero() {
       framesRef.current,
       frameIndex,
       lastVisibleFrameRef.current,
+      lowPowerRef.current ? MOBILE_FALLBACK_RADIUS : DESKTOP_FALLBACK_RADIUS,
     );
 
     if (fallbackIndex < 0) return;
@@ -281,16 +289,32 @@ export default function WorkSequenceHero() {
     });
   };
 
-  const enqueueFrames = (frameIndices: number[], priority = false) => {
-    const targetQueue = priority ? priorityQueueRef.current : backgroundQueueRef.current;
-    frameIndices.forEach((frameIndex) => {
-      if (frameIndex < 0 || frameIndex >= WORK_HERO_FRAME_COUNT) return;
-      if (framesRef.current[frameIndex]) return;
-      if (loadingFramesRef.current.has(frameIndex)) return;
-      if (queuedFramesRef.current.has(frameIndex)) return;
-      queuedFramesRef.current.add(frameIndex);
-      targetQueue.push(frameIndex);
+  const rebuildQueuedSet = () => {
+    const nextQueued = new Set<number>();
+    priorityQueueRef.current.forEach((frameIndex) => nextQueued.add(frameIndex));
+    backgroundQueueRef.current.forEach((frameIndex) => nextQueued.add(frameIndex));
+    queuedFramesRef.current = nextQueued;
+  };
+
+  const replacePriorityFrames = (frameIndices: number[]) => {
+    priorityQueueRef.current = frameIndices.filter((frameIndex) => {
+      if (frameIndex < 0 || frameIndex >= WORK_HERO_FRAME_COUNT) return false;
+      if (framesRef.current[frameIndex]) return false;
+      if (loadingFramesRef.current.has(frameIndex)) return false;
+      return true;
     });
+    rebuildQueuedSet();
+  };
+
+  const replaceBackgroundFrames = (frameIndices: number[]) => {
+    backgroundQueueRef.current = frameIndices.filter((frameIndex, index, list) => {
+      if (frameIndex < 0 || frameIndex >= WORK_HERO_FRAME_COUNT) return false;
+      if (framesRef.current[frameIndex]) return false;
+      if (loadingFramesRef.current.has(frameIndex)) return false;
+      if (priorityQueueRef.current.includes(frameIndex)) return false;
+      return list.indexOf(frameIndex) === index;
+    });
+    rebuildQueuedSet();
   };
 
   const pumpLoadQueue = () => {
@@ -368,24 +392,36 @@ export default function WorkSequenceHero() {
 
   const primeFrameWindow = (frameIndex: number) => {
     const neighborOffsets = lowPowerRef.current
-      ? [0, -1, 1, -2, 2, -4, 4, -8, 8, -12, 12]
-      : [0, -1, 1, -2, 2, -3, 3, -5, 5, -8, 8, -13, 13, -21, 21];
+      ? [0, -1, 1, -2, 2, -3, 3, -5, 5, -8, 8]
+      : [0, -1, 1, -2, 2, -3, 3, -4, 4, -6, 6, -9, 9, -13, 13];
 
     const prioritizedFrames = neighborOffsets
       .map((offset) => frameIndex + offset)
       .filter((candidate, index, list) => candidate >= 0 && candidate < WORK_HERO_FRAME_COUNT && list.indexOf(candidate) === index);
 
+    const contiguousSupportFrames: number[] = [];
+    const backwardLook = lowPowerRef.current ? 4 : 10;
+    const forwardLook = lowPowerRef.current ? 14 : 32;
+
+    for (let offset = -backwardLook; offset <= forwardLook; offset += 1) {
+      if (offset === 0) continue;
+      const candidate = frameIndex + offset;
+      if (candidate < 0 || candidate >= WORK_HERO_FRAME_COUNT) continue;
+      contiguousSupportFrames.push(candidate);
+    }
+
     const anchorFrames = buildDistributedFrameSet(
       lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
       WORK_HERO_FRAME_COUNT,
     );
-    const supportFrames = anchorFrames.filter(
-      (candidate) => Math.abs(candidate - frameIndex) > 8,
-    );
+    const supportFrames = [
+      ...contiguousSupportFrames,
+      ...anchorFrames.filter((candidate) => Math.abs(candidate - frameIndex) > 16),
+    ];
 
     trimFrameCache(frameIndex);
-    enqueueFrames(prioritizedFrames, true);
-    enqueueFrames(supportFrames, false);
+    replacePriorityFrames(prioritizedFrames);
+    replaceBackgroundFrames(supportFrames);
     pumpLoadQueue();
   };
 
