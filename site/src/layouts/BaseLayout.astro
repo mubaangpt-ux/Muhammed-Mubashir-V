@@ -1255,6 +1255,34 @@ const navItems = [
 
       const state = window[STATE_KEY];
       const makeSrc = (index) => `${WORK_HERO_SEQUENCE_DIR}/${String(index + 1).padStart(6, '0')}.jpg?v=${WORK_HERO_SEQUENCE_VERSION}`;
+      const buildDistributedFrameSet = (count, total) => {
+        if (count >= total) {
+          return Array.from({ length: total }, (_, index) => index);
+        }
+
+        const frameSet = new Set();
+        for (let index = 0; index < count; index += 1) {
+          const ratio = count === 1 ? 0 : index / (count - 1);
+          frameSet.add(Math.round(ratio * (total - 1)));
+        }
+
+        return Array.from(frameSet).sort((a, b) => a - b);
+      };
+      const buildBalancedFrameOrder = (frames) => {
+        if (frames.length <= 1) return frames;
+
+        const ordered = [frames[0]];
+        const visit = (segment) => {
+          if (!segment.length) return;
+          const middleIndex = Math.floor(segment.length / 2);
+          ordered.push(segment[middleIndex]);
+          visit(segment.slice(0, middleIndex));
+          visit(segment.slice(middleIndex + 1));
+        };
+
+        visit(frames.slice(1));
+        return ordered.filter((frameIndex, index, list) => list.indexOf(frameIndex) === index);
+      };
 
       function startWarmup() {
         if (state.started) return;
@@ -1264,17 +1292,22 @@ const navItems = [
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const lowMemory = (navigator.deviceMemory || 8) <= 4;
         const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
-        const limit = isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
-          ? Math.min(32, WORK_HERO_FRAME_COUNT)
-          : WORK_HERO_FRAME_COUNT;
-        state.total = limit;
-        const concurrency = isCoarsePointer ? Math.min(2, WORK_HERO_PREWARM_MOBILE_CONCURRENCY) : WORK_HERO_PREWARM_CONCURRENCY;
+        const warmupOrder = buildBalancedFrameOrder(
+          buildDistributedFrameSet(
+            isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
+              ? Math.min(28, WORK_HERO_FRAME_COUNT)
+              : Math.min(48, WORK_HERO_FRAME_COUNT),
+            WORK_HERO_FRAME_COUNT,
+          ),
+        );
+        state.total = warmupOrder.length;
+        const concurrency = isCoarsePointer ? WORK_HERO_PREWARM_MOBILE_CONCURRENCY : WORK_HERO_PREWARM_CONCURRENCY;
         let active = 0;
         let cursor = 0;
 
         const loadNext = () => {
-          while (active < concurrency && cursor < limit) {
-            const index = cursor;
+          while (active < concurrency && cursor < warmupOrder.length) {
+            const index = warmupOrder[cursor];
             cursor += 1;
             active += 1;
 
@@ -1286,7 +1319,7 @@ const navItems = [
             img.onload = img.onerror = () => {
               active -= 1;
               state.loaded += 1;
-              if (state.loaded >= limit) {
+              if (state.loaded >= warmupOrder.length) {
                 state.done = true;
               }
               loadNext();

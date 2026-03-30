@@ -23,12 +23,12 @@ declare global {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const HEADER_OFFSET = 88;
-const DESKTOP_CACHE_RADIUS = 72;
-const MOBILE_CACHE_RADIUS = 32;
-const DESKTOP_ANCHOR_COUNT = 18;
-const MOBILE_ANCHOR_COUNT = 12;
-const DESKTOP_FALLBACK_RADIUS = 18;
-const MOBILE_FALLBACK_RADIUS = 8;
+const DESKTOP_CACHE_RADIUS = 96;
+const MOBILE_CACHE_RADIUS = 48;
+const DESKTOP_ANCHOR_COUNT = 48;
+const MOBILE_ANCHOR_COUNT = 28;
+const DESKTOP_FALLBACK_RADIUS = 28;
+const MOBILE_FALLBACK_RADIUS = 14;
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -42,6 +42,22 @@ const buildDistributedFrameSet = (count: number, total: number) => {
   }
 
   return Array.from(frameSet).sort((a, b) => a - b);
+};
+
+const buildBalancedFrameOrder = (frames: number[]) => {
+  if (frames.length <= 1) return frames;
+
+  const ordered: number[] = [frames[0]];
+  const visit = (segment: number[]) => {
+    if (!segment.length) return;
+    const middleIndex = Math.floor(segment.length / 2);
+    ordered.push(segment[middleIndex]);
+    visit(segment.slice(0, middleIndex));
+    visit(segment.slice(middleIndex + 1));
+  };
+
+  visit(frames.slice(1));
+  return ordered.filter((frameIndex, index, list) => list.indexOf(frameIndex) === index);
 };
 
 const findNearestLoadedFrame = (
@@ -401,8 +417,8 @@ export default function WorkSequenceHero() {
       .filter((candidate, index, list) => candidate >= 0 && candidate < WORK_HERO_FRAME_COUNT && list.indexOf(candidate) === index);
 
     const contiguousSupportFrames: number[] = [];
-    const backwardLook = lowPowerRef.current ? 4 : 10;
-    const forwardLook = lowPowerRef.current ? 28 : 60;
+    const backwardLook = lowPowerRef.current ? 6 : 14;
+    const forwardLook = lowPowerRef.current ? 36 : 72;
 
     for (let offset = -backwardLook; offset <= forwardLook; offset += 1) {
       if (offset === 0) continue;
@@ -426,14 +442,16 @@ export default function WorkSequenceHero() {
       }
     }
 
-    const anchorFrames = buildDistributedFrameSet(
-      lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
-      WORK_HERO_FRAME_COUNT,
+    const anchorFrames = buildBalancedFrameOrder(
+      buildDistributedFrameSet(
+        lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
+        WORK_HERO_FRAME_COUNT,
+      ),
     );
     const supportFrames = [
       ...bridgeFrames,
+      ...anchorFrames.filter((candidate) => !prioritizedFrames.includes(candidate)),
       ...contiguousSupportFrames,
-      ...anchorFrames.filter((candidate) => Math.abs(candidate - frameIndex) > 16),
     ];
 
     trimFrameCache(frameIndex);
@@ -498,7 +516,7 @@ export default function WorkSequenceHero() {
     const lowMemory = (navigator.deviceMemory || 8) <= 4;
     const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
     lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
-    concurrencyRef.current = lowPowerRef.current ? 2 : 6;
+    concurrencyRef.current = lowPowerRef.current ? 4 : 8;
     activeLoadsRef.current = 0;
     priorityQueueRef.current = [];
     backgroundQueueRef.current = [];

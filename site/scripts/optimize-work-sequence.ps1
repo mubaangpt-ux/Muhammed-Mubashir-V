@@ -1,8 +1,8 @@
 param(
   [string]$SourceDir = "public/sequences/work-hero",
-  [int]$Width = 1920,
-  [int]$Height = 1080,
-  [int]$Quality = 82
+  [int]$Width = 1024,
+  [int]$Height = 576,
+  [int]$Quality = 68
 )
 
 $ErrorActionPreference = "Stop"
