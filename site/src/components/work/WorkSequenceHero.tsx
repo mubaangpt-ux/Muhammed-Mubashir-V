@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  useMotionValueEvent,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-} from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import {
   WORK_HERO_FRAME_COUNT,
   WORK_HERO_IMAGE_ALT,
@@ -28,6 +23,10 @@ declare global {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const HEADER_OFFSET = 88;
+const DESKTOP_CACHE_RADIUS = 26;
+const MOBILE_CACHE_RADIUS = 14;
+const DESKTOP_ANCHOR_COUNT = 16;
+const MOBILE_ANCHOR_COUNT = 10;
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -82,7 +81,7 @@ export default function WorkSequenceHero() {
   const lastDrawnFrameRef = useRef(-1);
   const lastVisibleFrameRef = useRef(-1);
   const loadedCountRef = useRef(0);
-  const firstFrameReadyRef = useRef(false);
+  const canvasReadyRef = useRef(false);
   const destroyedRef = useRef(false);
   const lowPowerRef = useRef(false);
   const concurrencyRef = useRef(6);
@@ -91,7 +90,7 @@ export default function WorkSequenceHero() {
   const backgroundQueueRef = useRef<number[]>([]);
   const queuedFramesRef = useRef<Set<number>>(new Set());
   const loadingFramesRef = useRef<Set<number>>(new Set());
-  const [firstFrameReady, setFirstFrameReady] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const reduceMotion = useReducedMotion();
   const sequenceMask =
@@ -111,16 +110,6 @@ export default function WorkSequenceHero() {
         : `calc(100svh - ${HEADER_OFFSET}px)`,
     [isMobileViewport],
   );
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: reduceMotion ? 240 : 160,
-    damping: reduceMotion ? 36 : 28,
-    mass: 0.22,
-  });
 
   const drawFrame = (frameIndex: number, force = false) => {
     const canvas = canvasRef.current;
@@ -275,6 +264,11 @@ export default function WorkSequenceHero() {
 
     lastDrawnFrameRef.current = fallbackIndex;
     lastVisibleFrameRef.current = fallbackIndex;
+
+    if (!canvasReadyRef.current) {
+      canvasReadyRef.current = true;
+      setCanvasReady(true);
+    }
   };
 
   const scheduleDraw = (frameIndex: number, force = false) => {
@@ -322,7 +316,8 @@ export default function WorkSequenceHero() {
       image.decoding = "async";
       image.loading = nextFrame <= 8 ? "eager" : "lazy";
       if ("fetchPriority" in image) {
-        image.fetchPriority = nextFrame <= 8 ? "high" : "low";
+        image.fetchPriority =
+          Math.abs(nextFrame - targetFrameRef.current) <= 2 || nextFrame <= 8 ? "high" : "low";
       }
 
       image.onload = async () => {
@@ -335,10 +330,6 @@ export default function WorkSequenceHero() {
         if (!destroyedRef.current && !framesRef.current[nextFrame]) {
           framesRef.current[nextFrame] = image;
           loadedCountRef.current += 1;
-          if (nextFrame === 0 && !firstFrameReadyRef.current) {
-            firstFrameReadyRef.current = true;
-            setFirstFrameReady(true);
-          }
           scheduleDraw(targetFrameRef.current, nextFrame === 0);
         }
 
@@ -357,6 +348,24 @@ export default function WorkSequenceHero() {
     }
   };
 
+  const trimFrameCache = (frameIndex: number) => {
+    const anchorFrames = new Set(
+      buildDistributedFrameSet(
+        lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
+        WORK_HERO_FRAME_COUNT,
+      ),
+    );
+    const keepRadius = lowPowerRef.current ? MOBILE_CACHE_RADIUS : DESKTOP_CACHE_RADIUS;
+
+    framesRef.current.forEach((image, index) => {
+      if (!image) return;
+      if (index === frameIndex || index === lastVisibleFrameRef.current) return;
+      if (anchorFrames.has(index)) return;
+      if (Math.abs(index - frameIndex) <= keepRadius) return;
+      framesRef.current[index] = null;
+    });
+  };
+
   const primeFrameWindow = (frameIndex: number) => {
     const neighborOffsets = lowPowerRef.current
       ? [0, -1, 1, -2, 2, -4, 4, -8, 8, -12, 12]
@@ -366,26 +375,19 @@ export default function WorkSequenceHero() {
       .map((offset) => frameIndex + offset)
       .filter((candidate, index, list) => candidate >= 0 && candidate < WORK_HERO_FRAME_COUNT && list.indexOf(candidate) === index);
 
+    const anchorFrames = buildDistributedFrameSet(
+      lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
+      WORK_HERO_FRAME_COUNT,
+    );
+    const supportFrames = anchorFrames.filter(
+      (candidate) => Math.abs(candidate - frameIndex) > 8,
+    );
+
+    trimFrameCache(frameIndex);
     enqueueFrames(prioritizedFrames, true);
+    enqueueFrames(supportFrames, false);
     pumpLoadQueue();
   };
-
-  useMotionValueEvent(smoothProgress, "change", (value) => {
-    const frameStep = lowPowerRef.current ? 2 : 1;
-    const rawFrame = clamp(
-      Math.round(value * (WORK_HERO_FRAME_COUNT - 1)),
-      0,
-      WORK_HERO_FRAME_COUNT - 1,
-    );
-    const steppedFrame = clamp(
-      Math.round(rawFrame / frameStep) * frameStep,
-      0,
-      WORK_HERO_FRAME_COUNT - 1,
-    );
-    const nextFrame = steppedFrame;
-    primeFrameWindow(nextFrame);
-    scheduleDraw(nextFrame);
-  });
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 767px)");
@@ -448,20 +450,7 @@ export default function WorkSequenceHero() {
     backgroundQueueRef.current = [];
     queuedFramesRef.current.clear();
     loadingFramesRef.current.clear();
-
-    const initialPriorityFrameCount = Math.min(lowPowerRef.current ? 20 : 28, WORK_HERO_FRAME_COUNT);
-    const priorityFrames = lowPowerRef.current
-      ? buildDistributedFrameSet(initialPriorityFrameCount, WORK_HERO_FRAME_COUNT)
-      : Array.from({ length: initialPriorityFrameCount }, (_, index) => index);
-    const priorityFrameSet = new Set(priorityFrames);
-    const remainingFrames = Array.from({ length: WORK_HERO_FRAME_COUNT }, (_, index) => index).filter(
-      (frameIndex) => !priorityFrameSet.has(frameIndex),
-    );
-
-    enqueueFrames(priorityFrames, true);
-    enqueueFrames(remainingFrames, false);
     primeFrameWindow(0);
-    pumpLoadQueue();
 
     return () => {
       destroyedRef.current = true;
@@ -469,6 +458,54 @@ export default function WorkSequenceHero() {
         window.cancelAnimationFrame(drawRafRef.current);
         drawRafRef.current = null;
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let rafId: number | null = null;
+
+    const updateFromScroll = () => {
+      rafId = null;
+      const rect = section.getBoundingClientRect();
+      const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1);
+      const scrolled = clamp(-rect.top, 0, totalScrollable);
+      const progress = totalScrollable <= 1 ? 0 : scrolled / totalScrollable;
+      const frameStep = lowPowerRef.current ? 2 : 1;
+      const rawFrame = clamp(
+        Math.round(progress * (WORK_HERO_FRAME_COUNT - 1)),
+        0,
+        WORK_HERO_FRAME_COUNT - 1,
+      );
+      const nextFrame = clamp(
+        Math.round(rawFrame / frameStep) * frameStep,
+        0,
+        WORK_HERO_FRAME_COUNT - 1,
+      );
+
+      primeFrameWindow(nextFrame);
+      scheduleDraw(nextFrame);
+    };
+
+    const requestUpdate = () => {
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(updateFromScroll);
+    };
+
+    requestUpdate();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+    window.addEventListener("orientationchange", requestUpdate, { passive: true });
+
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("orientationchange", requestUpdate);
     };
   }, []);
 
@@ -493,7 +530,7 @@ export default function WorkSequenceHero() {
           decoding="async"
           fetchPriority="high"
           className={`absolute inset-0 block h-full w-full transition-opacity duration-500 ${
-            firstFrameReady ? "opacity-0" : "opacity-100"
+            canvasReady ? "opacity-0" : "opacity-100"
           }`}
           style={{
             objectFit: isMobileViewport ? "cover" : "contain",
@@ -570,7 +607,7 @@ export default function WorkSequenceHero() {
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_70%)]" />
 
-        {!firstFrameReady && (
+        {!canvasReady && (
           <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
             <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-slate-300 backdrop-blur-xl">
               Preparing skyline sequence
