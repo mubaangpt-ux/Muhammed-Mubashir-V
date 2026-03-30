@@ -1305,7 +1305,7 @@ const navItems = [
         if (!isHome && !isWork) return;
 
         const kickoff = () => window.setTimeout(startWarmup, isHome ? 120 : 0);
-        if ('requestIdleCallback' in window && isWork) {
+        if ('requestIdleCallback' in window && isHome) {
           requestIdleCallback(kickoff, { timeout: 800 });
         } else {
           kickoff();

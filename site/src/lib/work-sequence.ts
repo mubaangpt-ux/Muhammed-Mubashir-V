@@ -1,11 +1,11 @@
 export const WORK_HERO_SEQUENCE_DIR = "/sequences/work-hero";
-export const WORK_HERO_SEQUENCE_VERSION = "20260330b";
+export const WORK_HERO_SEQUENCE_VERSION = "20260330c";
 export const WORK_HERO_FRAME_COUNT = 239;
-export const WORK_HERO_PREWARM_CONCURRENCY = 4;
-export const WORK_HERO_PREWARM_MOBILE_CONCURRENCY = 2;
+export const WORK_HERO_PREWARM_CONCURRENCY = 6;
+export const WORK_HERO_PREWARM_MOBILE_CONCURRENCY = 3;
 export const WORK_HERO_POSTER_FRAME_INDEX = 119;
-export const WORK_HERO_IMAGE_WIDTH = 1920;
-export const WORK_HERO_IMAGE_HEIGHT = 1080;
+export const WORK_HERO_IMAGE_WIDTH = 1280;
+export const WORK_HERO_IMAGE_HEIGHT = 720;
 
 export const getWorkHeroFrameSrc = (frameIndex: number) =>
   `${WORK_HERO_SEQUENCE_DIR}/${String(frameIndex + 1).padStart(6, "0")}.jpg?v=${WORK_HERO_SEQUENCE_VERSION}`;

@@ -23,12 +23,12 @@ declare global {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const HEADER_OFFSET = 88;
-const DESKTOP_CACHE_RADIUS = 26;
-const MOBILE_CACHE_RADIUS = 14;
-const DESKTOP_ANCHOR_COUNT = 16;
-const MOBILE_ANCHOR_COUNT = 10;
-const DESKTOP_FALLBACK_RADIUS = 8;
-const MOBILE_FALLBACK_RADIUS = 4;
+const DESKTOP_CACHE_RADIUS = 72;
+const MOBILE_CACHE_RADIUS = 32;
+const DESKTOP_ANCHOR_COUNT = 18;
+const MOBILE_ANCHOR_COUNT = 12;
+const DESKTOP_FALLBACK_RADIUS = 18;
+const MOBILE_FALLBACK_RADIUS = 8;
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -97,6 +97,7 @@ export default function WorkSequenceHero() {
   const backgroundQueueRef = useRef<number[]>([]);
   const queuedFramesRef = useRef<Set<number>>(new Set());
   const loadingFramesRef = useRef<Set<number>>(new Set());
+  const lastRequestedFrameRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -392,8 +393,8 @@ export default function WorkSequenceHero() {
 
   const primeFrameWindow = (frameIndex: number) => {
     const neighborOffsets = lowPowerRef.current
-      ? [0, -1, 1, -2, 2, -3, 3, -5, 5, -8, 8]
-      : [0, -1, 1, -2, 2, -3, 3, -4, 4, -6, 6, -9, 9, -13, 13];
+      ? [0, -1, 1, -2, 2, -3, 3, -4, 4, -6, 6, -8, 8, -12, 12]
+      : [0, -1, 1, -2, 2, -3, 3, -4, 4, -6, 6, -8, 8, -12, 12, -18, 18, -24, 24];
 
     const prioritizedFrames = neighborOffsets
       .map((offset) => frameIndex + offset)
@@ -401,7 +402,7 @@ export default function WorkSequenceHero() {
 
     const contiguousSupportFrames: number[] = [];
     const backwardLook = lowPowerRef.current ? 4 : 10;
-    const forwardLook = lowPowerRef.current ? 14 : 32;
+    const forwardLook = lowPowerRef.current ? 28 : 60;
 
     for (let offset = -backwardLook; offset <= forwardLook; offset += 1) {
       if (offset === 0) continue;
@@ -410,11 +411,27 @@ export default function WorkSequenceHero() {
       contiguousSupportFrames.push(candidate);
     }
 
+    const bridgeFrames: number[] = [];
+    const previousRequestedFrame = lastRequestedFrameRef.current;
+    if (previousRequestedFrame !== frameIndex) {
+      const direction = previousRequestedFrame < frameIndex ? 1 : -1;
+      const step = lowPowerRef.current ? 4 : 3;
+      for (
+        let candidate = previousRequestedFrame;
+        direction > 0 ? candidate <= frameIndex : candidate >= frameIndex;
+        candidate += direction * step
+      ) {
+        if (candidate < 0 || candidate >= WORK_HERO_FRAME_COUNT) continue;
+        bridgeFrames.push(candidate);
+      }
+    }
+
     const anchorFrames = buildDistributedFrameSet(
       lowPowerRef.current ? MOBILE_ANCHOR_COUNT : DESKTOP_ANCHOR_COUNT,
       WORK_HERO_FRAME_COUNT,
     );
     const supportFrames = [
+      ...bridgeFrames,
       ...contiguousSupportFrames,
       ...anchorFrames.filter((candidate) => Math.abs(candidate - frameIndex) > 16),
     ];
@@ -422,6 +439,7 @@ export default function WorkSequenceHero() {
     trimFrameCache(frameIndex);
     replacePriorityFrames(prioritizedFrames);
     replaceBackgroundFrames(supportFrames);
+    lastRequestedFrameRef.current = frameIndex;
     pumpLoadQueue();
   };
 
