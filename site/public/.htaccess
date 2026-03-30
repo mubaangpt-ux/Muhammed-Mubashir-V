@@ -6,3 +6,9 @@ RewriteCond %{HTTPS} !=on [OR]
 RewriteCond %{HTTP_HOST} ^www\.mubaan\.online$ [NC]
 RewriteRule ^ https://mubaan.online%{REQUEST_URI} [R=301,L]
 </IfModule>
+
+<IfModule mod_headers.c>
+# Hostinger is currently returning Retry-After on normal 200 responses.
+# Some preview bots treat that as a temporary back-off signal and skip card generation.
+Header always unset Retry-After
+</IfModule>
