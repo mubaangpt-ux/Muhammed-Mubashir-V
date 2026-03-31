@@ -23,38 +23,41 @@ export default function CreativeWorks() {
     return () => window.removeEventListener("resize", syncColumns);
   }, []);
 
+  // Smooth scroll to panel after it appears
   useEffect(() => {
     if (!expandedId || !panelOpen || !panelRef.current) return;
-
-    const timeoutId = window.setTimeout(() => {
-      panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-
-    return () => window.clearTimeout(timeoutId);
+    const t = window.setTimeout(() => {
+      panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 80);
+    return () => window.clearTimeout(t);
   }, [expandedId, panelOpen]);
 
-  const expandedCompany = companies.find((company) => company.id === expandedId) ?? null;
+  const expandedCompany = companies.find((c) => c.id === expandedId) ?? null;
   const rows: Company[][] = [];
 
-  for (let index = 0; index < companies.length; index += columns) {
-    rows.push(companies.slice(index, index + columns));
+  for (let i = 0; i < companies.length; i += columns) {
+    rows.push(companies.slice(i, i + columns));
   }
 
   function handleToggle(id: string) {
+    // Same card: toggle close
     if (expandedId === id && panelOpen) {
       setPanelOpen(false);
       return;
     }
-
+    // Different card: instantly switch (no double-close flash)
     setExpandedId(id);
-    setPanelOpen(false);
-    requestAnimationFrame(() => setPanelOpen(true));
+    // If a panel is already open, close then reopen in the new row
+    if (panelOpen) {
+      setPanelOpen(false);
+      requestAnimationFrame(() => setPanelOpen(true));
+    } else {
+      setPanelOpen(true);
+    }
   }
 
   function handlePanelExited() {
-    if (!panelOpen) {
-      setExpandedId(null);
-    }
+    if (!panelOpen) setExpandedId(null);
   }
 
   return (
@@ -75,24 +78,23 @@ export default function CreativeWorks() {
           </p>
         </div>
 
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {rows.map((row, rowIndex) => {
-            const expandedInRow = row.find((company) => company.id === expandedId) ?? null;
+            const expandedInRow = row.find((c) => c.id === expandedId) ?? null;
             const rowStart = rowIndex * columns;
 
             return (
-              <div key={`row-${rowIndex}`} className="space-y-3.5">
+              <div key={`row-${rowIndex}`}>
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {row.map((company, cardIndex) => {
                     const globalIndex = rowStart + cardIndex;
-
                     return (
                       <CompanyCard
                         key={company.id}
                         company={company}
                         isExpanded={expandedId === company.id && panelOpen}
                         onToggle={() => handleToggle(company.id)}
-                        delay={globalIndex * 100}
+                        delay={globalIndex * 80}
                       />
                     );
                   })}
