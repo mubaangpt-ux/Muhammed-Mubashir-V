@@ -1,5 +1,6 @@
 export type Tab =
   | "posters"
+  | "reels"
   | "logo"
   | "website"
   | "webapp"
@@ -13,81 +14,114 @@ export interface Company {
   description?: string;
   tags: string[];
   color: string;
-  seed: string;
   deliverables: Tab[];
 }
 
 export const companies: Company[] = [
   {
-    id: "luminary",
+    id: "digibug",
+    name: "DigiBug",
+    industry: "Digital Marketing",
+    description: "Digital marketing strategies, SEO, and engaging creative video contents crafted for high-converting campaigns.",
+    tags: ["Digital Marketing", "SEO", "Video Reels"],
+    color: "#2563eb",
+    deliverables: ["posters", "reels", "logo", "website"],
+  },
+  {
+    id: "drsamkotkat",
+    name: "Dr. Sam Kotkat",
+    industry: "Healthcare",
+    description: "Acupuncture, hijama and Chinese medicine therapist branding focused on wellness and holistic trust.",
+    tags: ["Profile", "Posters", "Reels"],
+    color: "#0f766e",
+    deliverables: ["posters", "reels", "profile", "logo"],
+  },
+  {
+    id: "180degree",
+    name: "180 Degree",
+    industry: "Healthy Meal Plans",
+    description: "Vibrant visual identity and modern digital design for a premium healthy meal plan provider in the UAE.",
+    tags: ["Brand Identity", "Webapp", "Posters"],
+    color: "#ea580c",
+    deliverables: ["posters", "reels", "logo", "webapp"],
+  },
+  {
+    id: "raslanbc",
+    name: "RaslanBC",
+    industry: "Business Setup & Consulting",
+    description: "Corporate consulting identity designed for clarity, authority, and seamless business setup experiences in Dubai.",
+    tags: ["Company Profile", "Logo", "Website"],
+    color: "#1e293b",
+    deliverables: ["profile", "logo", "website", "businesscards"],
+  },
+  {
+    id: "raslanrealestate",
+    name: "Raslan Real Estate",
+    industry: "Real Estate",
+    description: "Real estate agency in Dubai featuring stunning property portfolios, launch posters, and premium branding.",
+    tags: ["Posters", "Reels", "Profile"],
+    color: "#ca8a04",
+    deliverables: ["posters", "reels", "profile", "logo"],
+  },
+  {
+    id: "careezfood",
+    name: "Careez Food Trading",
+    industry: "F&B Trading",
+    description: "Healthy vegan food products branding emphasizing organic vibrancy, clean packaging, and social engagement.",
+    tags: ["Logo", "Posters", "Reels"],
+    color: "#16a34a",
+    deliverables: ["posters", "reels", "logo"],
+  },
+  {
+    id: "bluemark",
+    name: "BlueMark Real Estate",
+    industry: "Real Estate",
+    description: "Ready to move and Off-Plan Property Sale agency in Dubai utilizing dynamic reels and high-end digital posters.",
+    tags: ["Reels", "Web Design", "Posters"],
+    color: "#0369a1",
+    deliverables: ["reels", "posters", "website", "profile"],
+  },
+  {
+    id: "greeninfinity",
     name: "Green Infinity",
-    industry: "FLORALSTARTUP",
-    description:
-      "Dubai floral studio creating custom arrangements for milestone celebrations, intimate moments, and memorable gifting days.",
+    industry: "Floral Startup",
+    description: "Dubai floral studio creating custom arrangements for milestone celebrations, intimate moments, and memorable gifting days.",
     tags: ["Logo", "Business Cards", "Company Profile"],
     color: "#173523",
-    seed: "luminary",
-    deliverables: ["logo", "businesscards", "profile"],
+    deliverables: ["posters", "reels", "logo", "businesscards", "profile"],
   },
   {
-    id: "verdant",
-    name: "Verdant Co.",
-    industry: "Sustainability",
-    description:
-      "Sustainability brand work shaped through logo systems, company profiles, and refined stationery.",
-    tags: ["Logo", "Profile", "Business Cards"],
-    color: "#0f2418",
-    seed: "verdant",
-    deliverables: ["posters", "logo", "profile", "businesscards"],
+    id: "greenway",
+    name: "GreenWay",
+    industry: "Cleaning Services",
+    description: "Deep Cleaning Service in Kerala, India. Digital presence built around trust, spotless results, and service accessibility.",
+    tags: ["Website", "Logo", "Posters"],
+    color: "#059669",
+    deliverables: ["posters", "website", "logo"],
   },
   {
-    id: "axiom",
-    name: "Axiom Group",
-    industry: "Finance",
-    description:
-      "Finance-facing identity work built for confident positioning across print, profile, and digital touchpoints.",
-    tags: ["Brand Identity", "Posters", "Profile"],
-    color: "#1a1020",
-    seed: "axiom",
-    deliverables: ["posters", "logo", "profile", "website"],
+    id: "ceeyem",
+    name: "CeeYem Co.",
+    industry: "Oil Industries",
+    description: "Heavy industry and oil corporate branding ensuring robust stakeholder presentations and industrial authority.",
+    tags: ["Profile", "Business Cards", "Logo"],
+    color: "#475569",
+    deliverables: ["profile", "logo", "businesscards"],
   },
   {
-    id: "nova",
-    name: "Nova Studio",
-    industry: "Creative Agency",
-    description:
-      "Creative agency visuals designed to carry sharp identity systems across web, poster, and launch materials.",
-    tags: ["Logo", "Web Design", "Posters"],
-    color: "#0d1a2e",
-    seed: "nova",
-    deliverables: ["posters", "logo", "website", "webapp"],
-  },
-  {
-    id: "helix",
-    name: "Helix Health",
-    industry: "Healthcare",
-    description:
-      "Healthcare brand assets focused on trust, clarity, and usable digital systems for modern teams.",
-    tags: ["Brand Identity", "Webapp", "Business Cards"],
-    color: "#0a1f1f",
-    seed: "helix",
-    deliverables: ["posters", "logo", "webapp", "businesscards"],
-  },
-  {
-    id: "solara",
-    name: "Solara Realty",
-    industry: "Real Estate",
-    description:
-      "Real estate presentation work developed for premium listings, profile decks, and supporting brand materials.",
-    tags: ["Profile", "Posters", "Logo"],
-    color: "#1f1a0a",
-    seed: "solara",
-    deliverables: ["posters", "logo", "profile", "businesscards"],
+    id: "otherworks",
+    name: "Creative Lab",
+    industry: "Random Works & AI",
+    description: "Other Creative Random Works and AI designs showcasing experimental visual directions and cutting edge techniques.",
+    tags: ["AI Designs", "Posters", "Reels"],
+    color: "#7c3aed",
+    deliverables: ["posters", "reels"],
   },
 ];
 
 export const tabLabels: Record<Tab, string> = {
   posters: "Posters",
+  reels: "Reels",
   logo: "Logo",
   website: "Website",
   webapp: "WebApp",
@@ -103,6 +137,10 @@ export const creativeWorkAssets = {
   cover: (company: Company) => `/creative-works/${company.id}/cover.jpg`,
   poster: (company: Company, index: number) =>
     `/creative-works/${company.id}/posters/poster-${twoDigit(index)}.jpg`,
+  reel: (company: Company, index: number) =>
+    `/creative-works/${company.id}/reels/reel-${twoDigit(index)}.mp4`,
+  reelCover: (company: Company, index: number) =>
+    `/creative-works/${company.id}/reels/cover-${twoDigit(index)}.jpg`,
   logo: (company: Company, index: number) =>
     `/creative-works/${company.id}/logos/logo-${twoDigit(index)}.jpg`,
   website: (company: Company, index: number) =>
