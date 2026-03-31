@@ -82,7 +82,7 @@ export const companies: Company[] = [
     deliverables: ["reels", "posters", "website", "profile"],
   },
   {
-    id: "greeninfinity",
+    id: "luminary",
     name: "Green Infinity",
     industry: "Floral Startup",
     description: "Dubai floral studio creating custom arrangements for milestone celebrations, intimate moments, and memorable gifting days.",
