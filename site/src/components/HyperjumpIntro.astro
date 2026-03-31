@@ -80,6 +80,7 @@
     BG: [7, 9, 15]
   };
   const BG_SNAPSHOT_KEY = 'hj_background_snapshot_v2';
+  const EXTERNAL_LANDING_KEY = 'hj_external_landing_intro_seen';
   const BG_POS_SCALE = 100000;
   const BG_SIZE_SCALE = 1000;
   const BG_ALPHA_SCALE = 1000;
@@ -793,6 +794,16 @@
     return window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
   }
 
+  function isExternalReferrer() {
+    try {
+      if (!document.referrer) return false;
+      const referrer = new URL(document.referrer);
+      return referrer.origin !== window.location.origin;
+    } catch {
+      return false;
+    }
+  }
+
   function startIntro() {
     canvas = document.getElementById('hj-canvas'); replay = document.getElementById('hj-replay');
     if (!canvas) return;
@@ -829,10 +840,22 @@
     const played = sessionStorage.getItem('hj_intro_played');
     const isHome = isHomeRoute();
     const hasBooted = Boolean(runtime.hasBooted);
+    const shouldReplayForExternalLanding =
+      !hasBooted &&
+      isHome &&
+      isExternalReferrer() &&
+      !sessionStorage.getItem(EXTERNAL_LANDING_KEY);
     runtime.hasBooted = true;
 
     if (isHome) {
       warmHomeMedia();
+    }
+
+    if (shouldReplayForExternalLanding) {
+      sessionStorage.setItem(EXTERNAL_LANDING_KEY, 'true');
+      sessionStorage.removeItem('hj_intro_played');
+      startIntro();
+      return;
     }
 
     if (!hasBooted && isHome && !played) {
@@ -856,6 +879,7 @@
   document.addEventListener('click', (e) => {
     if (e.target.id === 'hj-replay') {
       sessionStorage.removeItem('hj_intro_played');
+      sessionStorage.removeItem(EXTERNAL_LANDING_KEY);
       sessionStorage.removeItem(BG_SNAPSHOT_KEY);
       backgroundSnapshot = null;
       runtime.hasBooted = false;
