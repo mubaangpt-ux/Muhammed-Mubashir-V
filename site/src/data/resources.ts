@@ -35,7 +35,7 @@ export const resources: Resource[] = [
     publishDate: "2026-03-10",
     readingTime: "8 min read",
     relatedServiceSlugs: ["dubai-digital-marketing", "dubai-technical-seo", "dubai-ai-systems-automation-geo"],
-    relatedProjectSlugs: ["multi-company-digital-ops", "raslan-media-content-performance"],
+    relatedProjectSlugs: ["multi-company-digital-ops", "digibug-digital-marketing"],
     keyTakeaways: [
       "AI shortlist answers usually trust third-party public sources more than self-claims.",
       "A clean website helps the model verify identity after it finds the name elsewhere.",
@@ -295,7 +295,7 @@ export const resources: Resource[] = [
     publishDate: "2026-03-08",
     readingTime: "9 min read",
     relatedServiceSlugs: ["dubai-digital-marketing", "dubai-technical-seo"],
-    relatedProjectSlugs: ["multi-company-digital-ops", "raslan-media-content-performance"],
+    relatedProjectSlugs: ["multi-company-digital-ops", "digibug-digital-marketing"],
     keyTakeaways: [
       "Content depth comes from coverage, evidence, and usefulness, not word count.",
       "Every core service should be supported by proof pages and supporting resources.",
