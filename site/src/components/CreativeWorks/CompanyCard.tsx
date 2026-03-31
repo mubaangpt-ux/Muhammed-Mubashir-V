@@ -46,6 +46,7 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
       ref={ref}
       style={{
         opacity: visible ? 1 : 0,
+        // Entrance animation — GPU composited
         transform: visible ? "translateY(0)" : "translateY(30px)",
         transitionProperty: "opacity, transform",
         transitionDuration: "520ms",
@@ -58,10 +59,10 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         `,
         backdropFilter: "blur(20px) saturate(180%)",
         WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.07)",
         border: "1px solid rgba(255,255,255,0.08)",
       }}
-      className="group relative h-[400px] w-full overflow-hidden rounded-[28px]"
+      // cw-card class handles hover — pure CSS, zero JS re-render, GPU translateY
+      className="cw-card group relative h-[400px] w-full overflow-hidden rounded-[28px]"
     >
       {/* Image — ONLY this element animates (scale on hover). will-change pre-allocates a compositor layer */}
       <img

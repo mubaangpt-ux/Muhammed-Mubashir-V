@@ -97,6 +97,31 @@ h5 {
   box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25), 0 12px 34px rgba(37, 99, 235, 0.22);
 }
 
+/* Creative Works card hover — GPU composited only (transform + box-shadow on enter/exit, not per frame) */
+.cw-card {
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* Transition only transform + box-shadow. box-shadow fires once on enter/exit, not per scroll frame. */
+  transition: transform 400ms cubic-bezier(0.2, 0, 0, 1),
+              box-shadow 400ms cubic-bezier(0.2, 0, 0, 1),
+              border-color 400ms ease;
+  will-change: transform;
+}
+
+.cw-card:hover {
+  transform: translateY(-6px) scale(1.012);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 0 40px rgba(37, 99, 235, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+.cw-card:active {
+  transform: translateY(-2px) scale(1.005);
+  transition-duration: 120ms;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
