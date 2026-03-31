@@ -33,53 +33,69 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
   }, []);
 
   return (
+    /**
+     * PERFORMANCE STRATEGY:
+     * - Entrance: only opacity + translateY (GPU-composited, zero layout cost)
+     * - All glass/blur effects are STATIC — they're computed once and never
+     *   re-painted per animation frame. Safe to use heavy blur here.
+     * - Hover: only scale on the <img> (GPU composited via `will-change`)
+     * - No animated `box-shadow`, `border-color`, or `backdrop-filter` values
+     * - will-change on card for the card entrance only removed after visible
+     */
     <div
       ref={ref}
-      /**
-       * Performance rules:
-       * 1. Only animate `transform` and `opacity` — both are GPU-composited.
-       * 2. No box-shadow animation (triggers repaint). Static shadow only.
-       * 3. Minimal blur (8px) to avoid GPU overload on mobile.
-       * 4. `will-change: transform` pre-allocates a compositing layer.
-       */
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(28px)",
+        transform: visible ? "translateY(0)" : "translateY(30px)",
         transitionProperty: "opacity, transform",
-        transitionDuration: "500ms",
+        transitionDuration: "520ms",
         transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
         transitionDelay: visible ? `${delay}ms` : "0ms",
-        willChange: "transform",
-        background: `radial-gradient(ellipse at top left, ${company.color}30 0%, transparent 65%), rgba(12, 14, 20, 0.55)`,
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
+        // Rich glassmorphism — STATIC, never animated. Zero per-frame GPU cost.
+        background: `
+          radial-gradient(ellipse at 30% 0%, ${company.color}35 0%, transparent 60%),
+          linear-gradient(180deg, rgba(18,20,30,0.48) 0%, rgba(8,10,18,0.70) 100%)
+        `,
+        backdropFilter: "blur(20px) saturate(180%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.07)",
+        border: "1px solid rgba(255,255,255,0.08)",
       }}
-      className="group relative h-[400px] w-full overflow-hidden rounded-[28px] border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
+      className="group relative h-[400px] w-full overflow-hidden rounded-[28px]"
     >
-      {/* Cover image — GPU-composited scale only */}
+      {/* Image — ONLY this element animates (scale on hover). will-change pre-allocates a compositor layer */}
       <img
         src={creativeWorkAssets.cover(company)}
         alt={company.name}
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover opacity-50 transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.05] group-hover:opacity-70"
         style={{ willChange: "transform" }}
+        className="absolute inset-0 h-full w-full object-cover opacity-55 transition-[transform,opacity] duration-700 ease-out group-hover:scale-[1.06] group-hover:opacity-75"
       />
 
-      {/* Dark gradient overlay */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-black/90" />
+      {/* Static gradient overlays — never animated, zero per-frame cost */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/92" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `radial-gradient(ellipse at 50% 0%, ${company.color}18 0%, transparent 50%)`,
+        }}
+      />
 
-      {/* Inner glass border */}
-      <div className="pointer-events-none absolute inset-[1px] rounded-[27px] border border-white/[0.07]" />
+      {/* Inner glass bevel */}
+      <div className="pointer-events-none absolute inset-[1px] rounded-[27px] border border-white/[0.06]" />
+      {/* Top highlight sheen */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/[0.06] to-transparent" />
 
-      {/* Top badge */}
+      {/* Badge */}
       <div className="absolute right-3.5 top-3.5">
         <span
-          className="inline-flex items-center gap-1 rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wide text-white/80"
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-white/85"
           style={{
-            background: "rgba(0,0,0,0.38)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
+            background: "rgba(0,0,0,0.42)",
+            border: "1px solid rgba(255,255,255,0.13)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
           }}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
@@ -87,40 +103,43 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
         </span>
       </div>
 
-      {/* Bottom card info */}
+      {/* Content glass panel — static blur, never animated */}
       <div className="absolute inset-x-3 bottom-3">
         <div
-          className="rounded-[22px] p-4"
+          className="relative overflow-hidden rounded-[22px] px-4 py-4"
           style={{
-            background: "rgba(10,12,20,0.50)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+            background: "rgba(8,10,20,0.52)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(22px) saturate(160%)",
+            WebkitBackdropFilter: "blur(22px) saturate(160%)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10), 0 8px 32px rgba(0,0,0,0.25)",
           }}
         >
           {/* Top glare */}
-          <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
 
-          <h3 className="mb-0.5 text-[1.5rem] font-bold leading-none text-white tracking-tight">
+          <h3
+            className="mb-0.5 text-[1.55rem] font-bold leading-none text-white tracking-tight"
+            style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}
+          >
             {company.name}
           </h3>
-          <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.22em] text-blue-400 font-semibold">
+          <p className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.22em] text-blue-400 font-semibold">
             {company.industry}
           </p>
 
-          <p className="mb-3 text-[0.8rem] leading-snug text-slate-300 line-clamp-2">
+          <p className="mb-3 max-w-[28ch] text-[0.82rem] leading-snug text-slate-300/90 line-clamp-2">
             {getCardSummary(company)}
           </p>
 
-          <div className="mb-3 flex flex-wrap gap-1">
+          <div className="mb-3 flex flex-wrap gap-1.5">
             {company.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="rounded-md px-2 py-0.5 text-[10px] font-medium text-slate-300"
+                className="rounded-[8px] px-2.5 py-1 text-[10px] font-medium text-slate-200/85"
                 style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.07)",
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
                 }}
               >
                 {tag}
@@ -128,15 +147,20 @@ export default function CompanyCard({ company, isExpanded, onToggle, delay }: Pr
             ))}
           </div>
 
-          {/* CTA Button — color only transition (no layout change) */}
+          {/* CTA — transition-colors only: zero layout, zero repaint */}
           <button
             type="button"
             onClick={onToggle}
-            className={`w-full rounded-xl py-2.5 text-[0.875rem] font-semibold transition-colors duration-150 ${
-              isExpanded
-                ? "bg-white text-black"
-                : "bg-blue-600 text-white hover:bg-blue-500 active:bg-blue-700"
-            }`}
+            className="w-full rounded-[14px] py-2.5 text-[0.875rem] font-semibold tracking-wide transition-colors duration-200"
+            style={{
+              background: isExpanded
+                ? "rgba(255,255,255,1)"
+                : `linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)`,
+              color: isExpanded ? "#000" : "#fff",
+              boxShadow: isExpanded
+                ? "none"
+                : "0 6px 20px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.20)",
+            }}
           >
             {isExpanded ? "Close" : "View Work"}
           </button>

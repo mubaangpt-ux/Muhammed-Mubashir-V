@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { tabLabels, type Company, type Tab } from "./data";
 import BusinessCardsTab from "./tabs/BusinessCardsTab";
@@ -17,134 +17,145 @@ interface Props {
 }
 
 export default function ExpandPanel({ company, onClose, open, onExited }: Props) {
-  const innerRef = useRef<HTMLDivElement | null>(null);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>(company.deliverables[0]);
   const [displayTab, setDisplayTab] = useState<Tab>(company.deliverables[0]);
   const [contentVisible, setContentVisible] = useState(true);
-  const switchingRef = useRef(false);
+  const switchRef = useRef(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-  // Reset tabs on company change
+  // Reset on company change
   useEffect(() => {
-    const firstTab = company.deliverables[0];
-    setActiveTab(firstTab);
-    setDisplayTab(firstTab);
+    const first = company.deliverables[0];
+    setActiveTab(first);
+    setDisplayTab(first);
     setContentVisible(true);
   }, [company.id]);
 
-  // Ultra-fast tab fade (80ms) — only opacity, zero layout cost
+  // Ultra-fast tab swap — opacity only, zero layout
   useEffect(() => {
-    if (activeTab === displayTab || switchingRef.current) return;
-    switchingRef.current = true;
+    if (activeTab === displayTab || switchRef.current) return;
+    switchRef.current = true;
     setContentVisible(false);
     const t = window.setTimeout(() => {
       setDisplayTab(activeTab);
       requestAnimationFrame(() => {
         setContentVisible(true);
-        switchingRef.current = false;
+        switchRef.current = false;
       });
-    }, 80);
+    }, 90);
     return () => window.clearTimeout(t);
   }, [activeTab, displayTab]);
 
-  // Animate open/close using CSS class toggling (GPU transform only, no max-height)
-  // The panel is always mounted; we just show/hide with transform + opacity
+  // Fire onExited after close animation ends (grid-template-rows transition)
   useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    if (open) {
-      // Ensure display first, then animate in next frame
-      wrap.style.display = "block";
-      requestAnimationFrame(() => {
-        wrap.setAttribute("data-open", "true");
-      });
-    } else {
-      wrap.setAttribute("data-open", "false");
-      // After transition ends, hide it and call onExited
-      const onEnd = (e: TransitionEvent) => {
-        if (e.propertyName !== "opacity") return;
-        wrap.style.display = "none";
-        onExited();
-        wrap.removeEventListener("transitionend", onEnd);
-      };
-      wrap.addEventListener("transitionend", onEnd);
-      return () => wrap.removeEventListener("transitionend", onEnd);
-    }
+    if (open || !gridRef.current) return;
+    const node = gridRef.current;
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName === "grid-template-rows") onExited();
+    };
+    node.addEventListener("transitionend", onEnd);
+    return () => node.removeEventListener("transitionend", onEnd);
   }, [open, onExited]);
 
   function renderTab() {
     switch (displayTab) {
-      case "posters": return <PostersTab company={company} />;
-      case "reels":   return <ReelsTab company={company} />;
-      case "logo":    return <LogoTab company={company} />;
-      case "website": return <WebsiteTab company={company} />;
-      case "webapp":  return <WebAppTab company={company} />;
-      case "profile": return <ProfileTab company={company} />;
+      case "posters":      return <PostersTab company={company} />;
+      case "reels":        return <ReelsTab company={company} />;
+      case "logo":         return <LogoTab company={company} />;
+      case "website":      return <WebsiteTab company={company} />;
+      case "webapp":       return <WebAppTab company={company} />;
+      case "profile":      return <ProfileTab company={company} />;
       case "businesscards": return <BusinessCardsTab company={company} />;
-      default: return null;
+      default:             return null;
     }
   }
 
   return (
     /**
-     * Outer wrapper: controls the height via auto (no max-height animation).
-     * Visibility is GPU-composited: only opacity + translateY.
-     * data-open attribute drives CSS transitions declared inline.
+     * PERFORMANCE STRATEGY:
+     * The expansion uses CSS `grid-template-rows: 0fr → 1fr` — this is a
+     * modern composited-friendly height animation that avoids `max-height`
+     * layout recalculations entirely. The opacity + translateY entrance is
+     * GPU-composited via `will-change: transform`. The heavy `backdrop-filter`
+     * blur is on a STATIC element (not being animated), so it costs nothing
+     * per frame — it's only computed once when the DOM is painted.
      */
     <div
-      ref={wrapRef}
-      data-open="false"
+      ref={gridRef}
       style={{
-        display: "none",
-        willChange: "transform, opacity",
-        // CSS transition only on transform + opacity — composited, zero layout
-        transition: "opacity 220ms cubic-bezier(0.4,0,0.2,1), transform 220ms cubic-bezier(0.4,0,0.2,1)",
+        display: "grid",
+        gridTemplateRows: open ? "1fr" : "0fr",
+        transition: "grid-template-rows 360ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
       className="mt-3"
     >
-      <style>{`
-        [data-open="false"] { opacity: 0; transform: translateY(-10px) scale(0.99); pointer-events: none; }
-        [data-open="true"]  { opacity: 1; transform: translateY(0)       scale(1);    pointer-events: auto; }
-      `}</style>
-
-      <div
-        className="overflow-hidden rounded-[32px] border border-white/[0.08]"
-        style={{
-          background: "rgba(13, 15, 22, 0.82)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)",
-        }}
-      >
-        <div ref={innerRef}>
+      {/* min-height: 0 is required for grid-template-rows trick to work */}
+      <div style={{ minHeight: 0, overflow: "hidden" }}>
+        {/* 
+          Inner visual panel: entrance/exit uses only opacity + translateY
+          (GPU composited). The blur itself is static — no animation of blur. 
+        */}
+        <div
+          style={{
+            opacity: open ? 1 : 0,
+            transform: open ? "translateY(0)" : "translateY(-12px)",
+            transition: "opacity 280ms cubic-bezier(0.4, 0, 0.2, 1), transform 280ms cubic-bezier(0.4, 0, 0.2, 1)",
+            willChange: "transform, opacity",
+            // Rich glassmorphism — STATIC, zero per-frame cost
+            background: `linear-gradient(135deg, ${company.color}22 0%, rgba(8,10,18,0.72) 100%)`,
+            backdropFilter: "blur(28px) saturate(180%)",
+            WebkitBackdropFilter: "blur(28px) saturate(180%)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.09)",
+            borderRadius: "32px",
+          }}
+        >
           {/* Drag handle */}
-          <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-white/15" />
+          <div className="mx-auto mb-0 flex justify-center pt-3">
+            <div className="h-[5px] w-12 rounded-full bg-white/20" />
+          </div>
+
+          {/* Top glare line */}
+          <div
+            className="pointer-events-none absolute inset-x-6 top-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)" }}
+          />
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-6 pb-4 md:px-8">
+          <div className="flex items-center justify-between px-7 pt-6 pb-5 md:px-10">
             <div>
-              <h3 className="text-[1.6rem] font-bold leading-none text-white tracking-tight">
+              <h3
+                className="text-[1.85rem] font-bold leading-none text-white tracking-tight"
+                style={{ fontFamily: "'Inter', sans-serif", textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
+              >
                 {company.name}
               </h3>
-              <p className="mt-1.5 font-mono text-[10px] uppercase tracking-widest text-blue-400 font-semibold">
+              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#60a5fa] font-semibold">
                 {company.industry}
               </p>
             </div>
+
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/70 transition-colors duration-150 hover:bg-white/15 active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition-colors duration-150 hover:text-white active:scale-90"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+              }}
               aria-label={`Close ${company.name}`}
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M1 1L12 12M1 12L12 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
             </button>
           </div>
 
-          {/* iOS-style pill tabs — no scale animation, just color swap (zero layout) */}
+          {/* iOS pill-tabs — color swap only, zero layout cost */}
           <div
-            className="flex gap-1.5 overflow-x-auto px-6 pb-3 md:px-8"
+            className="flex gap-2 overflow-x-auto px-7 pb-4 md:px-10"
             style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
           >
             {company.deliverables.map((tab) => (
@@ -152,25 +163,26 @@ export default function ExpandPanel({ company, onClose, open, onExited }: Props)
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 ${
-                  activeTab === tab
-                    ? "bg-white text-black"
-                    : "bg-white/8 text-white/50 hover:text-white/80 hover:bg-white/12"
-                }`}
+                className="shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition-colors duration-150"
+                style={{
+                  background: activeTab === tab ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.07)",
+                  color: activeTab === tab ? "#000" : "rgba(255,255,255,0.55)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
               >
                 {tabLabels[tab]}
               </button>
             ))}
           </div>
 
-          <div className="mx-6 mb-0 h-px bg-white/[0.05] md:mx-8" />
+          <div className="mx-7 h-px bg-white/[0.05] md:mx-10" />
 
-          {/* Tab content — opacity only, no transform (avoids layout jank) */}
+          {/* Tab content — opacity-only fade, zero layout */}
           <div
-            className="px-6 pt-5 pb-7 md:px-8"
+            className="px-7 pt-6 pb-8 md:px-10"
             style={{
               opacity: contentVisible ? 1 : 0,
-              transition: "opacity 80ms linear",
+              transition: "opacity 90ms linear",
             }}
           >
             {renderTab()}
