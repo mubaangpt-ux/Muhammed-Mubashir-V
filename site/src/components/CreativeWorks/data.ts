@@ -15,6 +15,8 @@ export interface Company {
   tags: string[];
   color: string;
   deliverables: Tab[];
+  /** Override reel count (default 6) */
+  reelCount?: number;
 }
 
 export const companies: Company[] = [
@@ -23,18 +25,18 @@ export const companies: Company[] = [
     name: "DigiBug",
     industry: "Digital Marketing",
     description: "Digital marketing strategies, SEO, and engaging creative video contents crafted for high-converting campaigns.",
-    tags: ["Digital Marketing", "SEO", "Video Reels"],
+    tags: ["Digital Marketing", "SEO", "Brand Identity"],
     color: "#2563eb",
-    deliverables: ["posters", "reels", "logo", "website"],
+    deliverables: ["posters", "logo"],
   },
   {
     id: "drsamkotkat",
     name: "Dr. Sam Kotkat",
     industry: "Healthcare",
     description: "Acupuncture, hijama and Chinese medicine therapist branding focused on wellness and holistic trust.",
-    tags: ["Profile", "Posters", "Reels"],
+    tags: ["Posters", "Wellness", "Brand"],
     color: "#0f766e",
-    deliverables: ["posters", "reels", "profile", "logo"],
+    deliverables: ["posters"],
   },
   {
     id: "180degree",
@@ -43,34 +45,34 @@ export const companies: Company[] = [
     description: "Vibrant visual identity and modern digital design for a premium healthy meal plan provider in the UAE.",
     tags: ["Brand Identity", "Webapp", "Posters"],
     color: "#ea580c",
-    deliverables: ["posters", "reels", "logo", "webapp"],
+    deliverables: ["posters", "reels", "webapp"],
   },
   {
     id: "raslanbc",
     name: "RaslanBC",
     industry: "Business Setup & Consulting",
     description: "Corporate consulting identity designed for clarity, authority, and seamless business setup experiences in Dubai.",
-    tags: ["Company Profile", "Logo", "Website"],
-    color: "#1e293b",
-    deliverables: ["profile", "logo", "website", "businesscards"],
+    tags: ["Company Profile", "Posters", "Website"],
+    color: "#1e3a5f",
+    deliverables: ["posters", "reels", "website", "profile"],
   },
   {
     id: "raslanrealestate",
     name: "Raslan Real Estate",
     industry: "Real Estate",
     description: "Real estate agency in Dubai featuring stunning property portfolios, launch posters, and premium branding.",
-    tags: ["Posters", "Reels", "Profile"],
+    tags: ["Posters", "Property", "Dubai"],
     color: "#ca8a04",
-    deliverables: ["posters", "reels", "profile", "logo"],
+    deliverables: ["posters"],
   },
   {
     id: "careezfood",
     name: "Careez Food Trading",
     industry: "F&B Trading",
     description: "Healthy vegan food products branding emphasizing organic vibrancy, clean packaging, and social engagement.",
-    tags: ["Logo", "Posters", "Reels"],
+    tags: ["Posters", "Vegan", "F&B"],
     color: "#16a34a",
-    deliverables: ["posters", "reels", "logo"],
+    deliverables: ["posters"],
   },
   {
     id: "bluemark",
@@ -79,7 +81,7 @@ export const companies: Company[] = [
     description: "Ready to move and Off-Plan Property Sale agency in Dubai utilizing dynamic reels and high-end digital posters.",
     tags: ["Reels", "Web Design", "Posters"],
     color: "#0369a1",
-    deliverables: ["reels", "posters", "website", "profile"],
+    deliverables: ["reels", "posters", "website"],
   },
   {
     id: "luminary",
@@ -88,25 +90,25 @@ export const companies: Company[] = [
     description: "Dubai floral studio creating custom arrangements for milestone celebrations, intimate moments, and memorable gifting days.",
     tags: ["Logo", "Business Cards", "Company Profile"],
     color: "#173523",
-    deliverables: ["posters", "reels", "logo", "businesscards", "profile"],
+    deliverables: ["logo", "businesscards", "profile"],
   },
   {
     id: "greenway",
     name: "GreenWay",
     industry: "Cleaning Services",
     description: "Deep Cleaning Service in Kerala, India. Digital presence built around trust, spotless results, and service accessibility.",
-    tags: ["Website", "Logo", "Posters"],
+    tags: ["Website", "Posters", "Reels"],
     color: "#059669",
-    deliverables: ["posters", "website", "logo"],
+    deliverables: ["posters", "reels", "website"],
   },
   {
     id: "ceeyem",
     name: "CeeYem Co.",
     industry: "Oil Industries",
     description: "Heavy industry and oil corporate branding ensuring robust stakeholder presentations and industrial authority.",
-    tags: ["Profile", "Business Cards", "Logo"],
+    tags: ["Posters", "Website", "Corporate"],
     color: "#475569",
-    deliverables: ["profile", "logo", "businesscards"],
+    deliverables: ["posters", "website"],
   },
   {
     id: "otherworks",
@@ -116,6 +118,7 @@ export const companies: Company[] = [
     tags: ["AI Designs", "Posters", "Reels"],
     color: "#7c3aed",
     deliverables: ["posters", "reels"],
+    reelCount: 9,
   },
 ];
 
