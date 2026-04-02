@@ -65,7 +65,7 @@ export default function ReelsTab({ company }: Props) {
           </button>
 
           <div
-            className="relative max-h-[90vh] aspect-[9/16] overflow-hidden rounded-[28px] shadow-[0_20px_80px_rgba(0,0,0,0.9)]"
+            className="relative max-h-[80vh] aspect-[9/16] overflow-hidden rounded-[28px] shadow-[0_20px_80px_rgba(0,0,0,0.9)]"
             onClick={(e) => e.stopPropagation()}
           >
             <video
