@@ -17,6 +17,8 @@ export interface Company {
   deliverables: Tab[];
   /** Override reel count (default 6) */
   reelCount?: number;
+  /** Override poster count (default 9) */
+  posterCount?: number;
 }
 
 export const companies: Company[] = [
@@ -46,6 +48,7 @@ export const companies: Company[] = [
     tags: ["Brand Identity", "Webapp", "Posters"],
     color: "#ea580c",
     deliverables: ["posters", "reels", "webapp"],
+    posterCount: 12,
   },
   {
     id: "raslanbc",

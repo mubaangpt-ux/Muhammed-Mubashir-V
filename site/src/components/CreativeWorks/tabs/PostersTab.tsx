@@ -10,7 +10,8 @@ export default function PostersTab({ company }: Props) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   
   // Instagram typically shows rows of 3. We'll show 9 mock posters.
-  const images = Array.from({ length: 9 }, (_, index) => creativeWorkAssets.poster(company, index));
+  const count = company.posterCount ?? 9;
+  const images = Array.from({ length: count }, (_, index) => creativeWorkAssets.poster(company, index));
 
   return (
     <>
