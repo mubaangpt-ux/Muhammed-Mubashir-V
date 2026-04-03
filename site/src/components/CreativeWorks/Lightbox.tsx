@@ -81,12 +81,21 @@ export default function Lightbox({ images, initialIndex, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {images.map((img, idx) => (
-          <div key={idx} className="min-w-full h-full flex items-center justify-center snap-center px-4 md:px-12 py-24 md:py-32">
-            <div className="relative w-full max-h-[75vh] max-w-4xl flex items-center justify-center">
+          <div key={idx} className="min-w-full h-full flex items-center justify-center snap-center px-5 md:px-10 py-20 md:py-24">
+            <div
+              className="relative flex items-center justify-center overflow-hidden rounded-[24px] md:rounded-[28px]"
+              style={{
+                width: "min(82vw, 980px)",
+                maxHeight: "68vh",
+                background: "linear-gradient(180deg, rgba(12,16,28,0.72) 0%, rgba(6,8,16,0.88) 100%)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)",
+              }}
+            >
               <img
                 src={img}
                 alt={`Slide ${idx + 1}`}
-                className="max-h-full max-w-full rounded-[24px] md:rounded-[32px] object-contain shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
+                className="max-h-[68vh] w-auto max-w-full object-contain"
               />
             </div>
           </div>
