@@ -103,6 +103,7 @@
   let lastBgFrame = 0;
   let homeMediaWarmStarted = false;
   let touchRippleUntil = 0;
+  let hoverActiveUntil = 0;
 
   const HERO_REVEAL_SELECTORS = [
     '.hero-orbit-stage',
@@ -508,6 +509,7 @@
   function onMouseLeave() {
     mouseX = -9999;
     mouseY = -9999;
+    hoverActiveUntil = 0;
   }
 
   function wakeBackgroundRipple(clientX, clientY) {
@@ -525,6 +527,17 @@
     wakeBackgroundRipple(e.clientX, e.clientY);
   }
 
+  function onPointerMove(e) {
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    if (staticBackgroundMode) return;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    hoverActiveUntil = performance.now() + 180;
+
+    if (mode !== 'background' || rafId) return;
+    rafId = requestAnimationFrame(bgLoop);
+  }
+
   function onTouchStart(e) {
     const touch = e.touches && e.touches[0];
     if (!touch) return;
@@ -533,10 +546,12 @@
 
   function bindBackgroundEvents() {
     if (bgEventsBound) return;
-    // Keep the resting background visually stable. We only wake ripple motion
-    // on deliberate interactions instead of reacting continuously to cursor hover.
+    // Desktop keeps the responsive hover field, while touch devices stay on the
+    // lighter tap-based ripple path to preserve smoothness on mobile.
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('pointerleave', onMouseLeave, { passive: true });
     bgEventsBound = true;
   }
 
@@ -665,12 +680,19 @@
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
     const rippleActive = ts < touchRippleUntil;
+    const hoverActive = !staticBackgroundMode && ts < hoverActiveUntil && mouseX > -9000 && mouseY > -9000;
+    const hoverR2 = Math.max(120, Math.min(W, H) * 0.11) ** 2;
     let maxMotion = 0;
     for (let i = 0; i < starCount; i++) {
         const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
         if (rippleActive && d2 < r2 && d2 > 0.1) {
             const t = 1 - d2/r2, f = t*t*C.RIPPLE_F, inv = 1/Math.sqrt(d2);
             vx[i] += dx*inv*f*0.05; vy[i] += dy*inv*f*0.05;
+        } else if (hoverActive && d2 < hoverR2 && d2 > 0.1) {
+            const t = 1 - d2/hoverR2;
+            const inv = 1/Math.sqrt(d2);
+            const f = t*t*0.55;
+            vx[i] += dx*inv*f*0.008; vy[i] += dy*inv*f*0.008;
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
@@ -680,7 +702,7 @@
         const shimmer = sa[i] * (0.9 + Math.sin(ts * 0.0016 + tw[i]) * 0.1);
         drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
     }
-    if (rippleActive || maxMotion > 0.18) {
+    if (rippleActive || hoverActive || maxMotion > 0.18) {
       rafId = requestAnimationFrame(bgLoop);
     } else {
       rafId = null;
