@@ -7,6 +7,12 @@ export type Tab =
   | "profile"
   | "businesscards";
 
+export interface CreativeImageItem {
+  src: string;
+  alt: string;
+  variant?: "portrait" | "portrait-tall" | "landscape";
+}
+
 export interface Company {
   id: string;
   name: string;
@@ -19,6 +25,8 @@ export interface Company {
   reelCount?: number;
   /** Override poster count (default 9) */
   posterCount?: number;
+  /** Optional ordered webapp collage/gallery assets */
+  webappGallery?: CreativeImageItem[];
 }
 
 export const companies: Company[] = [
@@ -49,6 +57,53 @@ export const companies: Company[] = [
     color: "#ea580c",
     deliverables: ["posters", "reels", "webapp"],
     posterCount: 12,
+    webappGallery: [
+      {
+        src: "/creative-works/180degree/webapp/login-page.webp",
+        alt: "180 Degree meal planner login screen",
+        variant: "portrait",
+      },
+      {
+        src: "/creative-works/180degree/webapp/nutrition-step.webp",
+        alt: "180 Degree onboarding nutrition step",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/180degree/webapp/preferences-step.webp",
+        alt: "180 Degree onboarding preferences step",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/180degree/webapp/delivery-step.png",
+        alt: "180 Degree onboarding delivery schedule setup",
+        variant: "portrait-tall",
+      },
+      {
+        src: "/creative-works/180degree/webapp/client-dashboard.webp",
+        alt: "180 Degree client dashboard and weekly meal plan view",
+        variant: "portrait-tall",
+      },
+      {
+        src: "/creative-works/180degree/webapp/driver-manager.webp",
+        alt: "180 Degree admin driver management view",
+        variant: "portrait",
+      },
+      {
+        src: "/creative-works/180degree/webapp/admin-orders.webp",
+        alt: "180 Degree admin master orders and client database view",
+        variant: "portrait-tall",
+      },
+      {
+        src: "/creative-works/180degree/webapp/referral-tracking.webp",
+        alt: "180 Degree referral tracking dashboard",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/180degree/webapp/roles-permissions.webp",
+        alt: "180 Degree admin roles and permissions view",
+        variant: "portrait",
+      },
+    ],
   },
   {
     id: "raslanbc",
