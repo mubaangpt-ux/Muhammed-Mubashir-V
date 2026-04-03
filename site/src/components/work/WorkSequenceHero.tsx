@@ -23,12 +23,12 @@ declare global {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 const HEADER_OFFSET = 88;
-const DESKTOP_CACHE_RADIUS = 96;
-const MOBILE_CACHE_RADIUS = 48;
+const DESKTOP_CACHE_RADIUS = 128;
+const MOBILE_CACHE_RADIUS = 72;
 const DESKTOP_ANCHOR_COUNT = 48;
 const MOBILE_ANCHOR_COUNT = 28;
-const DESKTOP_FALLBACK_RADIUS = 28;
-const MOBILE_FALLBACK_RADIUS = 14;
+const DESKTOP_FALLBACK_RADIUS = 64;
+const MOBILE_FALLBACK_RADIUS = 32;
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -70,7 +70,7 @@ const buildUrgentFrameSet = (frameIndex: number, total: number, lowPower: boolea
 const findNearestLoadedFrame = (
   frames: Array<HTMLImageElement | null>,
   target: number,
-  maxDistance: number,
+  maxDistance = Number.POSITIVE_INFINITY,
 ) => {
   if (frames[target]) return target;
 
@@ -80,6 +80,7 @@ const findNearestLoadedFrame = (
 
     if (previous >= 0 && frames[previous]) return previous;
     if (next < frames.length && frames[next]) return next;
+    if (previous < 0 && next >= frames.length) break;
   }
 
   return -1;
@@ -94,6 +95,8 @@ const pickRenderableFrame = (
   if (frames[target]) return target;
   const nearestLoaded = findNearestLoadedFrame(frames, target, maxDistance);
   if (nearestLoaded >= 0) return nearestLoaded;
+  const nearestGlobal = findNearestLoadedFrame(frames, target);
+  if (nearestGlobal >= 0) return nearestGlobal;
   if (lastVisible >= 0 && frames[lastVisible]) return lastVisible;
   return -1;
 };
@@ -148,7 +151,8 @@ export default function WorkSequenceHero() {
     if (destroyedRef.current || framesRef.current[frameIndex]) return;
     framesRef.current[frameIndex] = image;
     loadedCountRef.current += 1;
-    scheduleDraw(targetFrameRef.current, frameIndex === 0);
+    const isCurrentFocus = Math.abs(frameIndex - targetFrameRef.current) <= (lowPowerRef.current ? 2 : 3);
+    scheduleDraw(targetFrameRef.current, frameIndex === 0 || isCurrentFocus);
   };
 
   const requestFrameLoad = (frameIndex: number, urgent = false) => {
@@ -356,7 +360,12 @@ export default function WorkSequenceHero() {
 
   const scheduleDraw = (frameIndex: number, force = false) => {
     targetFrameRef.current = frameIndex;
-    if (force) {
+    const shouldSnapToLoadedFrame =
+      !force &&
+      Boolean(framesRef.current[frameIndex]) &&
+      Math.abs(frameIndex - currentFrameFloatRef.current) > (lowPowerRef.current ? 12 : 18);
+
+    if (force || shouldSnapToLoadedFrame) {
       currentFrameFloatRef.current = frameIndex;
       drawFrame(frameIndex, true);
     }
@@ -438,14 +447,12 @@ export default function WorkSequenceHero() {
       .filter((candidate, index, list) => candidate >= 0 && candidate < WORK_HERO_FRAME_COUNT && list.indexOf(candidate) === index);
 
     const contiguousSupportFrames: number[] = [];
-    const backwardLook = lowPowerRef.current ? 6 : 14;
-    const forwardLook = lowPowerRef.current ? 36 : 72;
+    for (let distance = 1; distance < WORK_HERO_FRAME_COUNT; distance += 1) {
+      const previous = frameIndex - distance;
+      const next = frameIndex + distance;
 
-    for (let offset = -backwardLook; offset <= forwardLook; offset += 1) {
-      if (offset === 0) continue;
-      const candidate = frameIndex + offset;
-      if (candidate < 0 || candidate >= WORK_HERO_FRAME_COUNT) continue;
-      contiguousSupportFrames.push(candidate);
+      if (previous >= 0) contiguousSupportFrames.push(previous);
+      if (next < WORK_HERO_FRAME_COUNT) contiguousSupportFrames.push(next);
     }
 
     const bridgeFrames: number[] = [];
@@ -471,8 +478,8 @@ export default function WorkSequenceHero() {
     );
     const supportFrames = [
       ...bridgeFrames,
-      ...anchorFrames.filter((candidate) => !prioritizedFrames.includes(candidate)),
       ...contiguousSupportFrames,
+      ...anchorFrames.filter((candidate) => !prioritizedFrames.includes(candidate)),
     ];
 
     trimFrameCache(frameIndex);
@@ -541,7 +548,7 @@ export default function WorkSequenceHero() {
     const lowMemory = (navigator.deviceMemory || 8) <= 4;
     const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
     lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
-    concurrencyRef.current = lowPowerRef.current ? 4 : 8;
+    concurrencyRef.current = lowPowerRef.current ? 6 : 12;
     activeLoadsRef.current = 0;
     urgentLoadsRef.current = 0;
     currentFrameFloatRef.current = 0;

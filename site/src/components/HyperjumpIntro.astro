@@ -533,10 +533,8 @@
 
   function bindBackgroundEvents() {
     if (bgEventsBound) return;
-    if (!staticBackgroundMode) {
-      window.addEventListener('mousemove', onMouse, { passive: true });
-      window.addEventListener('mouseleave', onMouseLeave, { passive: true });
-    }
+    // Keep the resting background visually stable. We only wake ripple motion
+    // on deliberate interactions instead of reacting continuously to cursor hover.
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
     bgEventsBound = true;
@@ -666,7 +664,8 @@
 
     const r = canvas.getBoundingClientRect();
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
-    const rippleActive = !staticBackgroundMode || ts < touchRippleUntil;
+    const rippleActive = ts < touchRippleUntil;
+    let maxMotion = 0;
     for (let i = 0; i < starCount; i++) {
         const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
         if (rippleActive && d2 < r2 && d2 > 0.1) {
@@ -675,22 +674,19 @@
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
+        const displacement = Math.abs(hx[i] - sx[i]) + Math.abs(hy[i] - sy[i]);
+        const velocity = Math.abs(vx[i]) + Math.abs(vy[i]);
+        if (displacement + velocity > maxMotion) maxMotion = displacement + velocity;
         const shimmer = sa[i] * (0.9 + Math.sin(ts * 0.0016 + tw[i]) * 0.1);
         drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
     }
-    if (staticBackgroundMode) {
-      if (ts < touchRippleUntil) {
-        rafId = requestAnimationFrame(bgLoop);
-      } else {
-        rafId = null;
-        onMouseLeave();
-      }
-      return;
+    if (rippleActive || maxMotion > 0.18) {
+      rafId = requestAnimationFrame(bgLoop);
+    } else {
+      rafId = null;
+      onMouseLeave();
     }
-    rafId = requestAnimationFrame(bgLoop);
   }
-
-  function onMouse(e) { mouseX = e.clientX; mouseY = e.clientY; }
 
   function scheduleReveal(el, delay) {
     if (!el) return;
