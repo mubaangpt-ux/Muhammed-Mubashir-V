@@ -532,7 +532,8 @@
     if (staticBackgroundMode) return;
     mouseX = e.clientX;
     mouseY = e.clientY;
-    hoverActiveUntil = performance.now() + 180;
+    touchRippleUntil = 0;
+    hoverActiveUntil = performance.now() + 260;
 
     if (mode !== 'background' || rafId) return;
     rafId = requestAnimationFrame(bgLoop);
@@ -681,7 +682,7 @@
     const mxL = mouseX - r.left, myL = mouseY - r.top, r2 = (C.RIPPLE_R * Math.min(W, H)) ** 2;
     const rippleActive = ts < touchRippleUntil;
     const hoverActive = !staticBackgroundMode && ts < hoverActiveUntil && mouseX > -9000 && mouseY > -9000;
-    const hoverR2 = Math.max(120, Math.min(W, H) * 0.11) ** 2;
+    const hoverR2 = Math.max(140, Math.min(W, H) * 0.13) ** 2;
     let maxMotion = 0;
     for (let i = 0; i < starCount; i++) {
         const dx = sx[i] - mxL, dy = sy[i] - myL, d2 = dx*dx + dy*dy;
@@ -691,8 +692,8 @@
         } else if (hoverActive && d2 < hoverR2 && d2 > 0.1) {
             const t = 1 - d2/hoverR2;
             const inv = 1/Math.sqrt(d2);
-            const f = t*t*0.55;
-            vx[i] += dx*inv*f*0.008; vy[i] += dy*inv*f*0.008;
+            const f = t*t*0.7;
+            vx[i] += dx*inv*f*0.012; vy[i] += dy*inv*f*0.012;
         }
         vx[i] += (hx[i] - sx[i]) * C.SPRING; vy[i] += (hy[i] - sy[i]) * C.SPRING;
         vx[i] *= 0.8; vy[i] *= 0.8; sx[i] += vx[i]; sy[i] += vy[i];
