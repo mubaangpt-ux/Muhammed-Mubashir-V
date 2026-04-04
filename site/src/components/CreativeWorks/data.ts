@@ -38,6 +38,7 @@ export const companies: Company[] = [
     tags: ["Digital Marketing", "SEO", "Brand Identity"],
     color: "#2563eb",
     deliverables: ["posters", "logo"],
+    posterCount: 12,
   },
   {
     id: "drsamkotkat",
