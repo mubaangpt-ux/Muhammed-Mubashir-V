@@ -5,10 +5,9 @@ type Props = {
 };
 
 export default function WebsiteTab({ company }: Props) {
-  const screenshots = Array.from(
-    { length: 3 },
-    (_, index) => creativeWorkAssets.website(company, index)
-  );
+  const screenshots =
+    company.websiteGallery?.map((item) => item.src) ??
+    Array.from({ length: 3 }, (_, index) => creativeWorkAssets.website(company, index));
 
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10">

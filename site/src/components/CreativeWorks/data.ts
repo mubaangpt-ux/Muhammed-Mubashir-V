@@ -13,6 +13,13 @@ export interface CreativeImageItem {
   variant?: "portrait" | "portrait-tall" | "landscape";
 }
 
+export interface PosterGalleryItem {
+  type: "single" | "carousel";
+  alt: string;
+  src?: string;
+  slides?: CreativeImageItem[];
+}
+
 export interface Company {
   id: string;
   name: string;
@@ -25,8 +32,32 @@ export interface Company {
   reelCount?: number;
   /** Override poster count (default 9) */
   posterCount?: number;
+  /** Optional ordered poster gallery with support for carousel poster sets */
+  posterGallery?: PosterGalleryItem[];
+  /** Optional ordered website gallery assets */
+  websiteGallery?: CreativeImageItem[];
   /** Optional ordered webapp collage/gallery assets */
   webappGallery?: CreativeImageItem[];
+}
+
+function createPosterSingles(companyId: string, count: number, label: string) {
+  return Array.from({ length: count }, (_, index) => ({
+    type: "single" as const,
+    src: `/creative-works/${companyId}/posters/poster-${String(index + 1).padStart(2, "0")}.jpg`,
+    alt: `${label} poster ${String(index + 1).padStart(2, "0")}`,
+  }));
+}
+
+function createPosterCarousel(companyId: string, folderName: string, slideCount: number, alt: string) {
+  return {
+    type: "carousel" as const,
+    alt,
+    slides: Array.from({ length: slideCount }, (_, index) => ({
+      src: `/creative-works/${companyId}/posters/${folderName}/slide-${String(index + 1).padStart(2, "0")}.jpg`,
+      alt: `${alt} slide ${String(index + 1).padStart(2, "0")}`,
+      variant: "portrait" as const,
+    })),
+  };
 }
 
 export const companies: Company[] = [
@@ -48,6 +79,20 @@ export const companies: Company[] = [
     tags: ["Posters", "Wellness", "Brand"],
     color: "#0f766e",
     deliverables: ["posters"],
+    posterGallery: [
+      createPosterCarousel("drsamkotkat", "carousel-01", 5, "Dr. Sam migraine relief content carousel"),
+      createPosterCarousel("drsamkotkat", "carousel-02", 2, "Dr. Sam healthcare carousel 02"),
+      createPosterCarousel("drsamkotkat", "carousel-03", 2, "Dr. Sam healthcare carousel 03"),
+      createPosterCarousel("drsamkotkat", "carousel-04", 5, "Dr. Sam healthcare carousel 04"),
+      createPosterCarousel("drsamkotkat", "carousel-05", 2, "Dr. Sam healthcare carousel 05"),
+      createPosterCarousel("drsamkotkat", "carousel-06", 2, "Dr. Sam healthcare carousel 06"),
+      createPosterCarousel("drsamkotkat", "carousel-07", 2, "Dr. Sam healthcare carousel 07"),
+      createPosterCarousel("drsamkotkat", "carousel-08", 2, "Dr. Sam healthcare carousel 08"),
+      createPosterCarousel("drsamkotkat", "carousel-09", 2, "Dr. Sam healthcare carousel 09"),
+      createPosterCarousel("drsamkotkat", "carousel-10", 2, "Dr. Sam healthcare carousel 10"),
+      createPosterCarousel("drsamkotkat", "carousel-11", 2, "Dr. Sam healthcare carousel 11"),
+      ...createPosterSingles("drsamkotkat", 5, "Dr. Sam"),
+    ],
   },
   {
     id: "180degree",
@@ -57,7 +102,12 @@ export const companies: Company[] = [
     tags: ["Brand Identity", "Webapp", "Posters"],
     color: "#ea580c",
     deliverables: ["posters", "reels", "webapp"],
-    posterCount: 12,
+    reelCount: 7,
+    posterGallery: [
+      ...createPosterSingles("180degree", 17, "180 Degree"),
+      createPosterCarousel("180degree", "carousel-01", 3, "180 Degree poster carousel 01"),
+      createPosterCarousel("180degree", "carousel-02", 10, "180 Degree poster carousel 02"),
+    ],
     webappGallery: [
       {
         src: "/creative-works/180degree/webapp/login-page.webp",
@@ -132,15 +182,53 @@ export const companies: Company[] = [
     tags: ["Posters", "Vegan", "F&B"],
     color: "#16a34a",
     deliverables: ["posters"],
+    posterGallery: [
+      createPosterCarousel("careezfood", "carousel-01", 2, "Careez carousel 01"),
+      createPosterCarousel("careezfood", "carousel-02", 2, "Careez carousel 02"),
+      createPosterCarousel("careezfood", "carousel-03", 2, "Careez carousel 03"),
+      createPosterCarousel("careezfood", "carousel-04", 2, "Careez carousel 04"),
+      createPosterCarousel("careezfood", "carousel-05", 2, "Careez carousel 05"),
+      createPosterCarousel("careezfood", "carousel-06", 2, "Careez carousel 06"),
+      createPosterCarousel("careezfood", "carousel-07", 2, "Careez carousel 07"),
+      createPosterCarousel("careezfood", "carousel-08", 2, "Careez carousel 08"),
+      createPosterCarousel("careezfood", "carousel-09", 2, "Careez carousel 09"),
+      createPosterCarousel("careezfood", "carousel-10", 2, "Careez carousel 10"),
+    ],
   },
   {
     id: "bluemark",
     name: "BlueMark Real Estate",
     industry: "Real Estate",
-    description: "Ready to move and Off-Plan Property Sale agency in Dubai utilizing dynamic reels and high-end digital posters.",
-    tags: ["Reels", "Web Design", "Posters"],
+    description: "Ready to move and off-plan property sale agency in Dubai using high-end campaign posters and branded website screens.",
+    tags: ["Web Design", "Posters", "Real Estate"],
     color: "#0369a1",
-    deliverables: ["reels", "posters", "website"],
+    deliverables: ["posters", "website"],
+    posterGallery: [
+      createPosterCarousel("bluemark", "carousel-01", 3, "Bluemark poster carousel 01"),
+      ...createPosterSingles("bluemark", 9, "Bluemark"),
+    ],
+    websiteGallery: [
+      {
+        src: "/creative-works/bluemark/website/website-01.jpg",
+        alt: "Bluemark website screen 01",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/bluemark/website/website-02.jpg",
+        alt: "Bluemark website screen 02",
+        variant: "portrait",
+      },
+      {
+        src: "/creative-works/bluemark/website/website-03.jpg",
+        alt: "Bluemark website screen 03",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/bluemark/website/website-04.jpg",
+        alt: "Bluemark website screen 04",
+        variant: "portrait",
+      },
+    ],
   },
   {
     id: "luminary",
