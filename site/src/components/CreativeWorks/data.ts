@@ -5,6 +5,7 @@ export type Tab =
   | "website"
   | "webapp"
   | "profile"
+  | "brandidentity"
   | "businesscards";
 
 export interface CreativeImageItem {
@@ -18,6 +19,11 @@ export interface PosterGalleryItem {
   alt: string;
   src?: string;
   slides?: CreativeImageItem[];
+}
+
+export interface CreativeDocumentItem {
+  src: string;
+  title: string;
 }
 
 export interface Company {
@@ -38,6 +44,10 @@ export interface Company {
   websiteGallery?: CreativeImageItem[];
   /** Optional ordered webapp collage/gallery assets */
   webappGallery?: CreativeImageItem[];
+  /** Optional ordered company profile / deck PDFs */
+  profileDocs?: CreativeDocumentItem[];
+  /** Optional ordered brand identity / brand book PDFs */
+  brandIdentityDocs?: CreativeDocumentItem[];
 }
 
 function createPosterSingles(companyId: string, count: number, label: string) {
@@ -163,7 +173,21 @@ export const companies: Company[] = [
     description: "Corporate consulting identity designed for clarity, authority, and seamless business setup experiences in Dubai.",
     tags: ["Company Profile", "Posters", "Website"],
     color: "#1e3a5f",
-    deliverables: ["posters", "reels", "website", "profile"],
+    deliverables: ["posters", "website", "profile"],
+    posterGallery: [
+      createPosterCarousel("raslanbc", "carousel-01", 5, "RaslanBC poster carousel 01"),
+      createPosterCarousel("raslanbc", "carousel-02", 2, "RaslanBC poster carousel 02"),
+      createPosterCarousel("raslanbc", "carousel-03", 2, "RaslanBC poster carousel 03"),
+      createPosterCarousel("raslanbc", "carousel-04", 2, "RaslanBC poster carousel 04"),
+      createPosterCarousel("raslanbc", "carousel-05", 2, "RaslanBC poster carousel 05"),
+      ...createPosterSingles("raslanbc", 13, "RaslanBC"),
+    ],
+    profileDocs: [
+      {
+        src: "/creative-works/raslanbc/profile/RaslanBC-Profile.pdf",
+        title: "RaslanBC Company Profile",
+      },
+    ],
   },
   {
     id: "raslanrealestate",
@@ -173,6 +197,14 @@ export const companies: Company[] = [
     tags: ["Posters", "Property", "Dubai"],
     color: "#ca8a04",
     deliverables: ["posters"],
+    posterGallery: [
+      createPosterCarousel("raslanrealestate", "carousel-01", 2, "Raslan Real Estate carousel 01"),
+      createPosterCarousel("raslanrealestate", "carousel-02", 2, "Raslan Real Estate carousel 02"),
+      createPosterCarousel("raslanrealestate", "carousel-03", 2, "Raslan Real Estate carousel 03"),
+      createPosterCarousel("raslanrealestate", "carousel-04", 2, "Raslan Real Estate carousel 04"),
+      createPosterCarousel("raslanrealestate", "carousel-05", 2, "Raslan Real Estate carousel 05"),
+      ...createPosterSingles("raslanrealestate", 4, "Raslan Real Estate"),
+    ],
   },
   {
     id: "careezfood",
@@ -238,15 +270,34 @@ export const companies: Company[] = [
     tags: ["Logo", "Business Cards", "Company Profile"],
     color: "#173523",
     deliverables: ["logo", "businesscards", "profile"],
+    profileDocs: [
+      {
+        src: "/creative-works/luminary/profile/profile.pdf",
+        title: "Green Infinity Brand Profile",
+      },
+    ],
   },
   {
     id: "greenway",
     name: "GreenWay",
     industry: "Cleaning Services",
     description: "Deep Cleaning Service in Kerala, India. Digital presence built around trust, spotless results, and service accessibility.",
-    tags: ["Website", "Posters", "Reels"],
+    tags: ["Brand Identity", "Posters", "Service Brand"],
     color: "#059669",
-    deliverables: ["posters", "reels", "website"],
+    deliverables: ["posters", "brandidentity"],
+    posterGallery: [
+      createPosterCarousel("greenway", "carousel-01", 6, "GreenWay poster carousel 01"),
+      createPosterCarousel("greenway", "carousel-02", 4, "GreenWay poster carousel 02"),
+      createPosterCarousel("greenway", "carousel-03", 3, "GreenWay poster carousel 03"),
+      createPosterCarousel("greenway", "carousel-04", 4, "GreenWay poster carousel 04"),
+      ...createPosterSingles("greenway", 3, "GreenWay"),
+    ],
+    brandIdentityDocs: [
+      {
+        src: "/creative-works/greenway/brandidentity/BrandIdentity-GreenWay.pdf",
+        title: "GreenWay Brand Identity",
+      },
+    ],
   },
   {
     id: "ceeyem",
@@ -256,16 +307,29 @@ export const companies: Company[] = [
     tags: ["Posters", "Website", "Corporate"],
     color: "#475569",
     deliverables: ["posters", "website"],
-  },
-  {
-    id: "otherworks",
-    name: "Creative Lab",
-    industry: "Random Works & AI",
-    description: "Other Creative Random Works and AI designs showcasing experimental visual directions and cutting edge techniques.",
-    tags: ["AI Designs", "Posters", "Reels"],
-    color: "#7c3aed",
-    deliverables: ["posters", "reels"],
-    reelCount: 9,
+    posterGallery: createPosterSingles("ceeyem", 11, "CeeYem"),
+    websiteGallery: [
+      {
+        src: "/creative-works/ceeyem/website/website-01.jpg",
+        alt: "CeeYem website screen 01",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/ceeyem/website/website-02.jpg",
+        alt: "CeeYem website screen 02",
+        variant: "portrait",
+      },
+      {
+        src: "/creative-works/ceeyem/website/website-03.jpg",
+        alt: "CeeYem website screen 03",
+        variant: "landscape",
+      },
+      {
+        src: "/creative-works/ceeyem/website/website-04.jpg",
+        alt: "CeeYem website screen 04",
+        variant: "portrait",
+      },
+    ],
   },
 ];
 
@@ -276,6 +340,7 @@ export const tabLabels: Record<Tab, string> = {
   website: "Website",
   webapp: "WebApp",
   profile: "Profile",
+  brandidentity: "Brand Identity",
   businesscards: "Business Cards",
 };
 
@@ -297,7 +362,6 @@ export const creativeWorkAssets = {
     `/creative-works/${company.id}/website/website-${twoDigit(index)}.jpg`,
   webapp: (company: Company, index: number) =>
     `/creative-works/${company.id}/webapp/webapp-${twoDigit(index)}.jpg`,
-  profile: (company: Company) => `/creative-works/${company.id}/profile/profile.jpg`,
   businessCardFront: (company: Company) => `/creative-works/${company.id}/business-cards/front.jpg`,
   businessCardBack: (company: Company) => `/creative-works/${company.id}/business-cards/back.jpg`,
 };

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { tabLabels, type Company, type Tab } from "./data";
 import BusinessCardsTab from "./tabs/BusinessCardsTab";
+import DocumentTab from "./tabs/DocumentTab";
 import LogoTab from "./tabs/LogoTab";
 import PostersTab from "./tabs/PostersTab";
-import ProfileTab from "./tabs/ProfileTab";
 import ReelsTab from "./tabs/ReelsTab";
 import WebAppTab from "./tabs/WebAppTab";
 import WebsiteTab from "./tabs/WebsiteTab";
@@ -64,7 +64,8 @@ export default function ExpandPanel({ company, onClose, open, onExited }: Props)
       case "logo":         return <LogoTab company={company} />;
       case "website":      return <WebsiteTab company={company} />;
       case "webapp":       return <WebAppTab company={company} />;
-      case "profile":      return <ProfileTab company={company} />;
+      case "profile":      return <DocumentTab company={company} kind="profile" />;
+      case "brandidentity": return <DocumentTab company={company} kind="brandidentity" />;
       case "businesscards": return <BusinessCardsTab company={company} />;
       default:             return null;
     }
