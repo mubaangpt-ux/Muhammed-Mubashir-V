@@ -1,6 +1,7 @@
 const siteUrl = (import.meta.env.PUBLIC_SITE_URL || "https://mubaan.online").replace(/\/+$/, "");
 
 export type ContactLink = { label: string; href: string };
+export type FooterSocialLink = { label: string; href: string; iconPath: string; rel?: string };
 export type LanguageSkill = { language: string; proficiency: string };
 export type ImpactMetric = { value: string; label: string; detail: string };
 export type Capability = { title: string; description: string; icon: string };
@@ -12,11 +13,22 @@ export type Profile = {
   summary: string;
   location: string;
   siteUrl: string;
+  resumePath: string;
+  resumeDownloadName: string;
   email: string;
-  links: { whatsapp: string; email: string; instagram: string; instagramHandle: string };
+  links: {
+    whatsapp: string;
+    email: string;
+    instagram: string;
+    instagramHandle: string;
+    github: string;
+    discord: string;
+  };
   whatsappDisplay: string;
   whatsappUrl: string;
   instagram: ContactLink[];
+  socialProfiles: ContactLink[];
+  footerSocials: FooterSocialLink[];
   primaryCtas: ContactLink[];
   languages: LanguageSkill[];
   impactMetrics: ImpactMetric[];
@@ -33,16 +45,31 @@ export const profile: Profile = {
     "Dubai-based independent digital marketer, web developer, web-app systems builder, SEO and GEO specialist, and AI workflow operator available for freelance and consulting work across Meta and Google ads, technical SEO, conversion funnels, pixel tracking, WordPress systems, automation, and content pipelines built for measurable UAE market outcomes.",
   location: "Dubai, UAE",
   siteUrl,
+  resumePath: "/resume.pdf",
+  resumeDownloadName: "Muhammed_Mubashir_V_CV.pdf",
   email: "mubaan74@gmail.com",
   links: {
     whatsapp: "https://wa.me/971529144135",
     email: "mailto:mubaan74@gmail.com",
     instagram: "https://instagram.com/mubaa.n",
     instagramHandle: "@mubaa.n",
+    github: "https://github.com/mubaangpt-ux",
+    discord: "https://discord.com/users/1432313008050405462",
   },
   whatsappDisplay: "+971 52 914 4135",
   whatsappUrl: "https://wa.me/971529144135",
   instagram: [{ label: "@mubaa.n", href: "https://instagram.com/mubaa.n" }],
+  socialProfiles: [
+    { label: "Instagram", href: "https://instagram.com/mubaa.n" },
+    { label: "GitHub", href: "https://github.com/mubaangpt-ux" },
+    { label: "Discord", href: "https://discord.com/users/1432313008050405462" },
+  ],
+  footerSocials: [
+    { label: "Instagram", href: "https://instagram.com/mubaa.n", iconPath: "/social/instagram.jpg", rel: "noreferrer me" },
+    { label: "WhatsApp", href: "https://wa.me/971529144135", iconPath: "/social/whatsapp.webp", rel: "noreferrer" },
+    { label: "GitHub", href: "https://github.com/mubaangpt-ux", iconPath: "/social/github.svg", rel: "noreferrer" },
+    { label: "Discord", href: "https://discord.com/users/1432313008050405462", iconPath: "/social/discord.webp", rel: "noreferrer" },
+  ],
   primaryCtas: [
     { label: "Message on WhatsApp", href: "https://wa.me/971529144135" },
     { label: "Send Email", href: "mailto:mubaan74@gmail.com" },
@@ -94,6 +121,11 @@ export const profile: Profile = {
       title: "Web App & Plugin Dev",
       description: "Plugin-led WordPress workflows with custom MySQL table logic, admin UX, and tracking hooks built for operational scale.",
       icon: "\u25c7",
+    },
+    {
+      title: "Programming & Product Build",
+      description: "Frontend and backend implementation across React, Astro, TypeScript, PHP, MySQL, Tailwind, and production UI systems.",
+      icon: "\u2736",
     },
   ],
   finalCta: {

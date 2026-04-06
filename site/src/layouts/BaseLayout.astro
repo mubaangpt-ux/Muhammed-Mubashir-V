@@ -909,15 +909,39 @@ const navItems = [
           </div>
         </div>
 
-        <div class="mt-6 pt-5 border-t border-white/6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p class="text-xs text-slate-600 flex items-center gap-1.5">
-            <Copyright size={12} strokeWidth={1.8} className="inline-block shrink-0" />
-            <span>{new Date().getFullYear()} {profile.name} · All rights reserved.</span>
-          </p>
-          <p class="text-xs text-slate-700 font-mono flex items-center gap-1.5">
-            <MapPin size={12} strokeWidth={1.8} className="inline-block shrink-0" />
-            <span>Dubai, UAE · Available for new mandates</span>
-          </p>
+        <div class="mt-6 pt-5 border-t border-white/6 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-3">
+            <p class="text-xs text-slate-600 flex items-center gap-1.5">
+              <Copyright size={12} strokeWidth={1.8} className="inline-block shrink-0" />
+              <span>{new Date().getFullYear()} {profile.name} &middot; All rights reserved.</span>
+            </p>
+            <p class="text-xs text-slate-700 font-mono flex items-center gap-1.5">
+              <MapPin size={12} strokeWidth={1.8} className="inline-block shrink-0" />
+              <span>Dubai, UAE &middot; Available for new mandates</span>
+            </p>
+          </div>
+
+          <!-- Social Logos Horizontal -->
+          <div class="flex items-center gap-4">
+            {profile.footerSocials.map((social) => (
+              <a
+                href={social.href}
+                target="_blank"
+                rel={social.rel || "noreferrer"}
+                aria-label={social.label}
+                class="group relative w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg hover:shadow-accent-soft/10"
+                style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);"
+              >
+                <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                     style="background: radial-gradient(circle at center, rgba(37,99,235,0.15) 0%, transparent 70%);"></div>
+                <img 
+                  src={social.iconPath} 
+                  alt="" 
+                  class="w-5 h-5 object-contain filter grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
+                />
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

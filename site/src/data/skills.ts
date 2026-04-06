@@ -5,45 +5,36 @@ export type SkillGroup = {
 
 export const skillGroups: SkillGroup[] = [
   {
-    title: "Growth & Brand Strategy",
-    items: ["Growth planning", "Offer positioning", "Campaign architecture", "Multi-brand execution"],
+    title: "Technical Stack & Engineering",
+    items: ["TypeScript", "JavaScript (ES6+)", "React & Next.js", "Astro & Static Site Gen", "Node.js", "PHP & Laravel", "MySQL & PostgreSQL", "Rest API Design"],
   },
   {
-    title: "Paid Ads",
-    items: ["Meta Ads Manager", "Google Ads", "TikTok Ads Manager", "Creative testing frameworks"],
+    title: "AI & Automation",
+    items: ["OpenAI & Claude API", "n8n.io", "Make.com", "Zapier", "Prompt Engineering", "Custom GPTs", "LangChain Basics"],
   },
   {
-    title: "Tracking & Analytics",
-    items: ["Pixel and event mapping", "Tag setup", "UTM governance", "Dashboard reporting"],
+    title: "Cloud & Dev Tools",
+    items: ["Git & GitHub", "Docker", "Vercel / Netlify", "Linode / DigitalOcean", "Linux Server Admin", "VS Code Mastery"],
   },
   {
-    title: "Web",
-    items: ["WordPress", "Elementor", "Landing pages", "Conversion-focused UX"],
-  },
-  {
-    title: "Web App / Plugin",
-    items: ["Plugin workflows", "MySQL basics", "Custom table logic", "Operational tooling"],
-  },
-  {
-    title: "Content & Design",
-    items: ["Canva", "Premiere Pro", "Creative templates", "Brand kit systems"],
-  },
-  {
-    title: "CRM/Automation + Email",
-    items: ["Lead routing", "Automation logic", "Follow-up systems", "Email campaign operations"],
-  },
-  {
-    title: "Copywriting",
-    items: ["Ad copy", "Landing copy", "Captions", "Performance CTAs"],
+    title: "Design & Creative",
+    items: ["Canva", "Premiere Pro", "Figma", "UI/UX Prototyping"],
   },
 ];
 
 export const toolsStack: string[] = [
+  "TypeScript",
+  "React",
+  "Astro",
+  "Node.js",
+  "Next.js",
+  "Vercel",
+  "n8n",
   "Meta Ads Manager",
   "Google Analytics",
   "Google Search Console",
   "WordPress",
-  "Elementor",
+  "MySQL",
   "Canva",
   "Premiere Pro",
   "VS Code",
