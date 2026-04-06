@@ -118,13 +118,8 @@ export const profile: Profile = {
       icon: "\u2b22",
     },
     {
-      title: "Web App & Plugin Dev",
-      description: "Plugin-led WordPress workflows with custom MySQL table logic, admin UX, and tracking hooks built for operational scale.",
-      icon: "\u25c7",
-    },
-    {
-      title: "Programming & Product Build",
-      description: "Frontend and backend implementation across React, Astro, TypeScript, PHP, MySQL, Tailwind, and production UI systems.",
+      title: "Engineering & Systems",
+      description: "Full-stack implementation across React, Astro, and TypeScript with custom WordPress plugin logic, MySQL systems, and production-grade UI.",
       icon: "\u2736",
     },
   ],
