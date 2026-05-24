@@ -408,6 +408,11 @@
     ctx.drawImage(sprite.canvas, x - offset, y - offset, sprite.size, sprite.size);
   }
 
+  function isVisibleInViewport(x, y, radius, extra = 0) {
+    const margin = Math.max(18, radius * 8 + extra);
+    return x >= -margin && x <= W + margin && y >= -margin && y <= H + margin;
+  }
+
   function drawWarpStreak(x0, y0, x1, y1, colorIndex, radius, alpha, warpStrength) {
     const [r, g, b] = C.COLS[colorIndex];
     const dx = x1 - x0;
@@ -681,9 +686,18 @@
       const fillAlpha = a * (mode === 'background' ? 0.7 : 1);
       sa[i] = fillAlpha;
       sr[i] = Math.max(0.32, s * 0.45);
-      if (t01 > 0.05 && phase !== 'done') {
+      const visible = isVisibleInViewport(x, y, sr[i], lowPowerMode ? 8 : 16);
+      const useSimpleDot =
+        lowPowerMode &&
+        (
+          p < 0.22 ||
+          sr[i] < 0.52 ||
+          fillAlpha < 0.24 ||
+          (i & 1) === 1
+        );
+      if (visible && t01 > 0.05 && phase !== 'done' && !useSimpleDot) {
         drawWarpStreak(psx[i], psy[i], x, y, ci[i], sr[i], fillAlpha, t01);
-      } else {
+      } else if (visible) {
         drawStarDot(x, y, ci[i], sr[i], fillAlpha);
       }
       psx[i] = x; psy[i] = y; sx[i] = x; sy[i] = y;
@@ -747,7 +761,9 @@
         const velocity = Math.abs(vx[i]) + Math.abs(vy[i]);
         if (displacement + velocity > maxMotion) maxMotion = displacement + velocity;
         const shimmer = sa[i] * (0.9 + Math.sin(ts * 0.0016 + tw[i]) * 0.1);
-        drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
+        if (isVisibleInViewport(sx[i], sy[i], sr[i], lowPowerMode ? 6 : 12)) {
+          drawStarDot(sx[i], sy[i], ci[i], sr[i], shimmer);
+        }
     }
     if (rippleActive || hoverActive || maxMotion > 0.18) {
       rafId = requestAnimationFrame(bgLoop);
