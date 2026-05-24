@@ -1311,24 +1311,36 @@ const navItems = [
         if (state.started) return;
         state.started = true;
 
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const saveData = Boolean(connection && connection.saveData);
+        const effectiveType = connection && connection.effectiveType ? connection.effectiveType : "";
+        const slowConnection = ["slow-2g", "2g", "3g"].includes(effectiveType);
         const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const lowMemory = (navigator.deviceMemory || 8) <= 4;
         const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
         const path = window.location.pathname;
         const isWork = path === '/work' || path === '/work/';
+        const lowPower = isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount || saveData || slowConnection;
+        const frameBudget = isWork
+          ? lowPower
+            ? Math.min(20, WORK_HERO_FRAME_COUNT)
+            : Math.min(40, WORK_HERO_FRAME_COUNT)
+          : lowPower
+            ? Math.min(18, WORK_HERO_FRAME_COUNT)
+            : Math.min(36, WORK_HERO_FRAME_COUNT);
         const warmupOrder = buildBalancedFrameOrder(
           buildDistributedFrameSet(
-            isWork
-              ? WORK_HERO_FRAME_COUNT
-              : isCoarsePointer || prefersReducedMotion || lowMemory || lowCoreCount
-                ? Math.min(28, WORK_HERO_FRAME_COUNT)
-                : Math.min(48, WORK_HERO_FRAME_COUNT),
+            frameBudget,
             WORK_HERO_FRAME_COUNT,
           ),
         );
         state.total = warmupOrder.length;
-        const concurrency = isCoarsePointer ? WORK_HERO_PREWARM_MOBILE_CONCURRENCY : WORK_HERO_PREWARM_CONCURRENCY;
+        const concurrency = saveData || slowConnection
+          ? 2
+          : lowPower
+            ? Math.max(2, WORK_HERO_PREWARM_MOBILE_CONCURRENCY - 1)
+            : WORK_HERO_PREWARM_CONCURRENCY;
         let active = 0;
         let cursor = 0;
 

@@ -29,6 +29,44 @@ const DESKTOP_ANCHOR_COUNT = 48;
 const MOBILE_ANCHOR_COUNT = 28;
 const DESKTOP_FALLBACK_RADIUS = 64;
 const MOBILE_FALLBACK_RADIUS = 32;
+const LOW_POWER_DPR_MOBILE = 1.15;
+const LOW_POWER_DPR_DESKTOP = 1.35;
+
+const detectLowPowerMode = (reduceMotion: boolean) => {
+  const coarsePointer =
+    window.matchMedia("(pointer: coarse)").matches ||
+    window.matchMedia("(hover: none)").matches;
+  const lowMemory = (navigator.deviceMemory || 8) <= 4;
+  const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
+  const connection =
+    (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+      mozConnection?: { saveData?: boolean; effectiveType?: string };
+      webkitConnection?: { saveData?: boolean; effectiveType?: string };
+    }).connection ||
+    (navigator as Navigator & {
+      mozConnection?: { saveData?: boolean; effectiveType?: string };
+    }).mozConnection ||
+    (navigator as Navigator & {
+      webkitConnection?: { saveData?: boolean; effectiveType?: string };
+    }).webkitConnection;
+  const saveData = Boolean(connection?.saveData);
+  const effectiveType = connection?.effectiveType || "";
+  const slowConnection = ["slow-2g", "2g", "3g"].includes(effectiveType);
+
+  return {
+    coarsePointer,
+    saveData,
+    slowConnection,
+    lowPower:
+      coarsePointer ||
+      lowMemory ||
+      lowCoreCount ||
+      saveData ||
+      slowConnection ||
+      Boolean(reduceMotion),
+  };
+};
 
 const buildDistributedFrameSet = (count: number, total: number) => {
   if (count >= total) {
@@ -126,8 +164,11 @@ export default function WorkSequenceHero() {
   const queuedFramesRef = useRef<Set<number>>(new Set());
   const loadingFramesRef = useRef<Set<number>>(new Set());
   const lastRequestedFrameRef = useRef(0);
+  const progressPercentRef = useRef(0);
   const [canvasReady, setCanvasReady] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [sequenceProgress, setSequenceProgress] = useState(0);
+  const [loadedFrameCount, setLoadedFrameCount] = useState(0);
   const reduceMotion = useReducedMotion();
   const sequenceMask =
     "linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 68%, rgba(0,0,0,0.95) 76%, rgba(0,0,0,0.76) 84%, rgba(0,0,0,0.36) 93%, rgba(0,0,0,0) 100%)";
@@ -151,6 +192,13 @@ export default function WorkSequenceHero() {
     if (destroyedRef.current || framesRef.current[frameIndex]) return;
     framesRef.current[frameIndex] = image;
     loadedCountRef.current += 1;
+    if (
+      loadedCountRef.current <= 12 ||
+      loadedCountRef.current === WORK_HERO_FRAME_COUNT ||
+      loadedCountRef.current % 6 === 0
+    ) {
+      setLoadedFrameCount(loadedCountRef.current);
+    }
     const isCurrentFocus = Math.abs(frameIndex - targetFrameRef.current) <= (lowPowerRef.current ? 2 : 3);
     scheduleDraw(targetFrameRef.current, frameIndex === 0 || isCurrentFocus);
   };
@@ -242,7 +290,7 @@ export default function WorkSequenceHero() {
       ? (height - drawHeight) * 0.6
       : Math.max(0, height - drawHeight + height * 0.012);
 
-    if (!useMobileFit) {
+    if (!lowPowerRef.current && !useMobileFit) {
       const sideBleedWidth = Math.max(48, offsetX + drawWidth * 0.065);
 
       ctx.save();
@@ -273,80 +321,86 @@ export default function WorkSequenceHero() {
       ctx.restore();
     }
 
-    let blendCanvas = blendCanvasRef.current;
-    if (!blendCanvas) {
-      blendCanvas = document.createElement("canvas");
-      blendCanvasRef.current = blendCanvas;
-    }
-
-    if (blendCanvas.width !== canvas.width || blendCanvas.height !== canvas.height) {
-      blendCanvas.width = canvas.width;
-      blendCanvas.height = canvas.height;
-    }
-
-    const blendCtx = blendCanvas.getContext("2d");
-    if (blendCtx) {
-      blendCtx.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0);
-      blendCtx.clearRect(0, 0, width, height);
-      blendCtx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
-      blendCtx.globalCompositeOperation = "destination-in";
-
-      const horizontalMask = blendCtx.createLinearGradient(offsetX, 0, offsetX + drawWidth, 0);
-      if (useMobileFit) {
-        horizontalMask.addColorStop(0, "rgba(255,255,255,0.08)");
-        horizontalMask.addColorStop(0.08, "rgba(255,255,255,0.98)");
-        horizontalMask.addColorStop(0.92, "rgba(255,255,255,0.98)");
-        horizontalMask.addColorStop(1, "rgba(255,255,255,0.08)");
-      } else {
-        horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
-        horizontalMask.addColorStop(0.1, "rgba(255,255,255,0.94)");
-        horizontalMask.addColorStop(0.9, "rgba(255,255,255,0.94)");
-        horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
+    if (!lowPowerRef.current) {
+      let blendCanvas = blendCanvasRef.current;
+      if (!blendCanvas) {
+        blendCanvas = document.createElement("canvas");
+        blendCanvasRef.current = blendCanvas;
       }
-      blendCtx.fillStyle = horizontalMask;
-      blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
 
-      const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
-      verticalMask.addColorStop(0, "rgba(255,255,255,1)");
-      verticalMask.addColorStop(useMobileFit ? 0.86 : 0.8, "rgba(255,255,255,0.98)");
-      verticalMask.addColorStop(useMobileFit ? 0.94 : 0.92, "rgba(255,255,255,0.72)");
-      verticalMask.addColorStop(useMobileFit ? 0.992 : 0.985, "rgba(255,255,255,0.16)");
-      verticalMask.addColorStop(1, "rgba(255,255,255,0)");
-      blendCtx.fillStyle = verticalMask;
-      blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+      if (blendCanvas.width !== canvas.width || blendCanvas.height !== canvas.height) {
+        blendCanvas.width = canvas.width;
+        blendCanvas.height = canvas.height;
+      }
 
-      blendCtx.globalCompositeOperation = "source-over";
-      ctx.drawImage(blendCanvas, 0, 0, width, height);
+      const blendCtx = blendCanvas.getContext("2d");
+      if (blendCtx) {
+        blendCtx.setTransform(dprRef.current, 0, 0, dprRef.current, 0, 0);
+        blendCtx.clearRect(0, 0, width, height);
+        blendCtx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+        blendCtx.globalCompositeOperation = "destination-in";
+
+        const horizontalMask = blendCtx.createLinearGradient(offsetX, 0, offsetX + drawWidth, 0);
+        if (useMobileFit) {
+          horizontalMask.addColorStop(0, "rgba(255,255,255,0.08)");
+          horizontalMask.addColorStop(0.08, "rgba(255,255,255,0.98)");
+          horizontalMask.addColorStop(0.92, "rgba(255,255,255,0.98)");
+          horizontalMask.addColorStop(1, "rgba(255,255,255,0.08)");
+        } else {
+          horizontalMask.addColorStop(0, "rgba(255,255,255,0)");
+          horizontalMask.addColorStop(0.1, "rgba(255,255,255,0.94)");
+          horizontalMask.addColorStop(0.9, "rgba(255,255,255,0.94)");
+          horizontalMask.addColorStop(1, "rgba(255,255,255,0)");
+        }
+        blendCtx.fillStyle = horizontalMask;
+        blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+
+        const verticalMask = blendCtx.createLinearGradient(0, offsetY, 0, offsetY + drawHeight);
+        verticalMask.addColorStop(0, "rgba(255,255,255,1)");
+        verticalMask.addColorStop(useMobileFit ? 0.86 : 0.8, "rgba(255,255,255,0.98)");
+        verticalMask.addColorStop(useMobileFit ? 0.94 : 0.92, "rgba(255,255,255,0.72)");
+        verticalMask.addColorStop(useMobileFit ? 0.992 : 0.985, "rgba(255,255,255,0.16)");
+        verticalMask.addColorStop(1, "rgba(255,255,255,0)");
+        blendCtx.fillStyle = verticalMask;
+        blendCtx.fillRect(offsetX, offsetY, drawWidth, drawHeight);
+
+        blendCtx.globalCompositeOperation = "source-over";
+        ctx.drawImage(blendCanvas, 0, 0, width, height);
+      } else {
+        ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+      }
     } else {
       ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
     }
 
-    const topFade = ctx.createLinearGradient(0, 0, 0, height * 0.18);
-    topFade.addColorStop(0, `${background}90`);
-    topFade.addColorStop(1, `${background}00`);
-    ctx.fillStyle = topFade;
-    ctx.fillRect(0, 0, width, height * 0.18);
+    if (!lowPowerRef.current) {
+      const topFade = ctx.createLinearGradient(0, 0, 0, height * 0.18);
+      topFade.addColorStop(0, `${background}90`);
+      topFade.addColorStop(1, `${background}00`);
+      ctx.fillStyle = topFade;
+      ctx.fillRect(0, 0, width, height * 0.18);
 
-    const leftFade = ctx.createLinearGradient(0, 0, width * 0.14, 0);
-    leftFade.addColorStop(0, `${background}e6`);
-    leftFade.addColorStop(0.34, `${backgroundSoft}40`);
-    leftFade.addColorStop(1, `${background}00`);
-    ctx.fillStyle = leftFade;
-    ctx.fillRect(0, 0, width * 0.14, height);
+      const leftFade = ctx.createLinearGradient(0, 0, width * 0.14, 0);
+      leftFade.addColorStop(0, `${background}e6`);
+      leftFade.addColorStop(0.34, `${backgroundSoft}40`);
+      leftFade.addColorStop(1, `${background}00`);
+      ctx.fillStyle = leftFade;
+      ctx.fillRect(0, 0, width * 0.14, height);
 
-    const rightFade = ctx.createLinearGradient(width, 0, width - width * 0.14, 0);
-    rightFade.addColorStop(0, `${background}e6`);
-    rightFade.addColorStop(0.34, `${backgroundSoft}40`);
-    rightFade.addColorStop(1, `${background}00`);
-    ctx.fillStyle = rightFade;
-    ctx.fillRect(width - width * 0.14, 0, width * 0.14, height);
+      const rightFade = ctx.createLinearGradient(width, 0, width - width * 0.14, 0);
+      rightFade.addColorStop(0, `${background}e6`);
+      rightFade.addColorStop(0.34, `${backgroundSoft}40`);
+      rightFade.addColorStop(1, `${background}00`);
+      ctx.fillStyle = rightFade;
+      ctx.fillRect(width - width * 0.14, 0, width * 0.14, height);
 
-    const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
-    skyHalo.addColorStop(0, `${accentSoft}20`);
-    skyHalo.addColorStop(0.45, `${accent}10`);
-    skyHalo.addColorStop(1, `${background}00`);
-    ctx.fillStyle = skyHalo;
-    ctx.fillRect(0, 0, width, height * 0.56);
+      const skyHalo = ctx.createRadialGradient(width * 0.5, height * 0.18, 0, width * 0.5, height * 0.16, width * 0.52);
+      skyHalo.addColorStop(0, `${accentSoft}20`);
+      skyHalo.addColorStop(0.45, `${accent}10`);
+      skyHalo.addColorStop(1, `${background}00`);
+      ctx.fillStyle = skyHalo;
+      ctx.fillRect(0, 0, width, height * 0.56);
+    }
     ctx.restore();
 
     lastDrawnFrameRef.current = fallbackIndex;
@@ -514,7 +568,9 @@ export default function WorkSequenceHero() {
 
     const setCanvasSize = () => {
       const rect = stage.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const { lowPower } = detectLowPowerMode(Boolean(reduceMotion));
+      const dprCap = lowPower ? (isMobileViewport ? LOW_POWER_DPR_MOBILE : LOW_POWER_DPR_DESKTOP) : 2;
+      const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
       dprRef.current = dpr;
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
@@ -525,7 +581,7 @@ export default function WorkSequenceHero() {
       });
       if (!ctxRef.current) return;
       ctxRef.current.imageSmoothingEnabled = true;
-      ctxRef.current.imageSmoothingQuality = "high";
+      ctxRef.current.imageSmoothingQuality = lowPower ? "medium" : "high";
       drawFrame(targetFrameRef.current, true);
     };
 
@@ -542,16 +598,16 @@ export default function WorkSequenceHero() {
 
   useEffect(() => {
     destroyedRef.current = false;
-    const coarsePointer =
-      window.matchMedia("(pointer: coarse)").matches ||
-      window.matchMedia("(hover: none)").matches;
-    const lowMemory = (navigator.deviceMemory || 8) <= 4;
-    const lowCoreCount = (navigator.hardwareConcurrency || 8) <= 4;
-    lowPowerRef.current = coarsePointer || lowMemory || lowCoreCount || Boolean(reduceMotion);
-    concurrencyRef.current = lowPowerRef.current ? 6 : 12;
+    const { lowPower, saveData, slowConnection } = detectLowPowerMode(Boolean(reduceMotion));
+    lowPowerRef.current = lowPower;
+    concurrencyRef.current = saveData || slowConnection ? 3 : lowPower ? 4 : 8;
     activeLoadsRef.current = 0;
     urgentLoadsRef.current = 0;
     currentFrameFloatRef.current = 0;
+    loadedCountRef.current = 0;
+    setLoadedFrameCount(0);
+    progressPercentRef.current = 0;
+    setSequenceProgress(0);
     priorityQueueRef.current = [];
     backgroundQueueRef.current = [];
     queuedFramesRef.current.clear();
@@ -563,7 +619,7 @@ export default function WorkSequenceHero() {
 
       const targetFrame = targetFrameRef.current;
       const currentFrame = currentFrameFloatRef.current;
-      const smoothing = reduceMotion ? 1 : lowPowerRef.current ? 0.34 : 0.22;
+      const smoothing = reduceMotion ? 1 : lowPowerRef.current ? 0.42 : 0.22;
       const nextFrame =
         smoothing >= 1 ? targetFrame : currentFrame + (targetFrame - currentFrame) * smoothing;
 
@@ -604,6 +660,11 @@ export default function WorkSequenceHero() {
       const totalScrollable = Math.max(section.offsetHeight - window.innerHeight, 1);
       const scrolled = clamp(-rect.top, 0, totalScrollable);
       const progress = totalScrollable <= 1 ? 0 : scrolled / totalScrollable;
+      const nextProgressPercent = clamp(Math.round(progress * 100), 0, 100);
+      if (progressPercentRef.current !== nextProgressPercent) {
+        progressPercentRef.current = nextProgressPercent;
+        setSequenceProgress(nextProgressPercent);
+      }
       const frameStep = lowPowerRef.current ? 2 : 1;
       const rawFrame = clamp(
         Math.round(progress * (WORK_HERO_FRAME_COUNT - 1)),
@@ -738,13 +799,39 @@ export default function WorkSequenceHero() {
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] bg-[radial-gradient(ellipse_at_top,rgba(147,197,253,0.10),rgba(7,9,15,0)_70%)]" />
 
-        {!canvasReady && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-8 z-20 flex justify-center px-4">
-            <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.28em] text-slate-300 backdrop-blur-xl">
-              Preparing skyline sequence
+        <div
+          className={`pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4 transition-all duration-500 ${
+            canvasReady && sequenceProgress > 16 ? "translate-y-4 opacity-0" : "translate-y-0 opacity-100"
+          }`}
+          aria-hidden="true"
+        >
+          <div className="w-full max-w-[360px] rounded-[24px] border border-white/10 bg-black/35 px-4 py-3 text-slate-200 shadow-[0_20px_80px_rgba(5,9,20,0.38)] backdrop-blur-xl">
+            <div className="flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.28em] text-slate-300">
+              <span>{canvasReady ? "Scroll To Reveal Skyline" : "Loading Skyline Sequence"}</span>
+              <span>
+                {canvasReady
+                  ? `${Math.max(sequenceProgress, 1)}%`
+                  : `${Math.max(6, Math.round((loadedFrameCount / WORK_HERO_FRAME_COUNT) * 100))}%`}
+              </span>
+            </div>
+            <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,rgba(59,130,246,0.96),rgba(147,197,253,0.92))] transition-[width] duration-300"
+                style={{
+                  width: `${
+                    canvasReady
+                      ? Math.max(sequenceProgress, 4)
+                      : Math.max(6, Math.round((loadedFrameCount / WORK_HERO_FRAME_COUNT) * 100))
+                  }%`,
+                }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+              <span>{canvasReady ? "Pinned Intro" : `${loadedFrameCount}/${WORK_HERO_FRAME_COUNT} Frames`}</span>
+              <span>{canvasReady ? "Scroll Down" : "Caching For Smooth Scrub"}</span>
             </div>
           </div>
-        )}
+        </div>
 
         <p id="work-sequence-caption" className="sr-only">
           {WORK_HERO_IMAGE_CAPTION}
