@@ -99,6 +99,9 @@
   let starCount = C.N;
   let staticBackgroundMode = false;
   let lowPowerMode = false;
+  let batterySaverMode = false;
+  let constrainedDeviceMode = false;
+  let touchDeviceMode = false;
   let backgroundFrameInterval = 1000 / 45;
   let lastBgFrame = 0;
   let homeMediaWarmStarted = false;
@@ -127,14 +130,33 @@
   function detectPerformanceProfile() {
     const coarsePointer = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const saveData = Boolean(connection && connection.saveData);
+    const effectiveType = connection && connection.effectiveType ? connection.effectiveType : '';
+    const slowConnection = ['slow-2g', '2g', '3g'].includes(effectiveType);
     const memory = navigator.deviceMemory || 8;
     const cores = navigator.hardwareConcurrency || 8;
-    const narrowViewport = Math.min(window.innerWidth, window.innerHeight) < 768;
 
-    lowPowerMode = reducedMotion || memory <= 4 || cores <= 4 || narrowViewport;
+    batterySaverMode = saveData || slowConnection;
+    constrainedDeviceMode = memory <= 4 || cores <= 4;
+    touchDeviceMode = coarsePointer;
+    lowPowerMode = reducedMotion || batterySaverMode || constrainedDeviceMode;
     staticBackgroundMode = reducedMotion || coarsePointer;
-    starCount = staticBackgroundMode ? 700 : lowPowerMode ? 1200 : C.N;
-    backgroundFrameInterval = staticBackgroundMode ? 1000 / 18 : lowPowerMode ? 1000 / 30 : 1000 / 45;
+
+    if (reducedMotion) {
+      starCount = 760;
+      backgroundFrameInterval = 1000 / 18;
+      return;
+    }
+
+    if (lowPowerMode) {
+      starCount = touchDeviceMode ? 1180 : 1320;
+      backgroundFrameInterval = touchDeviceMode ? 1000 / 24 : 1000 / 28;
+      return;
+    }
+
+    starCount = touchDeviceMode ? 1760 : C.N;
+    backgroundFrameInterval = touchDeviceMode ? 1000 / 36 : 1000 / 45;
   }
 
   function createSeededRandom(seed) {
@@ -351,7 +373,7 @@
 
     if (starSpriteCache.has(key)) return starSpriteCache.get(key);
 
-    const glowRadius = Math.max(2.3, bucketRadius * 3.05);
+    const glowRadius = Math.max(2.05, bucketRadius * (lowPowerMode ? 2.55 : 3.05));
     const logicalSize = Math.max(8, Math.ceil(glowRadius * 2 + 4));
     const sprite = document.createElement('canvas');
     sprite.width = Math.ceil(logicalSize * DPR);
@@ -399,6 +421,25 @@
 
     const nx = dx / len;
     const ny = dy / len;
+    if (lowPowerMode) {
+      const tail = Math.min(len, lerp(5, 26, warpStrength) + radius * 4.2);
+      const sx = x1 - nx * tail;
+      const sy = y1 - ny * tail;
+
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.24})`;
+      ctx.lineWidth = Math.max(0.55, radius * 1.2);
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+      ctx.restore();
+
+      drawStarDot(x1, y1, colorIndex, Math.max(radius, 0.36 + warpStrength * 0.28), Math.min(1, alpha));
+      return;
+    }
+
     const tail = Math.min(len, lerp(6, 46, warpStrength) + radius * 5.8);
     const sx0 = x1 - nx * tail;
     const sy0 = y1 - ny * tail;
@@ -555,7 +596,14 @@
 
   function resize() {
     detectPerformanceProfile();
-    DPR = Math.min(window.devicePixelRatio || 1, staticBackgroundMode ? 1.35 : lowPowerMode ? 1.6 : 2);
+    DPR = Math.min(
+      window.devicePixelRatio || 1,
+      staticBackgroundMode
+        ? (lowPowerMode ? 1.28 : 1.5)
+        : lowPowerMode
+          ? (touchDeviceMode ? 1.45 : 1.7)
+          : (touchDeviceMode ? 1.8 : 2),
+    );
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
@@ -564,6 +612,7 @@
     cx = W * 0.5; cy = H * 0.5;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = lowPowerMode ? 'medium' : 'high';
     starSpriteCache.clear();
     prepareCachedBackdrop();
     if (!initialized) {
