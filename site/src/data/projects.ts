@@ -14,6 +14,7 @@ export type Project = {
   languages?: string[];
   techniques?: string[];
   image?: string;
+  liveUrl?: string;
 };
 
 export const projects: Project[] = [
@@ -212,5 +213,50 @@ export const projects: Project[] = [
       "SEMrush / Ahrefs",
       "CRM & Meta Ads Manager",
     ],
+  },
+  {
+    slug: "aat-limousine-chauffeur-website",
+    title: "AAT Limousine — Luxury Chauffeur Website",
+    category: "Web Development / Content Architecture",
+    client: "AAT Limousine (Al Ameen Group)",
+    period: "2026",
+    featured: false,
+    overview:
+      "Built a full Next.js marketing site for a Dubai/Abu Dhabi luxury chauffeur operator, driven by a strict content-truth architecture that makes it structurally impossible for the site to render a fact, stat, or credential the client hasn't actually confirmed.",
+    problem:
+      "The brief came with a real spec but many still-open facts — fleet counts, a bookings inbox, the production domain, credential validity dates. A typical build would either stall waiting on every answer or quietly fill gaps with plausible-sounding placeholders. Neither was acceptable for a site whose credibility depends on real ISO/licensing claims.",
+    approach:
+      "Designed a single source-of-truth data file feeding typed content modules with build-time publication selectors — any unresolved fact, withheld record, or unconfirmed vehicle throws at build/import time rather than silently rendering. Layered a cinematic motion system (reduced-motion aware throughout), full SEO/schema infrastructure with domain-agnostic canonical URLs, and a from-scratch verification toolchain: link/schema/truth crawlers, a Lighthouse CI budget, and a deploy-readiness tool that copies the whole project into a fresh, credential-scrubbed sandbox and re-runs the entire quality gate (install through Lighthouse) end-to-end to prove it builds clean, not just on one warm machine.",
+    deliverables: [
+      "Truth-gate content pipeline: docs/DATA.md → typed content modules → publication selectors that throw on any unresolved or unconfirmed fact",
+      "Full page set: home, fleet, services, about, contact, FAQ, legal — plus a keyless quote flow with no fabricated confirmation states",
+      "Cinematic scroll/motion system built around measured reduced-motion and accessibility invariants",
+      "SEO infrastructure: sitemap, robots, JSON-LD (Organization/Service/FAQPage/BreadcrumbList), dynamic OG images, domain-agnostic canonical handling",
+      "A from-scratch verification suite (scripts/verify/*) — link crawling, structured-data validation, truth-marker scanning, Lighthouse budgets — plus a deploy-readiness tool that proves the whole build passes in complete isolation",
+    ],
+    results: [
+      "18-task build with zero fabricated stats, reviews, or client logos — every published claim traces to a confirmed source",
+      "Every real gate (unit tests, e2e, accessibility, Lighthouse, isolated clean-room build) passing end-to-end, independently verified",
+      "A fully documented, itemized launch checklist for the one thing an agent can never supply: the client's own unconfirmed business facts",
+    ],
+    tools: [
+      "Next.js 16 (App Router)",
+      "React 19",
+      "TypeScript (strict)",
+      "Tailwind CSS v4",
+      "Framer Motion",
+      "Vitest",
+      "Playwright",
+      "Lighthouse CI",
+    ],
+    languages: ["TypeScript", "TSX", "CSS"],
+    techniques: [
+      "Build-time truth-gate enforcement over a single source-of-truth data file",
+      "Publication-selector content boundary (deep-frozen, unresolved-text-asserting)",
+      "Reduced-motion-aware scroll/motion system",
+      "Domain-agnostic SEO/schema architecture",
+      "Isolated, credential-scrubbed clean-room deploy verification",
+    ],
+    liveUrl: "https://aat-limousine-web.vercel.app",
   },
 ];

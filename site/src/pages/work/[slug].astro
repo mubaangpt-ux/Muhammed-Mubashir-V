@@ -160,6 +160,17 @@ const caseStudyJsonLd = [
       style="border-color: rgba(255,255,255,0.07);"
       data-delay="0.1"
     >
+      {project.liveUrl && (
+        <a
+          href={project.liveUrl}
+          target="_blank"
+          rel="noreferrer nofollow"
+          class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white"
+          style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 24px rgba(5,150,105,0.4);"
+        >
+          ↗ Visit live site
+        </a>
+      )}
       <a
         href={profile.links.whatsapp}
         target="_blank"
